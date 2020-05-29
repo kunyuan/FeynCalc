@@ -50,3 +50,5 @@ callgrind*
 *.pyc
 in00
 inlist
+*.data
+data/

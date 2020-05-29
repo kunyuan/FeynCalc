@@ -29,7 +29,7 @@ double bose::Interaction(double Tau, const momentum &Mom, int VerType) {
       interaction *=
           pow(Para.Lambda / (Mom.squaredNorm() + Para.Mass2 + Para.Lambda),
               VerType);
-      interaction *= pow(-1, VerType);
+      // interaction *= pow(-1, VerType);
     }
     return interaction;
   } else if (VerType == -1) {
@@ -121,10 +121,10 @@ double fermi::FockSigma(const momentum &Mom) {
   //     fmt::format("Fock are not accurate enough! At k={0}: {1} vs {2}\n",
   //     k,
   //                 fock, Fock(k)));
-  return fock + k * k;
+  return fock;
 }
 
-double fermi::PhyGreen(double Tau, const momentum &Mom) {
+double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   // if tau is exactly zero, set tau=0^-
   double green, Ek;
   if (Tau == 0.0) {
@@ -140,12 +140,9 @@ double fermi::PhyGreen(double Tau, const momentum &Mom) {
     s = -s;
   }
 
-  if (Para.SelfEnergyType == BARE)
-    Ek = Mom.squaredNorm(); // bare propagator
-  else if (Para.SelfEnergyType == FOCK)
-    Ek = FockSigma(Mom); // Fock diagram dressed propagator
-  else
-    ABORT("Green function is not implemented!");
+  Ek = Mom.squaredNorm(); // bare propagator
+  if (IsFock)
+    Ek += FockSigma(Mom); // Fock diagram dressed propagator
 
   //// enforce an UV cutoff for the Green's function ////////
   // if(Ek>8.0*EF) then
@@ -187,13 +184,16 @@ double fermi::PhyGreen(double Tau, const momentum &Mom) {
 
 double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
   double green;
+  bool IsFock = false;
+  if (Para.SelfEnergyType == FOCK)
+    IsFock = true;
   if (GType == 0) {
-    green = PhyGreen(Tau, Mom);
+    green = PhyGreen(Tau, Mom, IsFock);
   } else if (GType == 1) {
     // equal time green's function
-    green = PhyGreen(-1.0e-10, Mom);
+    // green = PhyGreen(-1.0e-10, Mom);
   } else if (GType == -1) {
-    green = PhyGreen(Tau, Mom);
+    green = PhyGreen(Tau, Mom, false);
     // green = 1.0;
   } else {
     ABORT("GType " << GType << " has not yet been implemented!");

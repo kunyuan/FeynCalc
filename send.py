@@ -35,6 +35,7 @@ for index, eachline in enumerate(inlist):
 
     os.system("cp -r groups "+homedir)
     os.system("cp {0} {1}".format(execute, homedir))
+    os.system("cp reweight.data "+homedir)
 
     infilepath = homedir+"/infile"
     if(os.path.exists(infilepath) != True):

@@ -9,6 +9,7 @@
 #include "global.h"
 #include "markov.h"
 #include "utility/abort.h"
+#include "utility/fmt/format.h"
 #include "utility/logger.h"
 #include "utility/timer.h"
 #include "weight.h"
@@ -69,11 +70,26 @@ void InitPara() {
   // Para.GroupName = {"1", "2", "3"};
 
   // Para.GroupName = {"1", "2"};
-  for (int g = 0; g < Para.GroupName.size(); g++)
-    Para.ReWeight.push_back(1.0);
-  // Para.ReWeight = {1.0, 5.0, 5.0, 2.0, 1.0, 1.0, 1.0, 1.0};
-  // Para.SelfEnergyType = FOCK;
-  Para.SelfEnergyType = BARE;
+
+  Para.ReWeight.clear();
+  ifstream File;
+  File.open("reweight.data");
+  if (File.is_open()) {
+    for (int g = 0; g < Para.GroupName.size(); g++) {
+      double weight;
+      File >> weight;
+      Para.ReWeight.push_back(weight);
+    }
+  } else {
+    for (int g = 0; g < Para.GroupName.size(); g++)
+      Para.ReWeight.push_back(1.0);
+  }
+  // Para.ReWeight.clear();
+  // for (int g = 0; g < Para.GroupName.size(); g++)
+  //   Para.ReWeight.push_back(1.0);
+
+  Para.SelfEnergyType = FOCK;
+  // Para.SelfEnergyType = BARE;
 
   //// initialize the global parameter //////////////////////
   double Kf;

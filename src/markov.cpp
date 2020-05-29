@@ -115,12 +115,16 @@ void markov::SaveToFile() {
   PolarFile.open(FileName, ios::out | ios::trunc);
   if (PolarFile.is_open()) {
     PolarFile << "# Group: ";
-
     for (auto &group : Groups)
       PolarFile << group.Name << ", ";
     PolarFile << endl;
-    PolarFile << "# KGrid: ";
 
+    PolarFile << "# ReWeight: ";
+    for (auto &group : Groups)
+      PolarFile << group.ReWeight << ", ";
+    PolarFile << endl;
+
+    PolarFile << "# KGrid: ";
     for (int j = 0; j < Polar[Groups[0].ID].size(); j++)
       PolarFile << Var.ExtMomTable[j][0] << " ";
     PolarFile << endl;
@@ -432,7 +436,7 @@ std::string markov::_DetailBalanceStr(Updates op) {
   string Output = string(80, '-') + "\n";
   Output += UpdatesName[op] + ":\n";
   double TotalProposed = 0.0, TotalAccepted = 0.0;
-  for (int i = 0; i <= Groups.size(); i++) {
+  for (int i = 0; i < Groups.size(); i++) {
     if (!Equal(Proposed[op][i], 0.0)) {
       TotalAccepted += Accepted[op][i];
       TotalProposed += Proposed[op][i];
