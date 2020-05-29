@@ -114,6 +114,7 @@ void markov::SaveToFile() {
   ofstream PolarFile;
   PolarFile.open(FileName, ios::out | ios::trunc);
   if (PolarFile.is_open()) {
+    PolarFile << "# Step: " << Para.Counter << endl;
     PolarFile << "# Group: ";
     for (auto &group : Groups)
       PolarFile << group.Name << ", ";

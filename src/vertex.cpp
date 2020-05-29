@@ -48,13 +48,13 @@ fermi::fermi() {
   UpperBound2 = 1.2 * Para.Ef;
   LowerBound2 = 0.8 * Para.Ef;
   DeltaK2 = UpperBound2 / MAXSIGMABIN;
-  if (Para.SelfEnergyType == FOCK)
-    BuildFockSigma();
+  // if (Para.SelfEnergyType == FOCK)
+  //   BuildFockSigma();
 }
 
 double fermi::Fock(double k) {
   // warning: this function only works for T=0!!!!
-  double l = sqrt(Para.Mass2);
+  double l = sqrt(Para.Mass2 + Para.Lambda);
   double kF = Para.Kf;
   double fock = 1.0 + l / kF * atan((k - kF) / l);
   fock -= l / kF * atan((k + kF) / l);
@@ -105,22 +105,23 @@ double fermi::BuildFockSigma() {
 
 double fermi::FockSigma(const momentum &Mom) {
   double k = Mom.norm(); // bare propagator
-  double fock;
-  if (k >= LowerBound2 && k < UpperBound2) {
-    int i = (k - LowerBound2) / DeltaK2;
-    fock = Sigma2[i];
-  } else if ((k >= LowerBound && k < LowerBound2) ||
-             (k >= UpperBound2 && k < UpperBound)) {
-    int i = (k - LowerBound) / DeltaK;
-    fock = Sigma[i];
-  } else {
-    fock = Fock(k);
-  }
+  // double fock;
+  // if (k >= LowerBound2 && k < UpperBound2) {
+  //   int i = (k - LowerBound2) / DeltaK2;
+  //   fock = Sigma2[i];
+  // } else if ((k >= LowerBound && k < LowerBound2) ||
+  //            (k >= UpperBound2 && k < UpperBound)) {
+  //   int i = (k - LowerBound) / DeltaK;
+  //   fock = Sigma[i];
+  // } else {
+  //   fock = Fock(k);
+  // }
   // ASSERT_ALLWAYS(
   //     Equal(fock, Fock(k), 5.0e-5),
   //     fmt::format("Fock are not accurate enough! At k={0}: {1} vs {2}\n",
   //     k,
   //                 fock, Fock(k)));
+  double fock = Fock(k);
   return fock;
 }
 

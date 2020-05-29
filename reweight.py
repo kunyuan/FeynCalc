@@ -5,23 +5,35 @@ D = 3
 Spin = 2
 Para = param(D, Spin)
 
-Data, Groups, ReWeight,  Grids = LoadFile("data", "pid[0-9]+.dat")
-assert len(Groups) == Data[0].shape[0], "group num doesn't match the data num!"
-KGrid = Grids["KGrid"]
-print ReWeight
+# Data, Step, Groups, ReWeight,  Grids = LoadFile("data", "pid[0-9]+.dat")
+# assert len(Groups) == Data[0].shape[0], "group num doesn't match the data num!"
+# KGrid = Grids["KGrid"]
+# ReWeight = np.array(ReWeight)
+# print ReWeight
+# # print Step
 
-weight = np.zeros(len(Groups))
+# Norm = [sum(data[0, :]) for data in Data]
+# # Norm = [data[0, 0] for data in Data]
 
-for d in Data:
-    weight += np.sum(d[:, :], axis=1)
+# Data = [np.sum(data[:, :], axis=1)/norm for (data, norm) in zip(Data, Norm)]
+# Avg, Err = Estimate(Data, Step)
+# print "Error:", Err
 
-Z = sum(weight)
-ReWeight = [r*Z/w for (r, w) in zip(ReWeight, weight)]
-ReWeight[0] *= 4
-print ReWeight
-with open("reweight.data", "w") as f:
-    for r in ReWeight:
-        f.write("{0} ".format(r))
+# weight = Err
+# Z = sum(weight)
+# ReWeight2 = np.array([r*w/Z for (r, w) in zip(ReWeight, weight)])
+# ReWeight2[0] = ReWeight2[1]*2
+# ReWeight = (ReWeight+ReWeight2)/2.0
+# for (idx, g) in enumerate(Groups):
+#     ReWeight[idx] = 4.0**g[0]
+
+# ReWeight[0] = ReWeight[1]*2.0
+
+# print Groups
+# print ReWeight
+# with open("reweight.data", "w") as f:
+#     for r in ReWeight:
+#         f.write("{0} ".format(r))
 
 # Norm = [sum(data[0, :]) for data in Data]
 # print Phys

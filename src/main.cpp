@@ -50,6 +50,7 @@ void InitPara() {
   // diagram file path: groups/DiagPolar1.dat
   Para.DiagFileFormat = "groups/DiagPolar{}.txt";
   Para.GroupName = {"0"}; // initialized with a normalization diagram
+  Para.ReWeight = {1.0};
   for (int o = 1; o <= Para.Order; o++)
     for (int v = 0; v <= Para.Order - 1; v++) {
       // order 1 do not allow lambda counterterm
@@ -64,26 +65,25 @@ void InitPara() {
         auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
         cout << name << ", ";
         Para.GroupName.push_back(name);
+        Para.ReWeight.push_back(pow(4.0, o));
       }
     }
   cout << endl;
-  // Para.GroupName = {"1", "2", "3"};
+  Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
 
-  // Para.GroupName = {"1", "2"};
-
-  Para.ReWeight.clear();
-  ifstream File;
-  File.open("reweight.data");
-  if (File.is_open()) {
-    for (int g = 0; g < Para.GroupName.size(); g++) {
-      double weight;
-      File >> weight;
-      Para.ReWeight.push_back(weight);
-    }
-  } else {
-    for (int g = 0; g < Para.GroupName.size(); g++)
-      Para.ReWeight.push_back(1.0);
-  }
+  // Para.ReWeight.clear();
+  // ifstream File;
+  // File.open("reweight.data");
+  // if (File.is_open()) {
+  //   for (int g = 0; g < Para.GroupName.size(); g++) {
+  //     double weight;
+  //     File >> weight;
+  //     Para.ReWeight.push_back(weight);
+  //   }
+  // } else {
+  //   for (int g = 0; g < Para.GroupName.size(); g++)
+  //     Para.ReWeight.push_back(1.0);
+  // }
   // Para.ReWeight.clear();
   // for (int g = 0; g < Para.GroupName.size(); g++)
   //   Para.ReWeight.push_back(1.0);

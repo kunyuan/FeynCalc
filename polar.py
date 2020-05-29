@@ -5,7 +5,7 @@ D = 3
 Spin = 2
 Para = param(D, Spin)
 
-Data, Groups, ReWeight, Grids = LoadFile("data", "pid[0-9]+.dat")
+Data, Step, Groups, ReWeight, Grids = LoadFile("data", "pid[0-9]+.dat")
 assert len(Groups) == Data[0].shape[0], "group num doesn't match the data num!"
 KGrid = Grids["KGrid"]
 print Groups

@@ -97,7 +97,7 @@ def Estimate(Data, Weights):
 def LoadFile(Folder, FileName):
     Groups = []
     ReWeight = []
-    Norm = []
+    Step = []
     Data = []
     Grid = {}
 
@@ -106,6 +106,8 @@ def LoadFile(Folder, FileName):
             print "Loading ", f
             try:
                 with open(f, "r") as file:
+                    line = file.readline().strip().split(":")[1]
+                    Step.append(float(line))
                     line = file.readline().strip().split(":")[1]
                     if len(Groups) == 0:
                         for e in [e for e in line.split(",") if len(e) > 0]:
@@ -131,7 +133,7 @@ def LoadFile(Folder, FileName):
                 print "Failed to load {0}".format(f)
                 print str(e)
 
-    return Data, Groups, ReWeight, Grid
+    return Data, Step, Groups, ReWeight, Grid
 
 
 def ErrorPlot(p, x, d, color='k', marker='s', label=None, size=4, shift=False):
