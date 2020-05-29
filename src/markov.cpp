@@ -110,41 +110,40 @@ void markov::Measure() {
 };
 
 void markov::SaveToFile() {
-  for (auto &group : Groups) {
-    ofstream PolarFile;
-    string FileName = fmt::format("group{0}_pid{1}.dat", group.Name, Para.PID);
-    PolarFile.open(FileName, ios::out | ios::trunc);
-    if (PolarFile.is_open()) {
-      PolarFile << fmt::sprintf(
-          "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Group: %s, Step: %d\n",
-          Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name, Para.Counter);
+  string FileName = fmt::format("pid{0}.dat", Para.PID);
+  ofstream PolarFile;
+  PolarFile.open(FileName, ios::out | ios::trunc);
+  if (PolarFile.is_open()) {
+    PolarFile << "# Group: ";
 
-      for (int j = 0; j < Polar[group.ID].size(); j++)
-        PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
-                                  Polar[group.ID][j]);
-      PolarFile.close();
-    } else {
-      LOG_WARNING("Polarization for PID " << Para.PID << " fails to save!");
-    }
-  }
+    for (auto &group : Groups)
+      PolarFile << group.Name << ", ";
+    PolarFile << endl;
+    PolarFile << "# KGrid: ";
 
-  ofstream StaticPolarFile;
-  string FileName = fmt::sprintf("output%d.dat", Para.PID);
-  StaticPolarFile.open(FileName, ios::out | ios::trunc);
-  if (StaticPolarFile.is_open()) {
+    for (int j = 0; j < Polar[Groups[0].ID].size(); j++)
+      PolarFile << Var.ExtMomTable[j][0] << " ";
+    PolarFile << endl;
+
     for (auto &group : Groups) {
-      StaticPolarFile << fmt::sprintf(
-          "PID:%-4d  Type:%-2d  Group:%-4s  rs:%-.3f  "
-          "Beta:%-.3f  Lambda:%-.3f  Polar: % 13.6f\n",
-          Para.PID, Para.ObsType, group.Name, Para.Rs, Para.Beta, Para.Mass2,
-          PolarStatic[group.ID]);
+      for (int j = 0; j < Polar[group.ID].size(); j++) {
+        PolarFile << Polar[group.ID][j] << " ";
+      }
+      PolarFile << endl;
     }
-    StaticPolarFile.close();
+    // PolarFile << fmt::sprintf(
+    //     "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Group: %s, Step: %d\n",
+    //     Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name,
+    //     Para.Counter);
+
+    // for (int j = 0; j < Polar[group.ID].size(); j++)
+    //   PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
+    //                             Polar[group.ID][j]);
+    PolarFile.close();
   } else {
-    LOG_WARNING("Static Polarization for PID " << Para.PID
-                                               << " fails to save!");
+    LOG_WARNING("Polarization for PID " << Para.PID << " fails to save!");
   }
-};
+}
 
 void markov::ChangeGroup() {
   group &NewGroup = Groups[Random.irn(0, Groups.size() - 1)];

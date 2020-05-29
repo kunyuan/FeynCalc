@@ -14,7 +14,7 @@ Lambda = 1.0
 Beta = 25
 
 ##############   3D    ##################################
-# kF = (9.0*np.pi/4.0)**(1.0/3.0)/rs  # 3D
+kF = (9.0*np.pi/4.0)**(1.0/3.0)/rs  # 3D
 ###### Bare Green's function    #########################
 # Bubble=0.08871  # 3D, Beta=0.5, rs=1
 # Bubble=0.0971916  #3D, Beta=10, rs=1
@@ -44,8 +44,7 @@ DataOrderByOrder = {}
 DataAtOrder = {}
 Normalization = 1
 
-
-folder = "./Beta{0}_rs{1}_lambda{2}/".format(Beta, rs, Lambda)
+folder = "./data"
 
 files = os.listdir(folder)
 for order in ScanOrder:

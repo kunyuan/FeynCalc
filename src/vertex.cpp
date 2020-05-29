@@ -22,11 +22,13 @@ extern parameter Para;
 
 double bose::Interaction(double Tau, const momentum &Mom, int VerType) {
   if (VerType >= 0) {
-    double interaction = 8.0 * PI / (Mom.squaredNorm() + Para.Mass2);
+    double interaction =
+        8.0 * PI / (Mom.squaredNorm() + Para.Mass2 + Para.Lambda);
     if (VerType > 0) {
       // the interaction contains counter-terms
       interaction *=
-          pow(Para.Mass2 / (Mom.squaredNorm() + Para.Mass2), VerType);
+          pow(Para.Lambda / (Mom.squaredNorm() + Para.Mass2 + Para.Lambda),
+              VerType);
       interaction *= pow(-1, VerType);
     }
     return interaction;
@@ -231,8 +233,8 @@ void verfunc::Vertex4(const momentum &InL, const momentum &InR,
     ABORT("Ver4Type is only implemented for 0!");
 
   /**************   Yokawar Interaction ************************/
-  Direct = 8.0 * PI / ((OutL - InL).squaredNorm() + Para.Mass2);
-  Exchange = 8.0 * PI / ((OutR - InL).squaredNorm() + Para.Mass2);
+  Direct = 8.0 * PI / ((OutL - InL).squaredNorm() + Para.Mass2 + Para.Lambda);
+  Exchange = 8.0 * PI / ((OutR - InL).squaredNorm() + Para.Mass2 + Para.Lambda);
 
   /**************   Generic Interaction ************************/
 }

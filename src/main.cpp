@@ -25,10 +25,11 @@ parameter Para; // parameters as a global variable
 RandomFactory Random;
 
 int main(int argc, const char *argv[]) {
-  cout << "Order, Beta, Rs, Mass2, MaxExtMom(*kF), TotalStep(*1e6), Seed, "
+  cout << "Order, Beta, Rs, Mass2, Lambda, MaxExtMom(*kF), TotalStep(*1e6), "
+          "Seed, "
           "PID\n";
-  cin >> Para.Order >> Para.Beta >> Para.Rs >> Para.Mass2 >> Para.MaxExtMom >>
-      Para.TotalStep >> Para.Seed >> Para.PID;
+  cin >> Para.Order >> Para.Beta >> Para.Rs >> Para.Mass2 >> Para.Lambda >>
+      Para.MaxExtMom >> Para.TotalStep >> Para.Seed >> Para.PID;
   InitPara(); // initialize global parameters
   MonteCarlo();
   return 0;
@@ -47,14 +48,15 @@ void InitPara() {
 
   // diagram file path: groups/DiagPolar1.dat
   Para.DiagFileFormat = "groups/DiagPolar{}.txt";
-  Para.GroupName.clear();
+  Para.GroupName = {"0"}; // initialized with a normalization diagram
   for (int o = 1; o <= Para.Order; o++)
     for (int v = 0; v <= Para.Order - 1; v++) {
       // order 1 do not allow lambda counterterm
       if (o == 1 && v > 0)
         continue;
       for (int g = 0; g <= (Para.Order - 1) / 2; g++) {
-        // cout << o << ", " << v << ", " << g << ", " << o + v + 2 * g << endl;
+        if (g != 0)
+          continue;
         // interaction+lambda counterterm+2*self-energy counter <=Order
         if (o + v + 2 * g > Para.Order)
           continue;
@@ -67,7 +69,9 @@ void InitPara() {
   // Para.GroupName = {"1", "2", "3"};
 
   // Para.GroupName = {"1", "2"};
-  Para.ReWeight = {1.0, 1.0, 5.0, 10.0, 0.1};
+  for (int g = 0; g < Para.GroupName.size(); g++)
+    Para.ReWeight.push_back(1.0);
+  // Para.ReWeight = {1.0, 5.0, 5.0, 2.0, 1.0, 1.0, 1.0, 1.0};
   // Para.SelfEnergyType = FOCK;
   Para.SelfEnergyType = BARE;
 

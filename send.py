@@ -29,8 +29,7 @@ for index, eachline in enumerate(inlist):
     #     print "Not yet implemented!"
     #     break
 
-    homedir = os.getcwd() + \
-        "/Beta{0}_rs{1}_lambda{2}".format(para[0], para[1], para[2])
+    homedir = os.getcwd() + "/data"
     if(os.path.exists(homedir) != True):
         os.system("mkdir "+homedir)
 
