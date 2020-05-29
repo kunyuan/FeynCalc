@@ -437,9 +437,9 @@ std::string markov::_DetailBalanceStr(Updates op) {
     if (!Equal(Proposed[op][i], 0.0)) {
       TotalAccepted += Accepted[op][i];
       TotalProposed += Proposed[op][i];
-      Output += fmt::sprintf("\t%8s%2i:%15g%15g%15g\n", "Group", Groups[i].ID,
-                             Proposed[op][i], Accepted[op][i],
-                             Accepted[op][i] / Proposed[op][i]);
+      Output +=
+          fmt::sprintf("\t%8s:%15g%15g%15g\n", Groups[i].Name, Proposed[op][i],
+                       Accepted[op][i], Accepted[op][i] / Proposed[op][i]);
       // fmt::format("\t%8s%4s:%15g%15g%15g\n", "Group", Groups[i].Name,
       //             Proposed[op][i], Accepted[op][i],
       //             Accepted[op][i] / Proposed[op][i]);

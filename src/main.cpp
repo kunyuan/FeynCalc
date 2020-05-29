@@ -48,13 +48,21 @@ void InitPara() {
   // diagram file path: groups/DiagPolar1.dat
   Para.DiagFileFormat = "groups/DiagPolar{}.txt";
   Para.GroupName.clear();
-  for (int o = 0; o <= Para.Order; o++) {
-    if (Para.Order == 1 + o && Para.Order != 1)
-      continue;
-    auto name = to_string(Para.Order - o) + "_" + to_string(o) + "_0";
-    cout << name << ", ";
-    Para.GroupName.push_back(name);
-  }
+  for (int o = 1; o <= Para.Order; o++)
+    for (int v = 0; v <= Para.Order - 1; v++) {
+      // order 1 do not allow lambda counterterm
+      if (o == 1 && v > 0)
+        continue;
+      for (int g = 0; g <= (Para.Order - 1) / 2; g++) {
+        // cout << o << ", " << v << ", " << g << ", " << o + v + 2 * g << endl;
+        // interaction+lambda counterterm+2*self-energy counter <=Order
+        if (o + v + 2 * g > Para.Order)
+          continue;
+        auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
+        cout << name << ", ";
+        Para.GroupName.push_back(name);
+      }
+    }
   cout << endl;
   // Para.GroupName = {"1", "2", "3"};
 
@@ -82,13 +90,12 @@ void InitPara() {
   Para.UVScale = 8.0 * Para.Ef;
   Para.UVCoupling = 1.0 * Para.Ef;
 
-  LOG_INFO("Inverse Temperature: " << Para.Beta << "\n"
-                                   << "UV Energy Scale: " << Para.UVScale
-                                   << "\n"
-                                   << "UV Coupling: " << Para.UVCoupling << "\n"
-                                   << "r_s: " << Para.Rs << "\n"
-                                   << "Fermi Mom: " << Para.Kf << "\n"
-                                   << "Fermi Energy: " << Para.Ef << "\n");
+  LOG_INFO("Order: " << Para.Order << "\nInverse Temperature: " << Para.Beta
+                     << "\nUV Energy Scale: " << Para.UVScale
+                     << "\nUV Coupling: " << Para.UVCoupling << "\n"
+                     << "r_s: " << Para.Rs << "\n"
+                     << "Fermi Mom: " << Para.Kf << "\n"
+                     << "Fermi Energy: " << Para.Ef << "\n");
 
   Para.PrinterTimer = 5;
   Para.SaveFileTimer = 30;
