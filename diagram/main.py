@@ -4,8 +4,11 @@ import copy
 import sys
 
 if __name__ == "__main__":
-    InputStr = raw_input("Input Diagram Order: ")
-    Order = int(InputStr)
+    print "Input Diagram Order, Vertex counterterm order and chemical counterterm order: "
+    Order = int(sys.argv[1])
+    VerOrder = int(sys.argv[2])
+    SigmaOrder = int(sys.argv[3])
+    # print Order, VerOrder, SigmaOrder
 
     LnZOrder = Order-1
     DiagFile = "./Diagram/HugenDiag{0}.txt".format(LnZOrder)
@@ -59,4 +62,4 @@ if __name__ == "__main__":
 
     print "Save diagrams ..."
     with open("./Diag{0}{1}.txt".format("Polar", Order), "w") as f:
-        f.write(Polar.ToString(UniqueUnLabelDiagList))
+        f.write(Polar.ToString(UniqueUnLabelDiagList, VerOrder, SigmaOrder))

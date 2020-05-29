@@ -175,9 +175,14 @@ class polar():
         #     PermutationDict)
         return list(DeformationFinal)
 
-    def ToString(self, PolarHugenList):
+    def ToString(self, PolarHugenList, VerOrder, SigmaOrder):
         if len(PolarHugenList) == 0:
             return
+
+        InterCounterTerms = self.__InterCounterTerms(VerOrder)
+        SigmaCounterTerms = self.__SigmaCounterTerms(SigmaOrder)
+        print InterCounterTerms
+        print SigmaCounterTerms
 
         IrreDiagList = []
         for Diag in PolarHugenList:
@@ -409,3 +414,37 @@ class polar():
         #     print "remaining length of permutation dictionary:", len(
         #         PermutationDict)
         #     return PermutationDict.keys()
+
+    def __InterCounterTerms(self, CounterTermOrder):
+        Collection = [[]]
+        Sum = [0]
+        InterNum = 2*self.Ver4Num
+        for _ in range(1, InterNum+1):  # number of elements
+            newCollection = []
+            newSum = []
+            for ic, c in enumerate(Collection):
+                for i in range(CounterTermOrder+1):  # element value
+                    if Sum[ic]+i <= CounterTermOrder:
+                        newCollection.append(c + [i])
+                        newSum.append(Sum[ic] + i)
+                Collection = newCollection
+                Sum = newSum
+        return [c for ic, c in enumerate(Collection) if Sum[ic] == CounterTermOrder]
+
+    def __SigmaCounterTerms(self, CounterTermOrder):
+        Collection = [[]]
+        Sum = [0]
+        InterNum = self.GNum
+        for _ in range(1, InterNum+1):  # number of elements
+            newCollection = []
+            newSum = []
+            for ic, c in enumerate(Collection):
+                for i in range(CounterTermOrder+1):  # element value
+                    if i == 1:
+                        continue
+                    if Sum[ic]+i <= CounterTermOrder:
+                        newCollection.append(c + [i])
+                        newSum.append(Sum[ic] + i)
+                Collection = newCollection
+                Sum = newSum
+        return [c for ic, c in enumerate(Collection) if Sum[ic] == CounterTermOrder]
