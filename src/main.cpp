@@ -25,9 +25,9 @@ parameter Para; // parameters as a global variable
 RandomFactory Random;
 
 int main(int argc, const char *argv[]) {
-  cout << "Beta, Rs, Mass2, MaxExtMom(*kF), TotalStep(*1e6), Seed, "
+  cout << "Order, Beta, Rs, Mass2, MaxExtMom(*kF), TotalStep(*1e6), Seed, "
           "PID\n";
-  cin >> Para.Beta >> Para.Rs >> Para.Mass2 >> Para.MaxExtMom >>
+  cin >> Para.Order >> Para.Beta >> Para.Rs >> Para.Mass2 >> Para.MaxExtMom >>
       Para.TotalStep >> Para.Seed >> Para.PID;
   InitPara(); // initialize global parameters
   MonteCarlo();
@@ -47,8 +47,17 @@ void InitPara() {
 
   // diagram file path: groups/DiagPolar1.dat
   Para.DiagFileFormat = "groups/DiagPolar{}.txt";
-  // Para.DiagFileFormat = "groups/DiagLoop{}.txt";
-  Para.GroupName = {"1", "2", "3"};
+  Para.GroupName.clear();
+  for (int o = 0; o <= Para.Order; o++) {
+    if (Para.Order == 1 + o && Para.Order != 1)
+      continue;
+    auto name = to_string(Para.Order - o) + "_" + to_string(o) + "_0";
+    cout << name << ", ";
+    Para.GroupName.push_back(name);
+  }
+  cout << endl;
+  // Para.GroupName = {"1", "2", "3"};
+
   // Para.GroupName = {"1", "2"};
   Para.ReWeight = {1.0, 1.0, 5.0, 10.0, 0.1};
   // Para.SelfEnergyType = FOCK;

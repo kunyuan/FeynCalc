@@ -1,5 +1,6 @@
 {
     "files.associations": {
         "array": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }

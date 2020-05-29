@@ -19,6 +19,7 @@ enum obstype { FREQ, EQUALTIME };
 /////////// Global Parameter ////////////////////
 struct parameter {
   // physical parameters
+  int Order;
   double Rs, Ef, Kf,
       Mu;            // r_s, fermi energy, fermi momentum, chemical potential
   double Beta;       // inverse temperature
