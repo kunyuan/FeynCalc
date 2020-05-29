@@ -302,14 +302,18 @@ def HasTadpole(permutation, reference):
     return False
 
 
-def HasFock(permutation, reference):
+def HasFock(permutation, reference, vertype=None, gtype=None):
+    # print vertype, gtype
     for i in range(len(reference)):
+        # print i
         # end=reference[i]
         end = permutation[i]
         if i == 0 or i == 1:
             continue
         if abs(i-end) == 1 and min(i, end) % 2 == 0:
-            return True
+            if vertype != None and gtype != None:
+                if vertype[i/2-1] == 0 and gtype[i] == 0:
+                    return True
     return False
 
 

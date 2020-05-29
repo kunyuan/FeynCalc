@@ -185,24 +185,27 @@ class polar():
         print SigmaCounterTerms
 
         IrreDiagList = []
-        for Diag in PolarHugenList:
-            Permutation = Diag.GetPermu()
-            Mom = Diag.LoopBasis
+        for vertype in InterCounterTerms:
+            for gtype in SigmaCounterTerms:
+                for Diag in PolarHugenList:
+                    Permutation = Diag.GetPermu()
+                    Mom = Diag.LoopBasis
 
-            FeynList = self.HugenToFeyn(Diag.GetPermu())
-            FactorList = []
+                    FeynList = self.HugenToFeyn(Diag.GetPermu())
+                    FactorList = []
 
-            for FeynPermu in FeynList:
-                if self.__IsReducibile(FeynPermu, Diag.LoopBasis):
-                    FactorList.append(0)
-                else:
-                    FactorList.append(1)
+                    for FeynPermu in FeynList:
+                        if self.__IsReducibile(FeynPermu, Diag.LoopBasis, vertype, gtype):
+                            FactorList.append(0)
+                        else:
+                            FactorList.append(1)
 
-            if np.all(np.array(FactorList) == 0):
-                print "Reducible diagram: ", Permutation
-                continue
+                    if np.all(np.array(FactorList) == 0):
+                        print "Reducible diagram: ", Permutation
+                        continue
 
-            IrreDiagList.append([Diag, FeynList, FactorList])
+                    IrreDiagList.append(
+                        [Diag, FeynList, FactorList, vertype, gtype])
 
         print yellow(
             "Irreducible Polar Diag Num: {0}".format(len(IrreDiagList)))
@@ -221,7 +224,7 @@ class polar():
         Title += "\n"
 
         Body = ""
-        for Diag, FeynList, FactorList in IrreDiagList:
+        for Diag, FeynList, FactorList, VerType, GType in IrreDiagList:
             Permutation = Diag.GetPermu()
             Mom = Diag.LoopBasis
 
@@ -236,7 +239,7 @@ class polar():
 
             Body += "# GType\n"
             for i in Permutation:
-                Body += "{0:2d} ".format(0)
+                Body += "{0:2d} ".format(GType[i])
             Body += "\n"
 
             Body += "# VertexBasis\n"
@@ -267,13 +270,8 @@ class polar():
             InterMom = self.__GetInteractionMom(Permutation, Mom)
 
             Body += "# WType(Direct,Exchange)\n"
-            for i in range(1, self.Ver4Num+1):
-                # type1, type2 = 0, 0
-                # if np.all(InterMom[2*i-2] == 0):
-                #     type1 = -2
-                # if np.all(InterMom[2*i-1] == 0):
-                #     type2 = -2
-                Body += "{0:2d} {1:2d} |".format(0, 0)
+            for i in range(0, self.Ver4Num):
+                Body += "{0:2d} {1:2d} |".format(VerType[i], VerType[i])
             Body += "\n"
 
             Body += "# SpinFactor\n"
@@ -333,7 +331,7 @@ class polar():
         else:
             return int(index/2)+1
 
-    def __IsReducibile(self, Permutation, LoopBasis):
+    def __IsReducibile(self, Permutation, LoopBasis, vertype, gtype):
         ExterLoop = [0, ]*self.LoopNum
         ExterLoop[0] = 1
         for i in range(1, self.Ver4Num+1):
@@ -353,7 +351,7 @@ class polar():
                 # print "Contain high-order Hartree: ", Permutation
                 return True
 
-        if diag.HasFock(Permutation, self.GetReference()):
+        if diag.HasFock(Permutation, self.GetReference(), vertype, gtype):
             return True
 
         ###### Check High order Hatree ######################
@@ -428,16 +426,8 @@ class polar():
                         newSum.append(Sum[ic] + i)
                 Collection = newCollection
                 Sum = newSum
-        result = [c for ic, c in enumerate(
-            Collection) if Sum[ic] == CounterTermOrder]
-        Final = []
-        for c in result:
-            new = []
-            for e in c:
-                new.append(e)
-                new.append(e)
-            Final.append(new)
-        return Final
+
+        return [c for ic, c in enumerate(Collection) if Sum[ic] == CounterTermOrder]
 
     def __SigmaCounterTerms(self, CounterTermOrder):
         Collection = [[]]

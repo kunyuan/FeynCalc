@@ -61,5 +61,5 @@ if __name__ == "__main__":
         len(UniqueUnLabelDiagList)))
 
     print "Save diagrams ..."
-    with open("./Diag{0}{1}.txt".format("Polar", Order), "w") as f:
+    with open("./Diag{0}{1}_{2}_{3}.txt".format("Polar", Order, VerOrder, SigmaOrder), "w") as f:
         f.write(Polar.ToString(UniqueUnLabelDiagList, VerOrder, SigmaOrder))
