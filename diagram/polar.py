@@ -418,8 +418,7 @@ class polar():
     def __InterCounterTerms(self, CounterTermOrder):
         Collection = [[]]
         Sum = [0]
-        InterNum = 2*self.Ver4Num
-        for _ in range(1, InterNum+1):  # number of elements
+        for _ in range(1, self.Ver4Num+1):  # number of elements
             newCollection = []
             newSum = []
             for ic, c in enumerate(Collection):
@@ -429,19 +428,25 @@ class polar():
                         newSum.append(Sum[ic] + i)
                 Collection = newCollection
                 Sum = newSum
-        return [c for ic, c in enumerate(Collection) if Sum[ic] == CounterTermOrder]
+        result = [c for ic, c in enumerate(
+            Collection) if Sum[ic] == CounterTermOrder]
+        Final = []
+        for c in result:
+            new = []
+            for e in c:
+                new.append(e)
+                new.append(e)
+            Final.append(new)
+        return Final
 
     def __SigmaCounterTerms(self, CounterTermOrder):
         Collection = [[]]
         Sum = [0]
-        InterNum = self.GNum
-        for _ in range(1, InterNum+1):  # number of elements
+        for _ in range(1, self.GNum+1):  # number of elements
             newCollection = []
             newSum = []
             for ic, c in enumerate(Collection):
                 for i in range(CounterTermOrder+1):  # element value
-                    if i == 1:
-                        continue
                     if Sum[ic]+i <= CounterTermOrder:
                         newCollection.append(c + [i])
                         newSum.append(Sum[ic] + i)
