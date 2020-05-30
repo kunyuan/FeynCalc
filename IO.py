@@ -71,18 +71,6 @@ class param:
 # For the given path, get the List of all files in the directory tree
 
 
-def Estimate(Data, Weights, axis=0):
-    """ Return Mean and Error  with given weights"""
-    # Assume weights are similar when calculating error bars
-    Weights = np.array(Weights)
-    Num = len(Data)
-    assert Num > 0, "Data is empty!"
-    assert len(Data) == Num, "Data and Weights size must match!"
-    Avg = np.average(Data, weights=Weights, axis=0)
-    Var = np.average((Data-Avg)**2, weights=Weights, axis=0)
-    Err = np.sqrt(Var/(Num-1)) if Num > 1 else 0.0
-    return Avg, Err
-
 
 def LoadFile(Folder, FileName):
     Groups = []
@@ -126,17 +114,6 @@ def LoadFile(Folder, FileName):
 
     return np.array(Data), np.array(Step), Groups, np.array(ReWeight), Grid
 
-
-def Reduce(Dict, Map):
-    """reduce Dict.keys() to mapped keys"""
-    mappedDict = {}
-    for g in Dict.keys():
-        key = Map[g]
-        if mappedDict.has_key(key):
-            mappedDict[key] += Dict[g]
-        else:
-            mappedDict[key] = Dict[g]
-    return mappedDict
 
 
 def ErrorPlot(p, x, d, color='k', marker='s', label=None, size=4, shift=False):

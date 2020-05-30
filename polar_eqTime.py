@@ -1,5 +1,6 @@
 from IO import *
 import scipy.integrate as integrate
+import reduce
 
 D = 3
 Spin = 2
@@ -21,7 +22,6 @@ Bubble = integrate.quad(bubble, 0.0, 100.0)
 print "EqualTime Polarization: ", Bubble[0], "+-", Bubble[1]
 Phys = Bubble[0]*len(KGrid)
 
-# New key tuple: (Order+VerCTOrder, SigmaCTOrder)
 Map = {}
 for key in Groups:
     if key == (0, ):
@@ -29,28 +29,14 @@ for key in Groups:
     mappedkey = (key[0]+key[1], key[2])
     Map[key] = mappedkey
 
-# normalized (order, pid, kidx)
-Norm = np.sum(Data[:, 0, :], axis=-1)  # shape=pid
-Data = Data/Norm[:, np.newaxis, np.newaxis] * Phys
-# reduce (order, verorder, sigmaorder) to (order+verorder, sigmaorder)
-Dict = {}
-for (idx, g) in enumerate(Groups):
-    if g == (0, ):
-        continue
-    Dict[g] = Data[:, idx, :]
-Dict = Reduce(Dict, Map)
-print "Groups {0} reduced to {1}".format(Groups, list(set(Dict.keys())))
-
-EsData = {}
+EsData = reduce.GetData(Data, Groups, Step, Phys, Map)
 
 fig, ax = plt.subplots()
-for (o, key) in enumerate(sorted(Dict.keys())):
-    # data = Dict[key]
-    data = np.average(Dict[key], axis=-1)  # average external K
-    y, err = Estimate(data, Step, axis=0)
+for (o, key) in enumerate(sorted(EsData.keys())):
+    y, err = EsData[key]
     print "(Order: {0}, SigamCT: {1}) = {2} +- {3}".format(
         key[0], key[1], y, err)
-    EsData[key] = (y, err)
+    EsData[key] = (np.average(y), np.average(err))
 
     # plt.errorbar(KGrid/Para.kF, y, yerr=err, fmt='o-', capthick=1, capsize=4,
     #              color=ColorList[o], label="Order: {0}, SigamCT: {1}".format(key[0], key[1]))
