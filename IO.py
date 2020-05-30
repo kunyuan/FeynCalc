@@ -127,6 +127,7 @@ def LoadFile(Folder, FileName):
                             break
 
                 data = np.loadtxt(f)
+                # print Groups[-1], data[2, 0]
                 Data.append(data)
 
             except Exception as e:

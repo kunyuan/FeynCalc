@@ -31,6 +31,8 @@ double bose::Interaction(double Tau, const momentum &Mom, int VerType) {
               VerType);
       // interaction *= pow(-1, VerType);
     }
+    // cout << "Interaction: " << interaction << ", Mom: " << Mom.squaredNorm()
+    //      << ", VerType: " << VerType << ", Lambda: " << Para.Lambda << endl;
     return interaction;
   } else if (VerType == -1) {
     return 1.0;
@@ -129,7 +131,7 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   // if tau is exactly zero, set tau=0^-
   double green, Ek;
   if (Tau == 0.0) {
-    return EPS;
+    Tau = 1.0e-10;
   }
 
   double s = 1.0;
@@ -183,6 +185,51 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   return green;
 }
 
+double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
+  // if tau is exactly zero, set tau=0^-
+  double green, Ek;
+  if (Tau == 0.0) {
+    Tau = 1.0e-10;
+  }
+
+  double s = 1.0;
+  if (Tau < 0.0) {
+    Tau += Para.Beta;
+    s = -s;
+  } else if (Tau >= Para.Beta) {
+    Tau -= Para.Beta;
+    s = -s;
+  }
+
+  Ek = Mom.squaredNorm(); // bare propagator
+  if (IsFock)
+    Ek += FockSigma(Mom); // Fock diagram dressed propagator
+
+  // double x = Para.Beta * (Ek - Para.Mu) / 2.0;
+  // double y = 2.0 * Tau / Para.Beta - 1.0;
+  // if (x > 100.0)
+  //   green = exp(-x * (y + 1.0));
+  // else if (x < -100.0)
+  //   green = exp(x * (1.0 - y));
+  // else
+  //   green = exp(-x * y) / (2.0 * cosh(x));
+
+  green = exp(-Ek * Tau) / (1.0 + exp(-Para.Beta * Ek)) *
+          (Tau - (Para.Beta - Tau) * exp(-Para.Beta * Ek));
+
+  green *= s;
+
+  if (std::isfinite(green) == false)
+    ABORT("Step:" << Para.Counter << ", Green is too large! Tau=" << Tau
+                  << ", Ek=" << Ek << ", Green=" << green << ", Mom"
+                  << ToString(Mom));
+  // if (std::isnan(green))
+  //   ABORT("Step:" << Para.Counter << ", Green is too large! Tau=" << Tau
+  //                 << ", Ek=" << Ek << ", Green=" << green << ", Mom"
+  //                 << ToString(Mom));
+  return green;
+}
+
 double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
   double green;
   bool IsFock = false;
@@ -191,10 +238,14 @@ double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
   if (GType == 0) {
     green = PhyGreen(Tau, Mom, IsFock);
   } else if (GType == 1) {
+    green = TwoPhyGreen(Tau, Mom, IsFock);
     // equal time green's function
     // green = PhyGreen(-1.0e-10, Mom);
   } else if (GType == -1) {
     green = PhyGreen(Tau, Mom, false);
+    // green = 1.0;
+  } else if (GType == -2) {
+    green = PhyGreen(Tau, Mom, IsFock);
     // green = 1.0;
   } else {
     ABORT("GType " << GType << " has not yet been implemented!");

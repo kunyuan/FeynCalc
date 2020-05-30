@@ -102,6 +102,7 @@ void markov::AdjustGroupReWeight() {
 };
 
 void markov::Measure() {
+  // cout << Var.Tau[1] << endl;
   double MCWeight = fabs(Var.CurrGroup->Weight) * Var.CurrGroup->ReWeight;
   double WeightFactor = Var.CurrGroup->Weight / MCWeight;
 
@@ -203,8 +204,10 @@ void markov::ChangeGroup() {
   double R = Prop * fabs(NewWeight) / fabs(Var.CurrGroup->Weight) /
              Var.CurrGroup->ReWeight;
 
-  // if (NewGroup.ID == 3) {
-  //   cout << fmt::format("weight {0}, prop {1}\n", NewWeight, Prop);
+  // if (NewGroup.ID == 2) {
+  //   cout << fmt::format("\nweight: {0}, prop: {1}, R: {2}\n\n", NewWeight,
+  //   Prop,
+  //                       R);
   //   cout << Weight.DebugInfo(NewGroup);
   // }
 

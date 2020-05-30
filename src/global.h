@@ -54,7 +54,7 @@ struct parameter {
 // D=2 or D=3
 const int D = 3;
 // number of q bins of the external momentum
-const int ExtMomBinSize = 64;
+const int ExtMomBinSize = 4;
 // number of bins for the angle between InL and InR legs
 const int InInAngBinSize = 32;
 // number of bins for the angle between InL and OutL legs
@@ -75,7 +75,7 @@ const int MaxVer4Num = MaxOrder;    // Max Ver4 number in one group
 
 //////////   Generic Global Constants  /////////////////
 const double TM32 = 1.0 / (pow(2.0, 32));
-const double EPS = 1.0e-9;
+const double EPS = 1.0e-11;
 const int MAXINT = 2147483647;
 const int MININT = -2147483647;
 const double PI = 3.1415926535897932384626433832795;

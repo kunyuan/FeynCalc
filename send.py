@@ -33,7 +33,7 @@ for index, eachline in enumerate(inlist):
     if(os.path.exists(homedir) != True):
         os.system("mkdir "+homedir)
 
-    os.system("cp -r groups "+homedir)
+    os.system("cp -r groups* "+homedir)
     os.system("cp {0} {1}".format(execute, homedir))
     os.system("cp reweight.data "+homedir)
 
@@ -53,7 +53,7 @@ for index, eachline in enumerate(inlist):
         infile = "_in"+str(pid)
         f = open(infilepath+"/"+infile, "w")
         item = para[0:-1]
-        item.append(str(-int(random.random()*1000000)))
+        item.append(str(int(random.random()*1000000)))
         item.append(str(pid))
         stri = " ".join(item)
         f.write(stri)

@@ -3,13 +3,8 @@ from polar import *
 import copy
 import sys
 
-if __name__ == "__main__":
-    print "Input Diagram Order, Vertex counterterm order and chemical counterterm order: "
-    Order = int(sys.argv[1])
-    VerOrder = int(sys.argv[2])
-    SigmaOrder = int(sys.argv[3])
-    # print Order, VerOrder, SigmaOrder
 
+def Generate(Order, VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar):
     LnZOrder = Order-1
     DiagFile = "./Diagram/HugenDiag{0}.txt".format(LnZOrder)
     LnZ = free_energy(LnZOrder)
@@ -61,5 +56,20 @@ if __name__ == "__main__":
         len(UniqueUnLabelDiagList)))
 
     print "Save diagrams ..."
-    with open("./Diag{0}{1}_{2}_{3}.txt".format("Polar", Order, VerOrder, SigmaOrder), "w") as f:
-        f.write(Polar.ToString(UniqueUnLabelDiagList, VerOrder, SigmaOrder))
+    with open("./output/Diag{0}{1}_{2}_{3}.txt".format("Polar", Order, VerOrder, SigmaOrder), "w") as f:
+        f.write(Polar.ToString(UniqueUnLabelDiagList,
+                               VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar))
+
+
+if __name__ == "__main__":
+    # print "Input Diagram Order: "
+    # Order = int(sys.argv[1])
+    Order = 5
+    IsSelfEnergy = False
+    IsSpinPolar = True
+    for o in range(2, Order+1):
+        for v in range(0, Order):
+            for g in range(0, (Order-1)/2+1):
+                if o+v+2*g > Order:
+                    continue
+                Generate(o, v, g, IsSelfEnergy, IsSpinPolar)

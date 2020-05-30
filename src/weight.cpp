@@ -56,7 +56,8 @@ void weight::Initialization() {
     }
 
     if (Para.ObsType == EQUALTIME) {
-      for (int i = 0; i < group.Ver4Num; ++i)
+      // for (int i = 0; i < group.Ver4Num; ++i)
+      for (int i = 0; i < group.TauNum; ++i)
         if (group.IsExtTau[i])
           // to measure equal-time observable, lock all external tau
           group.IsLockedTau[i] = true;
@@ -129,6 +130,10 @@ void weight::ChangeGroup(group &Group, bool Forced) {
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
         G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
+        // if (Group.ID == 2) {
+        //   cout << Group.Name << ", " << G->NewWeight << endl;
+        //   ;
+        // }
       }
     }
     for (int i = 0; i < Group.Ver4Num; i++) {
@@ -236,6 +241,7 @@ double weight::GetNewWeight(group &Group) {
     }
 
     double VerWeight;
+
     if (Group.Ver4Num == 0) {
       VerWeight = d.SpinFactor[0];
       // cout << "spin factor: " << d.SpinFactor[0] << endl;
@@ -247,6 +253,12 @@ double weight::GetNewWeight(group &Group) {
       _Tree[0][1] = Ver4->Excited[EXCHANGE] ? Ver4->NewWeight[EXCHANGE]
                                             : Ver4->Weight[EXCHANGE];
 
+      // if (Group.ID == 2) {
+      //   cout << "0, 0:  " << _Tree[0][0] << ", 0, 1: " << _Tree[0][1] <<
+      //   endl;
+      //   // exit(0);
+      // }
+
       int BlockNum = 2;
       for (int level = 1; level < Group.Ver4Num; level++) {
 
@@ -255,6 +267,10 @@ double weight::GetNewWeight(group &Group) {
                                     : Ver4->Weight[DIRECT];
         VOut = Ver4->Excited[EXCHANGE] ? Ver4->NewWeight[EXCHANGE]
                                        : Ver4->Weight[EXCHANGE];
+        // if (Group.ID == 2) {
+        //   cout << "Vin " << VIn << ", Vout: " << VOut << endl;
+        //   // exit(0);
+        // }
 
         for (int j = 0; j < BlockNum; j++) {
           _Tree[level][2 * j] = _Tree[level - 1][j] * VIn;
@@ -278,6 +294,11 @@ double weight::GetNewWeight(group &Group) {
       //   TempWeightOut =
       //       Ver4->Excited[OUT] ? Ver4->NewWeight[OUT] : Ver4->Weight[OUT];
       //   VerWeight *= TempWeightIn - TempWeightOut;
+
+      // if (Group.ID == 2) {
+      //   cout << GWeight << ", " << VerWeight << endl;
+      //   // exit(0);
+      // }
     }
 
     d.NewWeight = GWeight * VerWeight / pow(2 * PI, D * Group.InternalLoopNum);
@@ -285,6 +306,10 @@ double weight::GetNewWeight(group &Group) {
     // Group Weight= sum of all diagram weight in the group
     Group.NewWeight += d.NewWeight;
   }
+  // if (Group.ID == 2) {
+  //   cout << Group.NewWeight << endl;
+  //   // exit(0);
+  // }
   return Group.NewWeight;
 }
 

@@ -43,33 +43,40 @@ void InitPara() {
 
   Para.Type = POLAR;
   Para.ObsType = FREQ;
+  // Para.ObsType = EQUALTIME;
 
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
 
-  // diagram file path: groups/DiagPolar1.dat
-  Para.DiagFileFormat = "groups/DiagPolar{}.txt";
-  Para.GroupName = {"0"}; // initialized with a normalization diagram
-  Para.ReWeight = {1.0};
-  for (int o = 1; o <= Para.Order; o++)
-    for (int v = 0; v <= Para.Order - 1; v++) {
-      // order 1 do not allow lambda counterterm
-      if (o == 1 && v > 0)
-        continue;
-      for (int g = 0; g <= (Para.Order - 1) / 2; g++) {
-        if (g != 0)
+  if (Para.ObsType == FREQ) {
+    Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
+    Para.GroupName = {"0"}; // initialized with a normalization diagram
+    Para.ReWeight = {1.0};
+    for (int o = 1; o <= Para.Order; o++)
+      for (int v = 0; v <= Para.Order - 1; v++) {
+        // order 1 do not allow lambda counterterm
+        if (o == 1 && v > 0)
           continue;
-        // interaction+lambda counterterm+2*self-energy counter <=Order
-        if (o + v + 2 * g > Para.Order)
-          continue;
-        auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
-        cout << name << ", ";
-        Para.GroupName.push_back(name);
-        Para.ReWeight.push_back(pow(4.0, o));
+        for (int g = 0; g <= (Para.Order - 1) / 2; g++) {
+          if (g != 0)
+            continue;
+          // interaction+lambda counterterm+2*self-energy counter <=Order
+          if (o + v + 2 * g > Para.Order)
+            continue;
+          auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
+          cout << name << ", ";
+          Para.GroupName.push_back(name);
+          Para.ReWeight.push_back(pow(2.0, o));
+        }
       }
-    }
-  cout << endl;
-  Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
+    cout << endl;
+    Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
+  } else if (Para.ObsType == EQUALTIME) {
+    Para.DiagFileFormat = "groups_mu/DiagPolar{}.txt";
+    Para.GroupName = {"0", "1_0_0", "1_0_1", "2_1_0",
+                      "3_0_0"}; // initialized with a normalization diagram
+    Para.ReWeight = {4.0, 1.0, 1.0, 4.0, 16.0};
+  }
 
   // Para.ReWeight.clear();
   // ifstream File;
@@ -115,7 +122,8 @@ void InitPara() {
                      << "\nUV Coupling: " << Para.UVCoupling << "\n"
                      << "r_s: " << Para.Rs << "\n"
                      << "Fermi Mom: " << Para.Kf << "\n"
-                     << "Fermi Energy: " << Para.Ef << "\n");
+                     << "Fermi Energy: " << Para.Ef << "\n"
+                     << "Seed: " << Para.Seed << "\n");
 
   Para.PrinterTimer = 5;
   Para.SaveFileTimer = 30;

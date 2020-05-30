@@ -175,7 +175,7 @@ class polar():
         #     PermutationDict)
         return list(DeformationFinal)
 
-    def ToString(self, PolarHugenList, VerOrder, SigmaOrder):
+    def ToString(self, PolarHugenList, VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar):
         if len(PolarHugenList) == 0:
             return
 
@@ -195,10 +195,14 @@ class polar():
                     FactorList = []
 
                     for FeynPermu in FeynList:
-                        if self.__IsReducibile(FeynPermu, Diag.LoopBasis, vertype, gtype):
+                        if self.__IsReducibile(FeynPermu, Diag.LoopBasis, vertype, gtype, IsSelfEnergy):
                             FactorList.append(0)
                         else:
                             FactorList.append(1)
+
+                    # if IsSelfEnergy:
+                    #     # if measure the sigma counter-term, the 0->1 Green's function will be set to be special
+                    #     gtype[0] = -1
 
                     if np.all(np.array(FactorList) == 0):
                         print "Reducible diagram: ", Permutation
@@ -238,8 +242,12 @@ class polar():
             Body += "# SymFactor\n{0}\n".format(Diag.SymFactor)
 
             Body += "# GType\n"
-            for i in Permutation:
-                Body += "{0:2d} ".format(GType[i])
+            for i in range(self.GNum):
+                if IsSelfEnergy and i == 0:
+                    Body += "{0:2d} ".format(-2)
+                else:
+                    Body += "{0:2d} ".format(GType[i])
+
             Body += "\n"
 
             Body += "# VertexBasis\n"
@@ -279,25 +287,25 @@ class polar():
             for idx, FeynPermu in enumerate(FeynList):
                 Path = diag.FindAllLoops(FeynPermu)
                 nloop = len(Path)
-
                 Sign = (-1)**nloop*(-1)**(self.Order-1) / \
                     (Diag.SymFactor/abs(Diag.SymFactor))
-                # make sure the sign of the Spin factor of the first diagram is positive
 
-                ########### for spin susceptibility   #####################
-                # Flag = False
-                # for p in Path:
-                #     if 0 in p and 1 in p:
-                #         Flag = True
+                if IsSpinPolar:
+                    ########### for spin susceptibility   #####################
+                    Flag = False
+                    for p in Path:
+                        if 0 in p and 1 in p:
+                            Flag = True
 
-                # if Flag == False:
-                #     Body += "{0:2d} ".format(0)
-                # else:
-                #     Body += "{0:2d} ".format(2**nloop *
-                #                              int(Sign)*FactorList[idx])
-                #####################################################
-
-                Body += "{0:2d} ".format(2**nloop*int(Sign)*FactorList[idx])
+                    if Flag == False:
+                        Body += "{0:2d} ".format(0)
+                    else:
+                        Body += "{0:2d} ".format(2**nloop *
+                                                 int(Sign)*FactorList[idx])
+                else:
+                    # make sure the sign of the Spin factor of the first diagram is positive
+                    Body += "{0:2d} ".format(2**nloop *
+                                             int(Sign)*FactorList[idx])
             #   Body += "{0:2d} ".format(-(-1)**nloop*Factor)
 
             Body += "\n"
@@ -331,7 +339,7 @@ class polar():
         else:
             return int(index/2)+1
 
-    def __IsReducibile(self, Permutation, LoopBasis, vertype, gtype):
+    def __IsReducibile(self, Permutation, LoopBasis, vertype, gtype, IsSelfEnergy):
         ExterLoop = [0, ]*self.LoopNum
         ExterLoop[0] = 1
         for i in range(1, self.Ver4Num+1):
@@ -353,6 +361,15 @@ class polar():
 
         if diag.HasFock(Permutation, self.GetReference(), vertype, gtype):
             return True
+
+        if IsSelfEnergy:
+            # make sure 1->0 only has one Green's function
+            if Permutation[0] != 1 or gtype[0] != 0:
+                return True
+            # k = LoopBasis[:, 0]
+            # for i in range(1, self.GNum):
+            #     if np.allclose(k, LoopBasis[:, i]):
+            #         return True
 
         ###### Check High order Hatree ######################
         # kG, kW = diag.AssignMomentums(
