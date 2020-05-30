@@ -42,8 +42,8 @@ void InitPara() {
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
   Para.Type = POLAR;
-  Para.ObsType = FREQ;
-  // Para.ObsType = EQUALTIME;
+  // Para.ObsType = FREQ;
+  Para.ObsType = EQUALTIME;
 
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
@@ -75,7 +75,7 @@ void InitPara() {
     Para.DiagFileFormat = "groups_mu/DiagPolar{}.txt";
     Para.GroupName = {"0", "1_0_0", "1_0_1", "2_1_0",
                       "3_0_0"}; // initialized with a normalization diagram
-    Para.ReWeight = {4.0, 1.0, 1.0, 4.0, 16.0};
+    Para.ReWeight = {4.0, 1.0, 1.0, 2.0, 4.0};
   }
 
   // Para.ReWeight.clear();

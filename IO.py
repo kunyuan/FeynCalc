@@ -71,27 +71,17 @@ class param:
 # For the given path, get the List of all files in the directory tree
 
 
-def average(Data, Weights):
-    Z = sum(Weights)
-    return sum([d*w/Z for (d, w) in zip(Data, Weights)])
-
-
-def Estimate(Data, Weights):
+def Estimate(Data, Weights, axis=0):
     """ Return Mean and Error  with given weights"""
     # Assume weights are similar when calculating error bars
-    assert len(Data) == len(Weights), "Data and Weights size must match!"
-    assert len(Weights) > 0, "Data is empty!"
-    # Z = np.sum(Weights)
-    Avg = average(Data, Weights)
-    # Avg = sum(Data)/sum(Weights)
-    if len(Data) > 1:
-        # Var = sum((d/norm - Avg) ** 2*norm/Z for (d, norm)
-        #           in zip(Data, Weights))
-        Var = average([(d-Avg)**2 for d in Data], Weights)
-        # Var = np.cov(Data, aweights=Weights)
-        return Avg, np.sqrt(Var/(len(Data)-1))
-    else:
-        return Avg, Var*0.0
+    Weights = np.array(Weights)
+    Num = len(Data)
+    assert Num > 0, "Data is empty!"
+    assert len(Data) == Num, "Data and Weights size must match!"
+    Avg = np.average(Data, weights=Weights, axis=0)
+    Var = np.average((Data-Avg)**2, weights=Weights, axis=0)
+    Err = np.sqrt(Var/(Num-1)) if Num > 1 else 0.0
+    return Avg, Err
 
 
 def LoadFile(Folder, FileName):
@@ -134,7 +124,19 @@ def LoadFile(Folder, FileName):
                 print "Failed to load {0}".format(f)
                 print str(e)
 
-    return Data, Step, Groups, ReWeight, Grid
+    return np.array(Data), np.array(Step), Groups, np.array(ReWeight), Grid
+
+
+def Reduce(Dict, Map):
+    """reduce Dict.keys() to mapped keys"""
+    mappedDict = {}
+    for g in Dict.keys():
+        key = Map[g]
+        if mappedDict.has_key(key):
+            mappedDict[key] += Dict[g]
+        else:
+            mappedDict[key] = Dict[g]
+    return mappedDict
 
 
 def ErrorPlot(p, x, d, color='k', marker='s', label=None, size=4, shift=False):

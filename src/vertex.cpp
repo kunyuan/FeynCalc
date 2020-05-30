@@ -131,7 +131,7 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   // if tau is exactly zero, set tau=0^-
   double green, Ek;
   if (Tau == 0.0) {
-    Tau = 1.0e-10;
+    Tau = -1.0e-10;
   }
 
   double s = 1.0;
@@ -164,17 +164,6 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
 
   green *= s;
 
-  // if (Debug) { //   cout << "Tau=" << Tau << endl;
-  //   cout << "Counter" << Para.Counter << endl;
-  //   cout << "Tau=" << Tau << endl;
-  //   cout << "Mom=(" << Mom[0] << ", " << Mom[1] << ")" << endl;
-  //   cout << "Mom2=" << Mom[0] * Mom[0] + Mom[1] * Mom[1] << endl;
-  //   cout << "Ek=" << Ek << endl;
-  //   cout << "x=" << x << endl;
-  //   cout << "y=" << y << endl;
-  //   cout << "Green=" << green << endl << endl;
-  // }
-
   // cout << "x: " << x << ", y: " << y << ", G: " << green << endl;
   // cout << "G: " << green << endl;
 
@@ -187,9 +176,11 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
 
 double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   // if tau is exactly zero, set tau=0^-
+  // cout << Tau << endl;
+
   double green, Ek;
   if (Tau == 0.0) {
-    Tau = 1.0e-10;
+    Tau = -1.0e-10;
   }
 
   double s = 1.0;
@@ -204,6 +195,7 @@ double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   Ek = Mom.squaredNorm(); // bare propagator
   if (IsFock)
     Ek += FockSigma(Mom); // Fock diagram dressed propagator
+  Ek -= Para.Mu;
 
   // double x = Para.Beta * (Ek - Para.Mu) / 2.0;
   // double y = 2.0 * Tau / Para.Beta - 1.0;
@@ -214,8 +206,10 @@ double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   // else
   //   green = exp(-x * y) / (2.0 * cosh(x));
 
-  green = exp(-Ek * Tau) / (1.0 + exp(-Para.Beta * Ek)) *
+  green = exp(-Ek * Tau) / pow((1.0 + exp(-Para.Beta * Ek)), 2.0) *
           (Tau - (Para.Beta - Tau) * exp(-Para.Beta * Ek));
+
+  // green = 0.5 / (1.0 + cosh(Para.Beta * Ek)) * (-Para.Beta);
 
   green *= s;
 
@@ -245,8 +239,8 @@ double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
     green = PhyGreen(Tau, Mom, false);
     // green = 1.0;
   } else if (GType == -2) {
-    green = PhyGreen(Tau, Mom, IsFock);
-    // green = 1.0;
+    // green = PhyGreen(Tau, Mom, IsFock);
+    green = 1.0;
   } else {
     ABORT("GType " << GType << " has not yet been implemented!");
     // return FakeGreen(Tau, Mom);

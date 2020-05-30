@@ -205,10 +205,9 @@ void markov::ChangeGroup() {
              Var.CurrGroup->ReWeight;
 
   // if (NewGroup.ID == 2) {
-  //   cout << fmt::format("\nweight: {0}, prop: {1}, R: {2}\n\n", NewWeight,
-  //   Prop,
-  //                       R);
-  //   cout << Weight.DebugInfo(NewGroup);
+  //   cout << endl << NewGroup.Name << ", TauNum: " << NewGroup.TauNum << endl;
+  //   cout << fmt::format("weight: {0}, prop: {1}, R: {2}\n", NewWeight, Prop,
+  //   R); cout << Weight.DebugInfo(NewGroup);
   // }
 
   if (Random.urn() < R) {
