@@ -26,6 +26,8 @@ Map = {}
 for key in Groups:
     if key == (0, ):
         continue
+    # if key == (2, 1, 0):
+    #     continue
     mappedkey = (key[0]+key[1], key[2])
     Map[key] = mappedkey
 

@@ -42,15 +42,15 @@ void InitPara() {
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
   Para.Type = POLAR;
-  Para.ObsType = FREQ;
-  // Para.ObsType = EQUALTIME;
+  // Para.ObsType = FREQ;
+  Para.ObsType = EQUALTIME;
 
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
 
   if (Para.ObsType == FREQ) {
-    // Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
-    Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+    Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
+    // Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
     Para.GroupName = {"0"}; // initialized with a normalization diagram
     Para.ReWeight = {1.0};
     for (int o = 1; o <= Para.Order; o++)
