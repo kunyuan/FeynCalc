@@ -74,10 +74,19 @@ void InitPara() {
     Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
   } else if (Para.ObsType == EQUALTIME) {
     Para.DiagFileFormat = "groups_mu/DiagPolar{}.txt";
-    Para.GroupName = {"0", "1_0_0", "1_0_1", "2_1_0",
-                      "3_0_0"}; // initialized with a normalization diagram
-    Para.ReWeight = {4.0, 1.0, 1.0, 2.0, 4.0};
+    Para.GroupName = {
+        "0",     "1_0_0", "1_0_1", "1_0_2", "2_1_0", "2_2_0",
+        "2_3_0", "2_0_1", "2_1_1", "3_0_0", "3_1_0", "3_2_0",
+        "3_0_1", "4_0_0", "4_1_0", "5_0_0"}; // initialized with a
+                                             // normalization diagram
+    Para.ReWeight = {4.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0,
+                     2.0, 4.0, 4.0, 4.0, 4.0, 8.0, 4.0, 4.0};
   }
+
+  ASSERT_ALLWAYS(Para.GroupName.size() == Para.ReWeight.size(),
+                 "group num doesn't match reweight num!");
+  ASSERT_ALLWAYS(Para.GroupName.size() < MaxGroupNum,
+                 "MaxGroupNum should be larger!");
 
   // Para.ReWeight.clear();
   // ifstream File;

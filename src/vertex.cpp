@@ -224,6 +224,62 @@ double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   return green;
 }
 
+double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
+  // if tau is exactly zero, set tau=0^-
+  // cout << Tau << endl;
+
+  double green, Ek;
+  if (Tau == 0.0) {
+    Tau = -1.0e-10;
+  }
+
+  double s = 1.0;
+  if (Tau < 0.0) {
+    Tau += Para.Beta;
+    s = -s;
+  } else if (Tau >= Para.Beta) {
+    Tau -= Para.Beta;
+    s = -s;
+  }
+
+  Ek = Mom.squaredNorm(); // bare propagator
+  if (IsFock)
+    Ek += FockSigma(Mom); // Fock diagram dressed propagator
+  Ek -= Para.Mu;
+
+  // double x = Para.Beta * (Ek - Para.Mu) / 2.0;
+  // double y = 2.0 * Tau / Para.Beta - 1.0;
+  // if (x > 100.0)
+  //   green = exp(-x * (y + 1.0));
+  // else if (x < -100.0)
+  //   green = exp(x * (1.0 - y));
+  // else
+  //   green = exp(-x * y) / (2.0 * cosh(x));
+  if (Ek > 0.0) {
+    double Factor = exp(-Para.Beta * Ek);
+    green = exp(-Ek * Tau) / pow(1.0 + Factor, 3.0) *
+            (Tau * Tau / 2.0 - Para.Beta * (Tau - Para.Beta / 2.0) * Factor +
+             pow(Para.Beta - Tau, 2.0) * Factor * Factor);
+  } else {
+    double Factor = exp(Para.Beta * Ek);
+    green = exp(Ek * (Para.Beta - Tau)) / pow(1.0 + Factor, 3.0) *
+            (Tau * Tau / 2.0 * Factor * Factor -
+             Para.Beta * (Tau - Para.Beta / 2.0) * Factor +
+             pow(Para.Beta - Tau, 2.0));
+  }
+  green *= s;
+
+  if (std::isfinite(green) == false)
+    ABORT("Step:" << Para.Counter << ", Green is too large! Tau=" << Tau
+                  << ", Ek=" << Ek << ", Green=" << green << ", Mom"
+                  << ToString(Mom));
+  // if (std::isnan(green))
+  //   ABORT("Step:" << Para.Counter << ", Green is too large! Tau=" << Tau
+  //                 << ", Ek=" << Ek << ", Green=" << green << ", Mom"
+  //                 << ToString(Mom));
+  return green;
+}
+
 double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
   double green;
   bool IsFock = false;
@@ -235,6 +291,8 @@ double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
     green = TwoPhyGreen(Tau, Mom, IsFock);
     // equal time green's function
     // green = PhyGreen(-1.0e-10, Mom);
+  } else if (GType == 2) {
+    green = ThreePhyGreen(Tau, Mom, IsFock);
   } else if (GType == -1) {
     green = PhyGreen(Tau, Mom, false);
     // green = 1.0;

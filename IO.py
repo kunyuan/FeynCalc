@@ -71,7 +71,6 @@ class param:
 # For the given path, get the List of all files in the directory tree
 
 
-
 def LoadFile(Folder, FileName):
     Groups = []
     ReWeight = []
@@ -112,8 +111,12 @@ def LoadFile(Folder, FileName):
                 print "Failed to load {0}".format(f)
                 print str(e)
 
-    return np.array(Data), np.array(Step), Groups, np.array(ReWeight), Grid
+    Data = np.array(Data)
+    DataDict = {}
+    for (idx, g) in enumerate(Groups):
+        DataDict[g] = np.array(Data[:, idx, :])
 
+    return DataDict, np.array(Step), Groups, np.array(ReWeight), Grid
 
 
 def ErrorPlot(p, x, d, color='k', marker='s', label=None, size=4, shift=False):

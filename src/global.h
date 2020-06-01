@@ -64,7 +64,7 @@ const int ScaleBinSize = 32;
 
 //////////   Diagram  ////////////////////////////
 const int MaxOrder = 8;        // Max diagram order
-const int MaxGroupNum = 8;     // Max number of diagram groups
+const int MaxGroupNum = 32;    // Max number of diagram groups
 const int MaxDiagNum = 1024;   // Max number of Hugenholtz diagrams in one group
 const int MaxGPoolSize = 8192; // Max total indepdent G for all diagrams
 const int MaxVerPoolSize = 4096; // Max total indepdent vertex for all diagrams

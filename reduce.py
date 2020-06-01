@@ -5,13 +5,13 @@ def Estimate(Data, Weights, axis=0):
     """ Return Mean and Error  with given weights"""
     # Assume weights are similar when calculating error bars
     Weights = np.array(Weights)
-    Num = len(Data)
+    Num = len(Weights)
     assert Num > 0, "Data is empty!"
-    assert len(Data) == Num, "Data and Weights size must match!"
+    assert Data.shape[0] == Num, "Data and Weights size must match!"
     Avg = np.average(Data, weights=Weights, axis=0)
     Var = np.average((Data-Avg)**2, weights=Weights, axis=0)
     Err = np.sqrt(Var/(Num-1)) if Num > 1 else 0.0
-    return Avg, Err
+    return np.array((Avg, Err))
 
 
 def Reduce(Dict, Map):
@@ -25,6 +25,15 @@ def Reduce(Dict, Map):
             else:
                 mappedDict[key] = Dict[g]
     return mappedDict
+
+
+def EstimateGroup(DataDict, Steps, Phys, group):
+    Norm = np.sum(DataDict[(0, )][:, :], axis=-1)  # shape=pid
+    if DataDict.has_key(group):
+        data = DataDict[group][:, :]/Norm[:, np.newaxis]*Phys
+        return Estimate(data, Steps)
+    else:
+        return None
 
 
 def GetData(Data, Groups, Steps, Phys, Map):
@@ -47,4 +56,4 @@ def GetData(Data, Groups, Steps, Phys, Map):
         y, err = Estimate(data, Steps, axis=0)
         EsData[key] = np.array((y, err))
 
-    return EsData
+    return EsData, Dict
