@@ -29,7 +29,7 @@ for (o, key) in enumerate(sorted(EsDataDict.keys())):
     if key == (0, ):
         continue
     y = EsDataDict[key]
-    print yellow("(Order: {0}, VerCT: {1}, SigamCT: {2}) = {3} +- {4}".format(
+    print yellow("(Order: {0}, VerCT: {1}, SigamCT: {2}) = {3:12.6f} +- {4:12.6f}".format(
         key[0], key[1], key[2], np.average(y[0]), np.average(y[1])*2.0))
     EsDataDict[key] = np.array((np.average(y), np.average(y[1])))
 
@@ -56,7 +56,7 @@ for (o, key) in enumerate(sorted(EsData.keys())):
     if key == (0, ):
         continue
     y = EsData[key]
-    print green("(Order: {0}, SigamCT: {1}) = {2} +- {3}".format(
+    print green("(Order: {0}, SigamCT: {1}) = {2:12.6f} +- {3:12.6f}".format(
         key[0], key[1], np.average(y[0]), np.average(y[1])*2.0))
 
 # plt.errorbar(KGrid/Para.kF, y, yerr=err, fmt='o-', capthick=1, capsize=4,
