@@ -1,8 +1,16 @@
 from IO import *
 import scipy.integrate as integrate
 import reduce
+import matplotlib as mat
+import matplotlib.pyplot as plt
 
-D = 3
+plt.switch_backend('TkAgg')
+mat.rcParams.update({'font.size': 16})
+mat.rcParams["font.family"] = "Times New Roman"
+size = 12
+
+
+D = 2
 Spin = 2
 Para = param(D, Spin)
 
@@ -12,19 +20,17 @@ print Groups
 
 
 def bubble(e):
-    return Para.Beta*Spin/8.0/np.pi**2 * \
-        e**0.5/(1.0+np.cosh(Para.Beta*(e-Para.EF)))
+    if D == 3:
+        return Para.Beta*Spin/8.0/np.pi**2 * \
+            e**0.5/(1.0+np.cosh(Para.Beta*(e-Para.EF)))
+    else:
+        return Para.Beta*Spin/8.0/np.pi / (1.0+np.cosh(Para.Beta*(e-Para.EF)))
 
 
 Bubble = integrate.quad(bubble, 0.0, 20.0)
 print "Static Polarization: ", Bubble[0], "+-", Bubble[1]
 
-# Phys = Bubble[0]
-# Norm = [data[0, 0] for data in Data]
-
 Phys = Bubble[0]*len(KGrid)
-# Norm = [sum(data[0, :]) for data in Data]
-# print Phys
 
 EsDataDict = {}
 for g in DataDict.keys():
@@ -47,7 +53,7 @@ for key in Groups:
 
 EsData = reduce.Reduce(EsDataDict, Map)
 # print reduce.GetGroup(EsData, MappedGroups, Step, Phys, (4, 0))
-print "Mapped result: ", EsData[(4, 0)][0]
+# print "Mapped result: ", EsData[(4, 0)][0]
 
 fig, ax = plt.subplots()
 for (o, key) in enumerate(sorted(EsData.keys())):
@@ -57,16 +63,23 @@ for (o, key) in enumerate(sorted(EsData.keys())):
     print green("(Order: {0}, SigmaCT: {1}) = {2:12.8f} +- {3:12.8f}".format(
         key[0], key[1], y[0][0], y[1][0]*2.0))
 
-mu = np.loadtxt("dMu.data")
-print mu[0, 0], mu[0, 1]
+# load chemical potential shift from the file
+# mu = np.loadtxt("dMu.data")
+# dMu2, dMu3, dMu4 = mu[0, :]
+# dMu2Err, dMu3Err, dMu4Err = mu[1, :]
 
-dMu2, dMu3, dMu4 = mu[0, :]
-dMu2Err, dMu3Err, dMu4Err = mu[1, :]
+# simply set all chemical potenetial shift to be zero
+dMu2, dMu3, dMu4 = 0.0, 0.0, 0.0
+
 Each = {}
-Each[1] = EsData[(1, 0)]
-Each[2] = EsData[(2, 0)]
-Each[3] = EsData[(3, 0)]+dMu2*EsData[(1, 1)]
-Each[4] = EsData[(4, 0)]+dMu2*EsData[(2, 1)]+dMu3*EsData[(1, 1)]
+if Para.Order >= 1:
+    Each[1] = EsData[(1, 0)]
+if Para.Order >= 2:
+    Each[2] = EsData[(2, 0)]
+if Para.Order >= 3:
+    Each[3] = EsData[(3, 0)]+dMu2*EsData[(1, 1)]
+if Para.Order >= 4:
+    Each[4] = EsData[(4, 0)]+dMu2*EsData[(2, 1)]+dMu3*EsData[(1, 1)]
 
 Accu = {}
 for o in range(1, Para.Order+1):
@@ -95,5 +108,5 @@ plt.legend(loc=1, frameon=False, fontsize=size)
 # plt.title("2D density integral")
 plt.tight_layout()
 
-# plt.savefig("spin_rs1_lambda1.pdf")
+# plt.savefig("charge_rs1_lambda1.pdf")
 plt.show()

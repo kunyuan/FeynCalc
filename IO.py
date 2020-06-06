@@ -1,19 +1,22 @@
-import seaborn as sns
-import os
-import sys
-import re
-import glob
-import numpy as np
 from color import *
+import numpy as np
+import glob
+import re
+import sys
+import os
+# import seaborn as sns
 
-import matplotlib.pyplot as plt
-import matplotlib as mat
-mat.rcParams.update({'font.size': 16})
-mat.rcParams["font.family"] = "Times New Roman"
-size = 12
+# import matplotlib as mat
+# mat.use("agg")
+# import matplotlib.pyplot as plt
 
-sns.set_style("whitegrid")
-sns.set_palette("colorblind", n_colors=16)
+
+# mat.rcParams.update({'font.size': 16})
+# mat.rcParams["font.family"] = "Times New Roman"
+# size = 12
+
+# sns.set_style("whitegrid")
+# sns.set_palette("colorblind", n_colors=16)
 
 
 def GetLine(file):
@@ -54,8 +57,7 @@ class param:
             self.Nf = self.kF/4.0/np.pi**2*self.Spin
         elif self.Dim == 2:
             self.kF = np.sqrt(2.0)/self.Rs  # 2D
-            print "Not Implemented for Dimension {0}".format(self.Dim)
-            sys.exit(0)
+            self.Nf = 1.0/4.0/np.pi*self.Spin
         else:
             print "Not Implemented for Dimension {0}".format(self.Dim)
             sys.exit(0)
