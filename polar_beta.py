@@ -17,6 +17,7 @@ Para = param(D, Spin)
 DataDict, Step, Groups, ReWeight, Grids = LoadFile("data", "pid[0-9]+.dat")
 KGrid = Grids["KGrid"]
 print Groups
+print DataDict[0].shape
 
 
 def bubble(e):

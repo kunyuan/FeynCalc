@@ -165,15 +165,17 @@ void MonteCarlo() {
       // }
 
       double x = Random.urn();
-      if (x < 1.0 / 3.0) {
+      if (x < 1.0 / 4.0) {
         Markov.ChangeGroup();
         // ;
-      } else if (x < 2.0 / 3.0) {
+      } else if (x < 2.0 / 4.0) {
         Markov.ChangeMomentum();
         // ;
-      } else if (x < 3.0 / 3.0) {
+      } else if (x < 3.0 / 4.0) {
         Markov.ChangeTau();
         // ;
+      } else if (x < 4.0 / 4.0) {
+        Markov.ChangeTemperatue();
       }
 
       // if (Para.Counter == 8831001) {

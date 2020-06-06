@@ -10,7 +10,7 @@
 
 namespace mc {
 using namespace std;
-const int MCUpdates = 5;
+const int MCUpdates = 6;
 
 typedef array<double, ExtMomBinSize> polar;
 
@@ -29,6 +29,7 @@ public:
   void IncreaseOrder();
   void DecreaseOrder();
   void ChangeGroup();
+  void ChangeTemperatue();
 
   void Measure();
   void SaveToFile();
@@ -42,7 +43,8 @@ public:
 
 private:
   // polarizatoin for each group
-  unordered_map<int, polar> Polar;
+  array<unordered_map<int, polar>, BetaBinSize> Polar;
+  // unordered_map<int, polar> Polar;
 
   // polarizatoin for each group at the zero momentumr;
   unordered_map<int, double> PolarStatic;
@@ -69,6 +71,7 @@ private:
     CHANGE_GROUP,
     CHANGE_TAU,
     CHANGE_MOM,
+    CHANGE_TEMP,
     END
   };
   std::string _DetailBalanceStr(Updates op);

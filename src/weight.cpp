@@ -106,6 +106,11 @@ void weight::Initialization() {
   //   Var.CurrGroup = &Groups[0];
 
   Var.CurrGroup = &Groups[0];
+
+  Var.BetaTable = {10.0, 20.0};
+  Var.CurrBetaBin = 1;
+  Para.Beta = Var.BetaTable[Var.CurrBetaBin];
+
   LOG_INFO("Calculating the weights of all objects...")
 
   ChangeGroup(*Var.CurrGroup, true);

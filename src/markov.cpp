@@ -36,6 +36,7 @@ markov::markov() : Var(Weight.Var), Groups(Weight.Groups) {
   UpdatesName[CHANGE_GROUP] = NAME(CHANGE_GROUP);
   UpdatesName[CHANGE_MOM] = NAME(CHANGE_MOM);
   UpdatesName[CHANGE_TAU] = NAME(CHANGE_TAU);
+  UpdatesName[CHANGE_TEMP] = NAME(CHANGE_TEMP);
 
   // for(int i=0;i<MCUpdates;i++)
   // UpdatesName[(Updates)i]=NAME((Updates))
@@ -45,7 +46,8 @@ markov::markov() : Var(Weight.Var), Groups(Weight.Groups) {
 
   ///==== initialize observable =======================//
   for (auto &g : Groups) {
-    Polar[g.ID].fill(1.0e-10);
+    for (auto &polar : Polar)
+      polar[g.ID].fill(1.0e-10);
     PolarStatic[g.ID] = 1.0e-10;
   }
   ///=== Do all kinds of test  =======================//
@@ -102,11 +104,13 @@ void markov::AdjustGroupReWeight() {
 };
 
 void markov::Measure() {
+  // if (Var.CurrBetaBin != 1)
+  //   return;
   // cout << Var.Tau[1] << endl;
   double MCWeight = fabs(Var.CurrGroup->Weight) * Var.CurrGroup->ReWeight;
   double WeightFactor = Var.CurrGroup->Weight / MCWeight;
 
-  Polar[Var.CurrGroup->ID][Var.CurrExtMomBin] += WeightFactor;
+  Polar[Var.CurrBetaBin][Var.CurrGroup->ID][Var.CurrExtMomBin] += WeightFactor;
   PolarStatic[Var.CurrGroup->ID] += WeightFactor;
 };
 
@@ -127,13 +131,21 @@ void markov::SaveToFile() {
     PolarFile << endl;
 
     PolarFile << "# KGrid: ";
-    for (int j = 0; j < Polar[Groups[0].ID].size(); j++)
+    for (int j = 0; j < ExtMomBinSize; j++)
       PolarFile << Var.ExtMomTable[j][0] << " ";
     PolarFile << endl;
 
+    // for (auto &group : Groups) {
+    //   for (int beta = 0; beta < BetaBinSize; ++beta) {
+    //     for (int j = 0; j < Polar[group.ID].size(); j++) {
+    //       PolarFile << Polar[beta][group.ID][j] << " ";
+    //     }
+    //     PolarFile << endl;
+    //   }
+    // }
     for (auto &group : Groups) {
-      for (int j = 0; j < Polar[group.ID].size(); j++) {
-        PolarFile << Polar[group.ID][j] << " ";
+      for (int j = 0; j < Polar[1][group.ID].size(); j++) {
+        PolarFile << Polar[1][group.ID][j] << " ";
       }
       PolarFile << endl;
     }
@@ -286,6 +298,41 @@ void markov::ChangeMomentum() {
     Var.LoopMom[LoopIndex] = CurrMom;
     Weight.RejectChange(*Var.CurrGroup);
   }
+};
+
+void markov::ChangeTemperatue() {
+  double Prop = 1.0;
+
+  int NewBetaBin;
+  if (Random.urn() < 0.5)
+    NewBetaBin = Var.CurrBetaBin + 1;
+  else
+    NewBetaBin = Var.CurrBetaBin - 1;
+  if (NewBetaBin < 0 || NewBetaBin > BetaBinSize - 1)
+    return;
+
+  double OldBeta = Para.Beta;
+  Para.Beta = Var.BetaTable[NewBetaBin];
+  for (auto &t : Var.Tau)
+    t = t / OldBeta * Para.Beta;
+
+  Proposed[CHANGE_TEMP][Var.CurrGroup->ID] += 1;
+
+  Weight.ChangeGroup(*Var.CurrGroup, true);
+  double NewWeight = Weight.GetNewWeight(*Var.CurrGroup);
+  double R = Prop * fabs(NewWeight) / fabs(Var.CurrGroup->Weight);
+
+  if (Random.urn() < R) {
+    Accepted[CHANGE_TEMP][Var.CurrGroup->ID]++;
+    Var.CurrBetaBin = NewBetaBin;
+    Weight.AcceptChange(*Var.CurrGroup);
+  } else {
+    for (auto &t : Var.Tau)
+      t = t / Para.Beta * OldBeta;
+    Para.Beta = OldBeta;
+    Weight.RejectChange(*Var.CurrGroup);
+  }
+  return;
 };
 
 double markov::GetNewTau(double &NewTau) {
