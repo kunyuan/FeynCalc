@@ -170,7 +170,9 @@ void MonteCarlo() {
 
   LOG_INFO("Start simulation ...")
 
-  for (int Block = 0; Block < Para.TotalStep; Block++) {
+  // for (int Block = 0; Block < Para.TotalStep; Block++) {
+  int Block=0;
+  while (Block<Para.TotalStep||Para.TotalStep<=0) {
     for (int i = 0; i < 1000000; i++) {
       Para.Counter++;
       // if (Para.Counter == 9) {
