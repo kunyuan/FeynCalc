@@ -38,7 +38,7 @@ class param:
     # kF, Nf, EF, Bubble = [0.0, ]*4
     def __init__(self, D, Spin):
         self.DataFolder = "Data"
-        self.InputFile = "inlist"
+        self.InputFile = "parameter"
         self.Dim = D
         self.Spin = Spin
 

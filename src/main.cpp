@@ -13,6 +13,7 @@
 #include "utility/logger.h"
 #include "utility/timer.h"
 #include "weight.h"
+#include <random>
 #include <iostream>
 #include <math.h>
 #include <unistd.h>
@@ -26,11 +27,24 @@ parameter Para; // parameters as a global variable
 RandomFactory Random;
 
 int main(int argc, const char *argv[]) {
+  if (argc>1)
+  {
+    Para.PID=atoi(argv[1]);
+    Para.Seed=Para.PID;
+  }else{
+    std::random_device rd;
+    Para.PID=rd() % 1000000;
+    Para.Seed=Para.PID;
+  }
+  ifstream File;
+  File.open("parameter", ios::in);
   cout << "Order, Beta, Rs, Mass2, Lambda, MaxExtMom(*kF), TotalStep(*1e6), "
           "Seed, "
           "PID\n";
-  cin >> Para.Order >> Para.Beta >> Para.Rs >> Para.Mass2 >> Para.Lambda >>
-      Para.MaxExtMom >> Para.TotalStep >> Para.Seed >> Para.PID;
+
+  File >> Para.Order >> Para.Beta >> Para.Rs >> Para.Mass2 >> Para.Lambda >>
+      Para.MaxExtMom >> Para.TotalStep;
+  File.close();
   InitPara(); // initialize global parameters
   MonteCarlo();
   return 0;
