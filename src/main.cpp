@@ -13,9 +13,9 @@
 #include "utility/logger.h"
 #include "utility/timer.h"
 #include "weight.h"
-#include <random>
 #include <iostream>
 #include <math.h>
+#include <random>
 #include <unistd.h>
 
 using namespace std;
@@ -27,14 +27,13 @@ parameter Para; // parameters as a global variable
 RandomFactory Random;
 
 int main(int argc, const char *argv[]) {
-  if (argc>1)
-  {
-    Para.PID=atoi(argv[1]);
-    Para.Seed=Para.PID;
-  }else{
+  if (argc > 1) {
+    Para.PID = atoi(argv[1]);
+    Para.Seed = Para.PID;
+  } else {
     std::random_device rd;
-    Para.PID=rd() % 1000000;
-    Para.Seed=Para.PID;
+    Para.PID = rd() % 1000000;
+    Para.Seed = Para.PID;
   }
   ifstream File;
   File.open("parameter", ios::in);
@@ -58,6 +57,8 @@ void InitPara() {
   Para.Type = POLAR;
   Para.ObsType = FREQ;
   // Para.ObsType = EQUALTIME;
+  Para.SelfEnergyType = FOCK;
+  // Para.SelfEnergyType = BARE;
 
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
@@ -65,6 +66,7 @@ void InitPara() {
   if (Para.ObsType == FREQ) {
     Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
     // Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+    // Para.DiagFileFormat = "groups_spinless/DiagPolar{}.txt";
     Para.GroupName = {"0"}; // initialized with a normalization diagram
     Para.ReWeight = {1.0};
     for (int o = 1; o <= Para.Order; o++)
@@ -119,9 +121,6 @@ void InitPara() {
   // for (int g = 0; g < Para.GroupName.size(); g++)
   //   Para.ReWeight.push_back(1.0);
 
-  Para.SelfEnergyType = FOCK;
-  // Para.SelfEnergyType = BARE;
-
   //// initialize the global parameter //////////////////////
   double Kf;
   if (D == 3) {
@@ -171,8 +170,9 @@ void MonteCarlo() {
   LOG_INFO("Start simulation ...")
 
   // for (int Block = 0; Block < Para.TotalStep; Block++) {
-  int Block=0;
-  while (Block<Para.TotalStep||Para.TotalStep<=0) {
+  int Block = 0;
+  while (Block < Para.TotalStep || Para.TotalStep <= 0) {
+    Block++;
     for (int i = 0; i < 1000000; i++) {
       Para.Counter++;
       // if (Para.Counter == 9) {

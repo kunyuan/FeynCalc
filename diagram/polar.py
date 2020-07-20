@@ -175,7 +175,7 @@ class polar():
         #     PermutationDict)
         return list(DeformationFinal)
 
-    def ToString(self, PolarHugenList, VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar):
+    def ToString(self, PolarHugenList, VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar, SPIN):
         if len(PolarHugenList) == 0:
             return
 
@@ -290,7 +290,7 @@ class polar():
                 Sign = (-1)**nloop*(-1)**(self.Order-1) / \
                     (Diag.SymFactor/abs(Diag.SymFactor))
 
-                if IsSpinPolar:
+                if IsSpinPolar and SPIN == 2:
                     ########### for spin susceptibility   #####################
                     Flag = False
                     for p in Path:
@@ -300,11 +300,11 @@ class polar():
                     if Flag == False:
                         Body += "{0:2d} ".format(0)
                     else:
-                        Body += "{0:2d} ".format(2**nloop *
+                        Body += "{0:2d} ".format(SPIN**nloop *
                                                  int(Sign)*FactorList[idx])
                 else:
                     # make sure the sign of the Spin factor of the first diagram is positive
-                    Body += "{0:2d} ".format(2**nloop *
+                    Body += "{0:2d} ".format(SPIN**nloop *
                                              int(Sign)*FactorList[idx])
             #   Body += "{0:2d} ".format(-(-1)**nloop*Factor)
 

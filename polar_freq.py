@@ -55,7 +55,6 @@ EsData = reduce.Reduce(EsDataDict, Map)
 # print reduce.GetGroup(EsData, MappedGroups, Step, Phys, (4, 0))
 # print "Mapped result: ", EsData[(4, 0)][0]
 
-fig, ax = plt.subplots()
 for (o, key) in enumerate(sorted(EsData.keys())):
     if key == (0, ):
         continue

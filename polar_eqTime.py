@@ -1,8 +1,15 @@
 from IO import *
 import scipy.integrate as integrate
 import reduce
+import matplotlib as mat
+import matplotlib.pyplot as plt
 
-D = 3
+plt.switch_backend('TkAgg')
+mat.rcParams.update({'font.size': 16})
+mat.rcParams["font.family"] = "Times New Roman"
+size = 12
+
+D = 2
 Spin = 2
 Para = param(D, Spin)
 
