@@ -1,5 +1,6 @@
 from IO import *
 import scipy.integrate as integrate
+import bubble
 import reduce
 import matplotlib as mat
 import matplotlib.pyplot as plt
@@ -10,7 +11,7 @@ mat.rcParams["font.family"] = "Times New Roman"
 size = 12
 
 # IsLocalField=False
-IsLocalField=True
+IsLocalField = True
 
 D = 3
 Spin = 2
@@ -25,7 +26,7 @@ Spin = 2
 # dMu2, dMu3, dMu4 = -0.261, -0.123, -0.07  #rs=1, beta=40, lambda=1.5
 # dMu2, dMu3, dMu4 = -0.252, -0.129, -0.077  #rs=1, beta=40, lambda=2
 
-dMu2, dMu3, dMu4 = -0.0936, -0.0362, -0.00  #rs=1, beta=40, lambda=1.5
+dMu2, dMu3, dMu4 = -0.0936, -0.0362, -0.00  # rs=1, beta=40, lambda=1.5
 
 
 Para = param(D, Spin)
@@ -34,33 +35,17 @@ DataDict, Step, Groups, ReWeight, Grids = LoadFile("data", "pid[0-9]+.dat")
 KGrid = Grids["KGrid"]
 print Groups
 
-
-def bubble(e):
-    if D == 3:
-        return Para.Beta*Spin/8.0/np.pi**2 * \
-            e**0.5/(1.0+np.cosh(Para.Beta*(e-Para.EF)))
-    else:
-        return Para.Beta*Spin/8.0/np.pi / (1.0+np.cosh(Para.Beta*(e-Para.EF)))
-
-Bubble = integrate.quad(bubble, 0.0, 20.0)
-print "Static Polarization: ", Bubble[0], "+-", Bubble[1]
-
 ###### Calculate finite-temperature polarization ################
-def bubbleQ(k, q):
-    if D==3:
-        return Spin/8.0/np.pi**2/q*(k/(1+np.exp(Para.Beta*(k**2-Para.EF))))*np.log(((q**2-2.0*k*q)/(q**2+2.0*k*q))**2)
-
-BubbleQ=np.zeros(len(KGrid))
+BubbleQ = np.zeros(len(KGrid))
 for qi, q in enumerate(KGrid):
-    if abs(q)<1.0e-10:
-        BubbleQ[qi]=Bubble[0]
-    else:
-        BubbleQ[qi]=integrate.quad(bubbleQ, 0.0, 60.0, args=(q, ))[0]
+    BubbleQ[qi] = bubble.Bubble(D, Para.Beta, Spin, Para.EF, q)[0]
     # print q, BubbleQ[qi]
 ################################################################
 
-# Phys = Bubble[0]*len(KGrid)
-Phys = Para.Nf*len(KGrid)
+Bubble = bubble.Bubble(D, Para.Beta, Spin, Para.EF, 0.0)
+print "Uniform Polarization: ", Bubble[0], "+-", Bubble[1]
+print "Uniform polarization for the Free electron at T=0: ", Para.Nf
+Phys = Bubble[0]*len(KGrid)
 
 EsDataDict = {}
 for g in DataDict.keys():
@@ -111,7 +96,7 @@ for o in range(1, Para.Order+1):
 
 fig, ax = plt.subplots()
 
-if IsLocalField==False:
+if IsLocalField == False:
     for o in range(1, Para.Order+1):
         plt.errorbar(KGrid/Para.kF, Accu[o][0], yerr=Accu[o][1]*2.0, fmt='o-', capthick=1, capsize=4,
                      color=ColorList[o], label="Order {0}".format(o))
@@ -121,10 +106,10 @@ if IsLocalField==False:
             o, Each[o][0, 0], Each[o][1, 0]*1.0, Accu[o][0, 0], Accu[o][1, 0]*1.0)
 else:
     for o in range(1, Para.Order+1):
-        G=KGrid**2/8.0/np.pi*(-1.0/BubbleQ-1.0/Accu[o][0, :])
+        G = KGrid**2/8.0/np.pi*(-1.0/BubbleQ-1.0/Accu[o][0, :])
 
         plt.errorbar(KGrid/Para.kF, G, yerr=0.0, fmt='o-', capthick=1, capsize=4,
-                    color=ColorList[o], label="Order {0}".format(o))
+                     color=ColorList[o], label="Order {0}".format(o))
         # print "Order {0}: {1:12.8f} +-{2:12.8f}, Accu: {3:12.8f} +-{4:12.8f}".format(
         #     o, Each[o][0, 0], Each[o][1, 0]*1.0, Accu[o][0, 0], Accu[o][1, 0]*1.0)
 

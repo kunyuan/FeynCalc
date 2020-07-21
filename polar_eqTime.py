@@ -1,4 +1,5 @@
 from IO import *
+import bubble
 import scipy.integrate as integrate
 import reduce
 import matplotlib as mat
@@ -18,17 +19,11 @@ KGrid = Grids["KGrid"]
 # for i in range(len(Data)):
 #     print i, Data[i][1, 0]
 
-
-def bubble(e):
-    return Spin/8.0/np.pi**2 * \
-        e**0.5/(1.0+np.cosh(Para.Beta*(e-Para.EF)))
-
-
-Bubble = integrate.quad(bubble, 0.0, 50.0*Para.EF)
-print "EqualTime Polarization: ", Bubble[0], "+-", Bubble[1]
-print Para.Nf
-# Phys = Bubble[0]*len(KGrid)
-Phys = Para.Nf*len(KGrid)
+Bubble = bubble.Bubble(D, Para.Beta, Spin, Para.EF, 0.0)
+print "Uniform Polarization: ", Bubble[0], "+-", Bubble[1]
+print "Uniform polarization for the Free electron at T=0: ", Para.Nf
+Phys = Bubble[0]*len(KGrid)
+# Phys = Para.Nf*len(KGrid)
 
 EsDataDict = {}
 for g in DataDict.keys():
