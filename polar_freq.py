@@ -9,10 +9,23 @@ mat.rcParams.update({'font.size': 16})
 mat.rcParams["font.family"] = "Times New Roman"
 size = 12
 
+# IsLocalField=False
 IsLocalField=True
 
 D = 3
 Spin = 2
+
+# load chemical potential shift from the file
+# mu = np.loadtxt("dMu.data")
+# dMu2, dMu3, dMu4 = mu[0, :]
+# dMu2Err, dMu3Err, dMu4Err = mu[1, :]
+
+# simply set all chemical potenetial shift to be zero
+# dMu2, dMu3, dMu4 = -0.272, -0.109, -0.062  #rs=1, beta=40, lambda=1
+dMu2, dMu3, dMu4 = -0.261, -0.123, -0.07  #rs=1, beta=40, lambda=1.5
+# dMu2, dMu3, dMu4 = -0.252, -0.129, -0.077  #rs=1, beta=40, lambda=2
+
+
 Para = param(D, Spin)
 
 DataDict, Step, Groups, ReWeight, Grids = LoadFile("data", "pid[0-9]+.dat")
@@ -76,14 +89,6 @@ for (o, key) in enumerate(sorted(EsData.keys())):
     print green("(Order: {0}, SigmaCT: {1}) = {2:12.8f} +- {3:12.8f}".format(
         key[0], key[1], y[0][0], y[1][0]*2.0))
 
-# load chemical potential shift from the file
-# mu = np.loadtxt("dMu.data")
-# dMu2, dMu3, dMu4 = mu[0, :]
-# dMu2Err, dMu3Err, dMu4Err = mu[1, :]
-
-# simply set all chemical potenetial shift to be zero
-dMu2, dMu3, dMu4 = 0.0, 0.0, 0.0
-
 Each = {}
 if Para.Order >= 1:
     Each[1] = EsData[(1, 0)]
@@ -105,10 +110,10 @@ fig, ax = plt.subplots()
 
 if IsLocalField==False:
     for o in range(1, Para.Order+1):
-        # plt.errorbar(KGrid/Para.kF, Accu[o][0], yerr=Accu[o][1]*2.0, fmt='o-', capthick=1, capsize=4,
-        #              color=ColorList[o], label="Order {0}".format(o))
-        plt.errorbar(KGrid/Para.kF, Each[o][0, :], yerr=Each[o][1, :]*2.0, fmt='o-', capthick=1, capsize=4,
-                    color=ColorList[o], label="Order {0}".format(o))
+        plt.errorbar(KGrid/Para.kF, Accu[o][0], yerr=Accu[o][1]*2.0, fmt='o-', capthick=1, capsize=4,
+                     color=ColorList[o], label="Order {0}".format(o))
+        # plt.errorbar(KGrid/Para.kF, Each[o][0, :], yerr=Each[o][1, :]*2.0, fmt='o-', capthick=1, capsize=4,
+        #             color=ColorList[o], label="Order {0}".format(o))
         print "Order {0}: {1:12.8f} +-{2:12.8f}, Accu: {3:12.8f} +-{4:12.8f}".format(
             o, Each[o][0, 0], Each[o][1, 0]*1.0, Accu[o][0, 0], Accu[o][1, 0]*1.0)
 else:
