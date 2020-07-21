@@ -55,8 +55,8 @@ void InitPara() {
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
   Para.Type = POLAR;
-  Para.ObsType = FREQ;
-  // Para.ObsType = EQUALTIME;
+  // Para.ObsType = FREQ;
+  Para.ObsType = EQUALTIME;
   Para.SelfEnergyType = FOCK;
   // Para.SelfEnergyType = BARE;
 

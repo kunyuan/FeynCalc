@@ -4,5 +4,13 @@
         "ostream": "cpp"
     },
     "cmake.configureOnOpen": false,
-    "python.pythonPath": "/Users/kunchen/anaconda3/envs/py2/bin/python"
+    "python.pythonPath": "/Users/kunchen/anaconda3/envs/py2/bin/python",
+    "spellright.language": [
+        "en_US"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ]
 }
