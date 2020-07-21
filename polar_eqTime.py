@@ -9,7 +9,7 @@ mat.rcParams.update({'font.size': 16})
 mat.rcParams["font.family"] = "Times New Roman"
 size = 12
 
-D = 2
+D = 3
 Spin = 2
 Para = param(D, Spin)
 
@@ -24,9 +24,11 @@ def bubble(e):
         e**0.5/(1.0+np.cosh(Para.Beta*(e-Para.EF)))
 
 
-Bubble = integrate.quad(bubble, 0.0, 20.0)
+Bubble = integrate.quad(bubble, 0.0, 50.0*Para.EF)
 print "EqualTime Polarization: ", Bubble[0], "+-", Bubble[1]
-Phys = Bubble[0]*len(KGrid)
+print Para.Nf
+# Phys = Bubble[0]*len(KGrid)
+Phys = Para.Nf*len(KGrid)
 
 EsDataDict = {}
 for g in DataDict.keys():

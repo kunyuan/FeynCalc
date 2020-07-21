@@ -56,8 +56,8 @@ void InitPara() {
 
   Para.Type = POLAR;
   Para.ObsType = FREQ;
-  // Para.ObsType = EQUALTIME;
-  Para.SelfEnergyType = FOCK;
+  Para.ObsType = EQUALTIME;
+  // Para.SelfEnergyType = FOCK;
   // Para.SelfEnergyType = BARE;
 
   Para.UseVer4 = false;

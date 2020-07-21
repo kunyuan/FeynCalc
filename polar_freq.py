@@ -22,8 +22,10 @@ Spin = 2
 
 # simply set all chemical potenetial shift to be zero
 # dMu2, dMu3, dMu4 = -0.272, -0.109, -0.062  #rs=1, beta=40, lambda=1
-dMu2, dMu3, dMu4 = -0.261, -0.123, -0.07  #rs=1, beta=40, lambda=1.5
+# dMu2, dMu3, dMu4 = -0.261, -0.123, -0.07  #rs=1, beta=40, lambda=1.5
 # dMu2, dMu3, dMu4 = -0.252, -0.129, -0.077  #rs=1, beta=40, lambda=2
+
+dMu2, dMu3, dMu4 = -0.0936, -0.0362, -0.00  #rs=1, beta=40, lambda=1.5
 
 
 Para = param(D, Spin)
@@ -57,7 +59,8 @@ for qi, q in enumerate(KGrid):
     # print q, BubbleQ[qi]
 ################################################################
 
-Phys = Bubble[0]*len(KGrid)
+# Phys = Bubble[0]*len(KGrid)
+Phys = Para.Nf*len(KGrid)
 
 EsDataDict = {}
 for g in DataDict.keys():
