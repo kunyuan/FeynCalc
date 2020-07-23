@@ -19,7 +19,7 @@ KGrid = Grids["KGrid"]
 # for i in range(len(Data)):
 #     print i, Data[i][1, 0]
 
-Bubble = bubble.Bubble(D, Para.Beta, Spin, Para.EF, 0.0)
+Bubble = bubble.Bubble(D, Para.Beta, Spin, Para.kF, 0.0)
 print "Uniform Polarization: ", Bubble[0], "+-", Bubble[1]
 print "Uniform polarization for the Free electron at T=0: ", Para.Nf
 Phys = Bubble[0]*len(KGrid)
