@@ -38,17 +38,18 @@ print Groups
 ###### Calculate finite-temperature polarization ################
 BubbleQ = np.zeros(len(KGrid))
 for qi, q in enumerate(KGrid):
-    BubbleQ[qi] = bubble.Bubble(D, Para.Beta, Spin, Para.EF, q)[0]
-    # print q, BubbleQ[qi]
+    BubbleQ[qi] = bubble.Bubble(D, Para.Beta, Spin, Para.kF, q)[0]
+    # print "{0:10.6f}  {1:10.6f}".format(q/Para.kF, BubbleQ[qi])
 ################################################################
 
-Bubble = bubble.Bubble(D, Para.Beta, Spin, Para.EF, 0.0)
+Bubble = bubble.Bubble(D, Para.Beta, Spin, Para.kF, 0.0)
 print "Uniform Polarization: ", Bubble[0], "+-", Bubble[1]
 print "Uniform polarization for the Free electron at T=0: ", Para.Nf
 Phys = Bubble[0]*len(KGrid)
 
 EsDataDict = {}
 for g in DataDict.keys():
+    print g
     EsDataDict[g] = reduce.EstimateGroup(DataDict, Step, Phys, g)
 
 for (o, key) in enumerate(sorted(EsDataDict.keys())):
@@ -87,7 +88,10 @@ if Para.Order >= 3:
 if Para.Order >= 4:
     Each[4] = EsData[(4, 0)]+dMu2*EsData[(2, 1)]+dMu3*EsData[(1, 1)]
 if Para.Order >= 5:
-    Each[5] = EsData[(5, 0)]+dMu2*EsData[(3, 1)]+dMu3*EsData[(2, 1)]+dMu4*EsData[(1,1)]
+    Each[5] = EsData[(5, 0)]+dMu2*EsData[(3, 1)]+dMu3 * \
+        EsData[(2, 1)]+dMu4*EsData[(1, 1)]
+    # Each[5] = EsData[(5, 0)]+dMu2*EsData[(3, 1)]+dMu3 * \
+    #     EsData[(2, 1)]+dMu4*EsData[(1, 1)]+dMu2**2*EsData[(1, 2)]
 
 Accu = {}
 for o in range(1, Para.Order+1):
