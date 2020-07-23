@@ -54,12 +54,12 @@ void InitPara() {
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
-  Para.Type = POLAR;
-  //Para.ObsType = FREQ;
-  Para.ObsType = EQUALTIME;
-   Para.SelfEnergyType = FOCK;
-  // Para.SelfEnergyType = BARE;
+  Para.ObsType = FREQ;
+  // Para.ObsType = EQUALTIME;
 
+  Para.Type = POLAR;
+  Para.SelfEnergyType = FOCK;
+  // Para.SelfEnergyType = BARE;
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
 
@@ -86,7 +86,8 @@ void InitPara() {
           Para.ReWeight.push_back(pow(2.0, o));
         }
       }
-    cout << endl;
+    Para.GroupName.push_back("1_0_2");
+    Para.ReWeight.push_back(10.0);
     Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
   } else if (Para.ObsType == EQUALTIME) {
     Para.DiagFileFormat = "groups_mu/DiagPolar{}.txt";

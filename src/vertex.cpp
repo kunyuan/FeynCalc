@@ -266,16 +266,25 @@ double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   //   green = exp(-x * y) / (2.0 * cosh(x));
   if (Ek > 0.0) {
     double Factor = exp(-Para.Beta * Ek);
-    green = exp(-Ek * Tau) / pow(1.0 + Factor, 3.0) *
-            (Tau * Tau / 2.0 - Para.Beta * (Tau - Para.Beta / 2.0) * Factor +
-             pow(Para.Beta - Tau, 2.0) * Factor * Factor);
+    green =
+        exp(-Ek * Tau) / pow(1.0 + Factor, 3.0) *
+        (Tau * Tau / 2.0 -
+         (Para.Beta * Para.Beta / 2.0 + Para.Beta * Tau - Tau * Tau) * Factor +
+         pow(Para.Beta - Tau, 2.0) * Factor * Factor / 2.0);
   } else {
     double Factor = exp(Para.Beta * Ek);
-    green = exp(Ek * (Para.Beta - Tau)) / pow(1.0 + Factor, 3.0) *
-            (Tau * Tau / 2.0 * Factor * Factor -
-             Para.Beta * (Tau - Para.Beta / 2.0) * Factor +
-             pow(Para.Beta - Tau, 2.0));
+    green =
+        exp(Ek * (Para.Beta - Tau)) / pow(1.0 + Factor, 3.0) *
+        (Tau * Tau / 2.0 * Factor * Factor -
+         (Para.Beta * Para.Beta / 2.0 + Para.Beta * Tau - Tau * Tau) * Factor +
+         pow(Para.Beta - Tau, 2.0) / 2.0);
   }
+  // cout << green << " vs " << green1 << endl;
+  // if (abs(green - green1) > 1.0e-10) {
+  //   cout << Para.Beta * Ek << endl;
+  //   ABORT("wrong! " << green << ", " << green1 << endl);
+  // }
+
   green *= s;
 
   if (std::isfinite(green) == false)

@@ -10,8 +10,8 @@ mat.rcParams.update({'font.size': 16})
 mat.rcParams["font.family"] = "Times New Roman"
 size = 12
 
-# IsLocalField=False
-IsLocalField = True
+IsLocalField=False
+# IsLocalField = True
 
 D = 3
 Spin = 2
@@ -86,6 +86,8 @@ if Para.Order >= 3:
     Each[3] = EsData[(3, 0)]+dMu2*EsData[(1, 1)]
 if Para.Order >= 4:
     Each[4] = EsData[(4, 0)]+dMu2*EsData[(2, 1)]+dMu3*EsData[(1, 1)]
+if Para.Order >= 5:
+    Each[5] = EsData[(5, 0)]+dMu2*EsData[(3, 1)]+dMu3*EsData[(2, 1)]+dMu4*EsData[(1,1)]
 
 Accu = {}
 for o in range(1, Para.Order+1):

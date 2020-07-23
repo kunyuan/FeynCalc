@@ -1,6 +1,6 @@
 # 3D Uniform Electron Gas
 
-### Parameters for $r_s=1$, $T/E_F=1/40$
+### Parameters for $r_s=1$, $T/E_F=1/25$
 
 1. Table for the chemical shift $\delta \mu$
 
