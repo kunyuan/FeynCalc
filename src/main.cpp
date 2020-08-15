@@ -54,7 +54,7 @@ void InitPara() {
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
-  // Para.ObsType = FREQ;
+   //Para.ObsType = FREQ;
   Para.ObsType = EQUALTIME;
 
   Para.Type = POLAR;
@@ -149,9 +149,9 @@ void InitPara() {
                      << "Fermi Energy: " << Para.Ef << "\n"
                      << "Seed: " << Para.Seed << "\n");
 
-  Para.PrinterTimer = 5;
-  Para.SaveFileTimer = 30;
-  Para.ReweightTimer = 30;
+  Para.PrinterTimer = 600;
+  Para.SaveFileTimer = 600;
+  Para.ReweightTimer = 600;
 }
 
 void MonteCarlo() {
