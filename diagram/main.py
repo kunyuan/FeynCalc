@@ -4,7 +4,7 @@ import copy
 import sys
 
 
-def Generate(Order, VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar, SPIN):
+def Generate(Order, VerOrder, SigmaOrder, Type, SPIN):
     LnZOrder = Order-1
     DiagFile = "./Diagram/HugenDiag{0}.txt".format(LnZOrder)
     LnZ = free_energy(LnZOrder)
@@ -58,19 +58,21 @@ def Generate(Order, VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar, SPIN):
     print "Save diagrams ..."
     with open("./output/Diag{0}{1}_{2}_{3}.txt".format("Polar", Order, VerOrder, SigmaOrder), "w") as f:
         f.write(Polar.ToString(UniqueUnLabelDiagList,
-                               VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar, SPIN))
+                               VerOrder, SigmaOrder, Type, SPIN))
 
 
 if __name__ == "__main__":
     # print "Input Diagram Order: "
     # Order = int(sys.argv[1])
     Order = 5
-    IsSelfEnergy = False
-    IsSpinPolar = True
-    SPIN = 1
+    # Type = "ChargePolar"
+    # Type = "SpinPolar"
+    # Type = "SelfEnergy"
+    Type = "Vertex3"
+    SPIN = 2
     for o in range(2, Order+1):
         for v in range(0, Order):
             for g in range(0, (Order-1)/2+1):
                 if o+v+2*g > Order:
                     continue
-                Generate(o, v, g, IsSelfEnergy, IsSpinPolar, SPIN)
+                Generate(o, v, g, Type, SPIN)

@@ -175,7 +175,7 @@ class polar():
         #     PermutationDict)
         return list(DeformationFinal)
 
-    def ToString(self, PolarHugenList, VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar, SPIN):
+    def ToString(self, PolarHugenList, VerOrder, SigmaOrder, Type, SPIN):
         if len(PolarHugenList) == 0:
             return
 
@@ -195,7 +195,7 @@ class polar():
                     FactorList = []
 
                     for FeynPermu in FeynList:
-                        if self.__IsReducibile(FeynPermu, Diag.LoopBasis, vertype, gtype, IsSelfEnergy):
+                        if self.__IsReducibile(FeynPermu, Diag.LoopBasis, vertype, gtype, Type):
                             FactorList.append(0)
                         else:
                             FactorList.append(1)
@@ -243,7 +243,9 @@ class polar():
 
             Body += "# GType\n"
             for i in range(self.GNum):
-                if IsSelfEnergy and i == 0:
+                if Type == "SelfEnergy" and i == 0:
+                    Body += "{0:2d} ".format(-2)
+                elif Type == "Vertex3" and (i == 0 or Permutation[i] == 0):
                     Body += "{0:2d} ".format(-2)
                 else:
                     Body += "{0:2d} ".format(GType[i])
@@ -290,7 +292,7 @@ class polar():
                 Sign = (-1)**nloop*(-1)**(self.Order-1) / \
                     (Diag.SymFactor/abs(Diag.SymFactor))
 
-                if IsSpinPolar and SPIN == 2:
+                if Type == "SpinPolar" and SPIN == 2:
                     ########### for spin susceptibility   #####################
                     Flag = False
                     for p in Path:
@@ -339,7 +341,7 @@ class polar():
         else:
             return int(index/2)+1
 
-    def __IsReducibile(self, Permutation, LoopBasis, vertype, gtype, IsSelfEnergy):
+    def __IsReducibile(self, Permutation, LoopBasis, vertype, gtype, Type):
         ExterLoop = [0, ]*self.LoopNum
         ExterLoop[0] = 1
         for i in range(1, self.Ver4Num+1):
@@ -362,14 +364,21 @@ class polar():
         if diag.HasFock(Permutation, self.GetReference(), vertype, gtype):
             return True
 
-        if IsSelfEnergy:
+        if Type == "SelfEnergy":
             # make sure 1->0 only has one Green's function
             if Permutation[0] != 1 or gtype[0] != 0:
                 return True
-            # k = LoopBasis[:, 0]
-            # for i in range(1, self.GNum):
-            #     if np.allclose(k, LoopBasis[:, i]):
-            #         return True
+        elif Type == "Vertex3":
+            g0, g1 = 0, Permutation.index(0)
+            if gtype[g0] != 0 or gtype[g1] != 0:
+                return True
+            k0 = LoopBasis[:, g0]
+            k1 = LoopBasis[:, g1]
+            for i in range(self.GNum):
+                if i == g0 or i == g1:
+                    continue
+                if np.allclose(k0, LoopBasis[:, i]) or np.allclose(k1, LoopBasis[:, i]):
+                    return True
 
         ###### Check High order Hatree ######################
         # kG, kW = diag.AssignMomentums(
