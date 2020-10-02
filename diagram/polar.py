@@ -245,8 +245,13 @@ class polar():
             for i in range(self.GNum):
                 if Type == "SelfEnergy" and i == 0:
                     Body += "{0:2d} ".format(-2)
-                elif Type == "Vertex3" and (i == 0 or Permutation[i] == 0):
-                    Body += "{0:2d} ".format(-2)
+                elif Type == "Vertex3":
+                    if i == 0:
+                        Body += "{0:2d} ".format(-2)
+                    elif Permutation[i] == 0:
+                        Body += "{0:2d} ".format(-3)
+                    else:
+                        Body += "{0:2d} ".format(GType[i])
                 else:
                     Body += "{0:2d} ".format(GType[i])
 

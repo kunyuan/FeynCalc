@@ -54,22 +54,30 @@ void InitPara() {
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
-   //Para.ObsType = FREQ;
-  Para.ObsType = EQUALTIME;
+  Para.ObsType = FREQ;
+  // Para.ObsType = EQUALTIME;
 
-  Para.Type = POLAR;
+  // Para.Type = CHARGEPOLAR;
+  // Para.Type = SPINPOLAR;
+  Para.Type = VERTEX3;
   Para.SelfEnergyType = FOCK;
   // Para.SelfEnergyType = BARE;
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
 
   if (Para.ObsType == FREQ) {
-    // Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
-    Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+    if (Para.Type == CHARGEPOLAR)
+      Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
+    else if (Para.Type == SPINPOLAR)
+      Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+    else if (Para.Type == VERTEX3)
+      Para.DiagFileFormat = "groups_vertex3/DiagPolar{}.txt";
+    else
+      ABORT("Not implemented!");
     // Para.DiagFileFormat = "groups_spinless/DiagPolar{}.txt";
     Para.GroupName = {"0"}; // initialized with a normalization diagram
     Para.ReWeight = {1.0};
-    for (int o = 1; o <= Para.Order; o++)
+    for (int o = 1; o <= Para.Order; o++) {
       for (int v = 0; v <= Para.Order - 1; v++) {
         // order 1 do not allow lambda counterterm
         if (o == 1 && v > 0)
@@ -80,15 +88,21 @@ void InitPara() {
           // interaction+lambda counterterm+2*self-energy counter <=Order
           if (o + v + 2 * g > Para.Order)
             continue;
+          if (Para.Type == VERTEX3 && (o == 1 && g > 0))
+            continue;
+
           auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
           cout << name << ", ";
           Para.GroupName.push_back(name);
           Para.ReWeight.push_back(pow(2.0, o));
         }
       }
-    Para.GroupName.push_back("1_0_2");
-    Para.ReWeight.push_back(10.0);
-    Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
+    }
+    if (Para.Type != VERTEX3) {
+      Para.GroupName.push_back("1_0_2");
+      Para.ReWeight.push_back(10.0);
+      Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
+    }
   } else if (Para.ObsType == EQUALTIME) {
     Para.DiagFileFormat = "groups_mu/DiagPolar{}.txt";
     Para.GroupName = {
@@ -149,9 +163,9 @@ void InitPara() {
                      << "Fermi Energy: " << Para.Ef << "\n"
                      << "Seed: " << Para.Seed << "\n");
 
-  Para.PrinterTimer = 600;
-  Para.SaveFileTimer = 600;
-  Para.ReweightTimer = 600;
+  Para.PrinterTimer = 30;
+  Para.SaveFileTimer = 60;
+  Para.ReweightTimer = 60;
 }
 
 void MonteCarlo() {

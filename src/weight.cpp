@@ -129,7 +129,7 @@ void weight::ChangeGroup(group &Group, bool Forced) {
         double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
-        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
+        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type, Var.LoopMom[0]);
         // if (Group.ID == 2) {
         //   cout << Group.Name << ", " << G->NewWeight << endl;
         //   ;
@@ -170,7 +170,7 @@ void weight::ChangeMom(group &Group, int MomIndex) {
         double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
-        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
+        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type, Var.LoopMom[0]);
       }
     }
     for (int i = 0; i < Group.Ver4Num; i++) {
@@ -221,7 +221,7 @@ void weight::ChangeTau(group &Group, int TauIndex) {
         double Tau = Var.Tau[TauOut] - Var.Tau[TauIn];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
-        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
+        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type, Var.LoopMom[0]);
       }
     }
   }

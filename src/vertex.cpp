@@ -298,7 +298,8 @@ double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   return green;
 }
 
-double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
+double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType,
+                    const momentum &ExtMom) {
   double green;
   bool IsFock = false;
   if (Para.SelfEnergyType == FOCK)
@@ -316,6 +317,10 @@ double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
     // green = 1.0;
   } else if (GType == -2) {
     // green = PhyGreen(Tau, Mom, IsFock);
+    green = 1.0;
+  } else if (GType == -3) {
+    double k = Mom.norm() - Para.Kf;
+    green = exp(-k * k / Para.Kf / Para.Kf * 10.0);
     green = 1.0;
   } else {
     ABORT("GType " << GType << " has not yet been implemented!");

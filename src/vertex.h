@@ -13,7 +13,8 @@ const int MAXSIGMABIN = 100000;
 class fermi {
 public:
   fermi();
-  double Green(double Tau, const momentum &Momentum, spin Spin, int GType);
+  double Green(double Tau, const momentum &Momentum, spin Spin, int GType,
+               const momentum &ExtMom);
 
 private:
   // beyond which the expense sigma function will be called
