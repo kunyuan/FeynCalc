@@ -10,7 +10,7 @@ mat.rcParams.update({'font.size': 16})
 mat.rcParams["font.family"] = "Times New Roman"
 size = 12
 
-IsLocalField=False
+IsLocalField = False
 # IsLocalField = True
 
 D = 3
@@ -22,16 +22,15 @@ Spin = 2
 # dMu2Err, dMu3Err, dMu4Err = mu[1, :]
 
 # simply set all chemical potenetial shift to be zero
-#rs=1, beta=25
+# rs=1, beta=25
 # dMu2, dMu3, dMu4 = -0.2618, -0.1221, -0.0690  #lambda=1.5
 
-#rs=2, beta=25
+# rs=2, beta=25
 # dMu2, dMu3, dMu4 = -0.1520, -0.0696, -0.041  # lambda=0.5
 # dMu2, dMu3, dMu4 = -0.1251, -0.0742, -0.0494  # lambda=1.0
 
-#rs=3, beta=25
+# rs=3, beta=25
 dMu2, dMu3, dMu4 = -0.27278, -0.10819, -0.05898  # lambda=0.3
-
 
 
 Para = param(D, Spin)
@@ -89,12 +88,11 @@ if Para.Order >= 1:
 if Para.Order >= 2:
     Each[2] = EsData[(2, 0)]
 if Para.Order >= 3:
-    Each[3] = EsData[(3, 0)]+dMu2*EsData[(1, 1)]
+    Each[3] = EsData[(3, 0)]
 if Para.Order >= 4:
-    Each[4] = EsData[(4, 0)]+dMu2*EsData[(2, 1)]+dMu3*EsData[(1, 1)]
+    Each[4] = EsData[(4, 0)]+dMu2*EsData[(2, 1)]
 if Para.Order >= 5:
-    Each[5] = EsData[(5, 0)]+dMu2*EsData[(3, 1)]+dMu3 * \
-        EsData[(2, 1)]+dMu4*EsData[(1, 1)]
+    Each[5] = EsData[(5, 0)]+dMu2*EsData[(3, 1)]+dMu3*EsData[(2, 1)]
     # Each[5] = EsData[(5, 0)]+dMu2*EsData[(3, 1)]+dMu3 * \
     #     EsData[(2, 1)]+dMu4*EsData[(1, 1)]+dMu2**2*EsData[(1, 2)]
 
