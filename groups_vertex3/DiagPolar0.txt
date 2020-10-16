@@ -15,7 +15,7 @@
 # SymFactor
 -1.0
 # GType
- -1 -1 
+ -2 -3 
 # VertexBasis
  0  1
  1  0
@@ -25,5 +25,5 @@
 # Ver4Legs(InL,OutL,InR,OutR)
 # WType(Direct,Exchange)
 # SpinFactor
-2
+1
 

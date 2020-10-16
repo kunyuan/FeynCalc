@@ -30,7 +30,7 @@ Spin = 2
 # dMu2, dMu3, dMu4 = -0.1251, -0.0742, -0.0494  # lambda=1.0
 
 # rs=3, beta=25
-dMu2, dMu3, dMu4 = -0.27278, -0.10819, -0.05898  # lambda=0.3
+dMu2, dMu3, dMu4 = -0.2618, -0.1221, -0.0690  # lambda=0.3
 
 
 Para = param(D, Spin)
@@ -49,7 +49,7 @@ for qi, q in enumerate(KGrid):
 Bubble = bubble.Bubble(D, Para.Beta, Spin, Para.kF, 0.0)
 print "Uniform Polarization: ", Bubble[0], "+-", Bubble[1]
 print "Uniform polarization for the Free electron at T=0: ", Para.Nf
-Phys = Bubble[0]*len(KGrid)
+Phys = 1.0*len(KGrid)
 
 EsDataDict = {}
 for g in DataDict.keys():
@@ -82,6 +82,8 @@ for (o, key) in enumerate(sorted(EsData.keys())):
     print green("(Order: {0}, SigmaCT: {1}) = {2:12.8f} +- {3:12.8f}".format(
         key[0], key[1], y[0][0], y[1][0]*2.0))
 
+print EsData[(1, 0)]
+
 Each = {}
 if Para.Order >= 1:
     Each[1] = EsData[(1, 0)]
@@ -105,22 +107,13 @@ for o in range(1, Para.Order+1):
 
 fig, ax = plt.subplots()
 
-if IsLocalField == False:
-    for o in range(1, Para.Order+1):
-        plt.errorbar(KGrid/Para.kF, Accu[o][0], yerr=Accu[o][1]*2.0, fmt='o-', capthick=1, capsize=4,
-                     color=ColorList[o], label="Order {0}".format(o))
-        # plt.errorbar(KGrid/Para.kF, Each[o][0, :], yerr=Each[o][1, :]*2.0, fmt='o-', capthick=1, capsize=4,
-        #             color=ColorList[o], label="Order {0}".format(o))
-        print "Order {0}: {1:12.8f} +-{2:12.8f}, Accu: {3:12.8f} +-{4:12.8f}".format(
-            o, Each[o][0, 0], Each[o][1, 0]*1.0, Accu[o][0, 0], Accu[o][1, 0]*1.0)
-else:
-    for o in range(1, Para.Order+1):
-        G = KGrid**2/8.0/np.pi*(-1.0/BubbleQ-1.0/Accu[o][0, :])
-
-        plt.errorbar(KGrid/Para.kF, G, yerr=0.0, fmt='o-', capthick=1, capsize=4,
-                     color=ColorList[o], label="Order {0}".format(o))
-        # print "Order {0}: {1:12.8f} +-{2:12.8f}, Accu: {3:12.8f} +-{4:12.8f}".format(
-        #     o, Each[o][0, 0], Each[o][1, 0]*1.0, Accu[o][0, 0], Accu[o][1, 0]*1.0)
+for o in range(1, Para.Order+1):
+    plt.errorbar(KGrid/Para.kF, Accu[o][0], yerr=Accu[o][1]*2.0, fmt='o-', capthick=1, capsize=4,
+                 color=ColorList[o], label="Order {0}".format(o))
+    # plt.errorbar(KGrid/Para.kF, Each[o][0, :], yerr=Each[o][1, :]*2.0, fmt='o-', capthick=1, capsize=4,
+    #             color=ColorList[o], label="Order {0}".format(o))
+    print "Order {0}: {1:12.8f} +-{2:12.8f}, Accu: {3:12.8f} +-{4:12.8f}".format(
+        o, Each[o][0, 0], Each[o][1, 0]*1.0, Accu[o][0, 0], Accu[o][1, 0]*1.0)
 
 
 # with open("chi_bubble.dat", "w") as f:
