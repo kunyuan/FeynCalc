@@ -1,7 +1,10 @@
 {
     "files.associations": {
         "array": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "*.tcc": "cpp",
+        "string": "cpp",
+        "string_view": "cpp"
     },
     "cmake.configureOnOpen": false,
     "python.pythonPath": "/Users/kunchen/anaconda3/envs/py2/bin/python",

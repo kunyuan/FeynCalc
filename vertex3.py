@@ -23,14 +23,14 @@ Spin = 2
 
 # simply set all chemical potenetial shift to be zero
 # rs=1, beta=25
-# dMu2, dMu3, dMu4 = -0.2618, -0.1221, -0.0690  #lambda=1.5
+dMu2, dMu3, dMu4 = -0.2618, -0.1221, -0.0690  # lambda=1.5
 
 # rs=2, beta=25
 # dMu2, dMu3, dMu4 = -0.1520, -0.0696, -0.041  # lambda=0.5
 # dMu2, dMu3, dMu4 = -0.1251, -0.0742, -0.0494  # lambda=1.0
 
 # rs=3, beta=25
-dMu2, dMu3, dMu4 = -0.2618, -0.1221, -0.0690  # lambda=0.3
+# dMu2, dMu3, dMu4 = -0.2618, -0.1221, -0.0690  # lambda=0.3
 
 
 Para = param(D, Spin)

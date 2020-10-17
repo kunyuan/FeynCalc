@@ -321,7 +321,7 @@ double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType,
   } else if (GType == -3) {
     double k = Mom.norm() - Para.Kf;
     // green = PhyGreen(Tau, Mom, IsFock);
-    green = exp(-k * k / Para.Kf / Para.Kf * 100.0);
+    green = exp(-k * k / Para.Kf / Para.Kf * 400.0);
     // green = 1.0;
   } else {
     ABORT("GType " << GType << " has not yet been implemented!");

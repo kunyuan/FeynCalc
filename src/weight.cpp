@@ -299,9 +299,15 @@ double weight::GetNewWeight(group &Group) {
       //   cout << GWeight << ", " << VerWeight << endl;
       //   // exit(0);
       // }
+
+      //================ for vertex 3 ===============================//
     }
 
     d.NewWeight = GWeight * VerWeight / pow(2 * PI, D * Group.InternalLoopNum);
+    // if (Para.Type == VERTEX3) {
+    //   d.NewWeight *= cos(PI / Para.Beta *
+    //                      (2.0 * Var.Tau[1] - Var.Tau[INL] - Var.Tau[OUTL]));
+    // }
 
     // Group Weight= sum of all diagram weight in the group
     Group.NewWeight += d.NewWeight;

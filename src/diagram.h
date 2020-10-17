@@ -60,6 +60,7 @@ struct pool {
 struct diagram {
   int ID;
   array<int, MaxGNum> Permutation;
+  array<int, 4> LegTau;                   // tau index for the 4 legs
   double SymFactor;                       // the symmetry factor of a diagram
   array<double, MaxBranchNum> SpinFactor; // the spin factor of a diagram
   array<green *, 2 * MaxOrder> G;         // the index of all indepdent G

@@ -2,8 +2,10 @@
 #include "utility/abort.h"
 #include "utility/fmt/format.h"
 #include "utility/utility.h"
+#include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 using namespace diag;
 using namespace std;
@@ -17,6 +19,17 @@ size_t _findCaseInsensitive(std::string data, std::string toSearch,
   std::transform(toSearch.begin(), toSearch.end(), toSearch.begin(), ::tolower);
   // Find sub string in given string
   return data.find(toSearch, pos);
+}
+
+int _findIndex(vector<int> permutation, int key) {
+  vector<int>::iterator itr = find(permutation.begin(), permutation.end(), key);
+  int index = 0;
+
+  if (itr != permutation.cend())
+    index = std::distance(permutation.begin(), itr);
+  else
+    ABORT("the key " << key << " doesn't exist in the permutation!");
+  return index;
 }
 
 string _CheckKeyWord(istream &file, string KeyWord) {
@@ -268,7 +281,13 @@ diagram ReadOneDiagram(istream &DiagFile, pool &Pool, int Order, int LoopNum,
   //////// Diagram Topology  ////////////////////////
   _CheckKeyWord(DiagFile, "Permutation"); // title
   vector<int> Permutation = _ExtractNumbers<int>(DiagFile);
-  copy(Permutation.begin(), Permutation.end(), Diagram.Permutation.begin());
+  std::copy(Permutation.begin(), Permutation.end(),
+            Diagram.Permutation.begin());
+
+  Diagram.LegTau[INL] = Permutation[0];
+  Diagram.LegTau[OUTL] = _findIndex(Permutation, 0);
+  Diagram.LegTau[INR] = Permutation[1];
+  Diagram.LegTau[OUTR] = _findIndex(Permutation, 1);
 
   //////// symmetry factor //////////////////
   _CheckKeyWord(DiagFile, "SymFactor"); // title
@@ -309,15 +328,16 @@ diagram ReadOneDiagram(istream &DiagFile, pool &Pool, int Order, int LoopNum,
   /////// Spin Factor  ////////////////////
   _CheckKeyWord(DiagFile, "SpinFactor"); // title
   auto SpinFactor = _ExtractNumbers<double>(DiagFile);
-  copy(SpinFactor.begin(), SpinFactor.end(),
-       Diagram.SpinFactor.begin()); // copy spin factor into the group member
+  std::copy(
+      SpinFactor.begin(), SpinFactor.end(),
+      Diagram.SpinFactor.begin()); // copy spin factor into the group member
 
   ////////   Add G to GPool ////////////////////////
   vector<green *> GIndex =
       _AddAllGToPool(Pool, VerBasis, LoopBasis, GType, GNum);
   ASSERT_ALLWAYS(GIndex.size() == GNum,
                  "Number of Green's function does not match!");
-  copy(GIndex.begin(), GIndex.end(), Diagram.G.begin());
+  std::copy(GIndex.begin(), GIndex.end(), Diagram.G.begin());
 
   //   cout << "in diagram" << endl;
   //   cout << ToString(*(Diagram.GIndex[0])) << endl;
@@ -327,7 +347,7 @@ diagram ReadOneDiagram(istream &DiagFile, pool &Pool, int Order, int LoopNum,
     //////  Add 4-Vertex to Ver4Pool /////////
     vector<vertex4 *> Ver4Index = _AddAllVer4ToPool(
         Pool, VerBasis, Ver4Legs, LoopBasis, VerType, Ver4Num);
-    copy(Ver4Index.begin(), Ver4Index.end(), Diagram.Ver4.begin());
+    std::copy(Ver4Index.begin(), Ver4Index.end(), Diagram.Ver4.begin());
   }
 
   return Diagram;
