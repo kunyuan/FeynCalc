@@ -60,8 +60,8 @@ void InitPara() {
   // Para.Type = CHARGEPOLAR;
   // Para.Type = SPINPOLAR;
   Para.Type = VERTEX3;
-  Para.SelfEnergyType = FOCK;
-  // Para.SelfEnergyType = BARE;
+  // Para.SelfEnergyType = FOCK;
+  Para.SelfEnergyType = BARE;
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
 

@@ -309,6 +309,10 @@ class polar():
                     else:
                         Body += "{0:2d} ".format(SPIN**nloop *
                                                  int(Sign)*FactorList[idx])
+                elif Type == "Vertex3" and SPIN == 2:
+                    assert nloop >= 1
+                    Body += "{0:2d} ".format(SPIN**(nloop-1) *
+                                             int(Sign)*FactorList[idx])
                 else:
                     # make sure the sign of the Spin factor of the first diagram is positive
                     Body += "{0:2d} ".format(SPIN**nloop *
