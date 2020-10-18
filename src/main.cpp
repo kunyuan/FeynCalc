@@ -103,6 +103,7 @@ void InitPara() {
       Para.ReWeight.push_back(10.0);
       Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
     }
+
   } else if (Para.ObsType == EQUALTIME) {
     Para.DiagFileFormat = "groups_mu/DiagPolar{}.txt";
     Para.GroupName = {

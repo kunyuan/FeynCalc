@@ -1,5 +1,5 @@
 #Type: Polarization
-#DiagNum: 1
+#DiagNum: 3
 #Order: 3
 #GNum: 6
 #Ver4Num: 2

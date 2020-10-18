@@ -304,10 +304,13 @@ double weight::GetNewWeight(group &Group) {
     }
 
     d.NewWeight = GWeight * VerWeight / pow(2 * PI, D * Group.InternalLoopNum);
-    // if (Para.Type == VERTEX3) {
-    //   d.NewWeight *= cos(PI / Para.Beta *
-    //                      (2.0 * Var.Tau[1] - Var.Tau[INL] - Var.Tau[OUTL]));
-    // }
+    if (Para.Type == VERTEX3 && Group.InternalLoopNum > 2) {
+      d.NewWeight *= cos(PI / Para.Beta *
+                         (2.0 * Var.Tau[1] - Var.Tau[d.LegTau[INL]] -
+                          Var.Tau[d.LegTau[OUTL]]));
+    }
+    // if (Group.InternalLoopNum > 1)
+    //   d.NewWeight *= cos(2.0 * PI / Para.Beta * (Var.Tau[1] - Var.Tau[0]));
 
     // Group Weight= sum of all diagram weight in the group
     Group.NewWeight += d.NewWeight;
