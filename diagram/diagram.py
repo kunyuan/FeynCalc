@@ -304,7 +304,7 @@ def HasTadpole(permutation, reference):
 
 def HasFock(permutation, reference, vertype=None, gtype=None):
     # print vertype, gtype
-    print permutation, gtype
+    # print permutation, gtype
     for i in range(len(reference)):
         # print i
         # end=reference[i]

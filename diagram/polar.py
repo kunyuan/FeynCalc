@@ -134,7 +134,7 @@ class polar():
         UnlabelDiagDeformList = []
         # for permutation in PermutationList[0:1]:
         while len(PermutationDict) > 0:
-            print "Remaining diagram {0}".format(len(PermutationDict))
+            # print "Remaining diagram {0}".format(len(PermutationDict))
             permutation = PermutationDict.keys()[0]
             Deformation = self.__FindDeformation(
                 permutation, PermutationDict, TimeRotation)
@@ -181,8 +181,8 @@ class polar():
 
         InterCounterTerms = self.__InterCounterTerms(VerOrder)
         SigmaCounterTerms = self.__SigmaCounterTerms(SigmaOrder)
-        print InterCounterTerms
-        print SigmaCounterTerms
+        # print InterCounterTerms
+        # print SigmaCounterTerms
 
         IrreDiagList = []
         for vertype in InterCounterTerms:
@@ -205,7 +205,7 @@ class polar():
                     #     gtype[0] = -1
 
                     if np.all(np.array(FactorList) == 0):
-                        print "Reducible diagram: ", Permutation
+                        # print "Reducible diagram: ", Permutation
                         continue
 
                     IrreDiagList.append(
@@ -228,11 +228,12 @@ class polar():
         Title += "\n"
 
         Body = ""
+        DiagNum = 0
         for Diag, FeynList, FactorList, VerType, GType in IrreDiagList:
             Permutation = Diag.GetPermu()
             Mom = Diag.LoopBasis
 
-            print "Save {0}".format(Permutation)
+            # print "Save {0}".format(Permutation)
 
             Body += "# Permutation\n"
             for i in Permutation:
@@ -297,6 +298,8 @@ class polar():
                 Sign = (-1)**nloop*(-1)**(self.Order-1) / \
                     (Diag.SymFactor/abs(Diag.SymFactor))
 
+                SpinFactor = 1
+
                 if Type == "SpinPolar" and SPIN == 2:
                     ########### for spin susceptibility   #####################
                     Flag = False
@@ -305,23 +308,33 @@ class polar():
                             Flag = True
 
                     if Flag == False:
-                        Body += "{0:2d} ".format(0)
+                        SpinFactor = 0
+                        # Body += "{0:2d} ".format(0)
                     else:
-                        Body += "{0:2d} ".format(SPIN**nloop *
-                                                 int(Sign)*FactorList[idx])
+                        SpinFactor = SPIN**nloop * int(Sign)*FactorList[idx]
+                        # Body += "{0:2d} ".format(SPIN**nloop *
+                        # int(Sign)*FactorList[idx])
                 elif Type == "Vertex3" and SPIN == 2:
                     assert nloop >= 1
-                    Body += "{0:2d} ".format(SPIN**(nloop-1) *
-                                             int(Sign)*FactorList[idx])
+                    SpinFactor = SPIN**(nloop-1) * int(Sign)*FactorList[idx]
+                    # Body += "{0:2d} ".format(SPIN**(nloop-1) *
+                    # int(Sign)*FactorList[idx])
                 else:
                     # make sure the sign of the Spin factor of the first diagram is positive
-                    Body += "{0:2d} ".format(SPIN**nloop *
-                                             int(Sign)*FactorList[idx])
+                    SpinFactor = SPIN**nloop * int(Sign)*FactorList[idx]
+                    # Body += "{0:2d} ".format(SPIN**nloop *
+                    # int(Sign)*FactorList[idx])
             #   Body += "{0:2d} ".format(-(-1)**nloop*Factor)
+                Body += "{0:2d} ".format(SpinFactor)
+                if SpinFactor is not 0:
+                    DiagNum += abs(Diag.SymFactor)
 
             Body += "\n"
             Body += "\n"
 
+        print yellow("Feynman diagram number={0}".format(DiagNum))
+
+        # return "#FeynDiagNum: {0}\n".format(DiagNum)+Title+Body
         return Title+Body
 
     def HugenToFeyn(self, HugenPermu):
@@ -393,12 +406,18 @@ class polar():
         # kG, kW = diag.AssignMomentums(
         #     Permutation, self.GetReference(), self.GetInteractionPairs(True))
 
+        # for i in range(len(kG)):
+        #     for j in range(len(kG)):
+        #         if i == j:
+        #             continue
+        #         if abs(kG[i]-kG[j]) < 1e-12:
+        #             return True
+
         # for i in range(len(kW)):
         #     if abs(kW[i]) < 1e-12:
         #             # print "k=0 on W {0}: {1}".format(p, kW[i])
         #         print "Contain high-order Hartree: ", Permutation
         #         return True
-
         return False
 
     def __GetInteractionMom(self, Permutation, Mom):
