@@ -83,15 +83,33 @@ void weight::Initialization() {
   // initialize external momentum
   for (int i = 0; i < ExtMomBinSize; i++) {
     // the external momentum only has x component
-    Var.ExtMomTable[i][0] = i * Para.MaxExtMom / ExtMomBinSize;
-    for (int j = 1; j < D; j++)
-      Var.ExtMomTable[i][j] = 0.0;
+    if (Para.Type != VERTEX4) {
+      // polarization type diagrams
+      Var.ExtMomTable[i][0] = i * Para.MaxExtMom / ExtMomBinSize;
+      for (int j = 1; j < D; j++)
+        Var.ExtMomTable[i][j] = 0.0;
+    } else {
+      // vertex4 type diagrams
+      double angle = PI * i / (ExtMomBinSize - 1);
+      Var.ExtAngTable[i] = angle;
+      Var.ExtMomTable[i][0] = Para.Kf * cos(angle);
+      Var.ExtMomTable[i][1] = Para.Kf * sin(angle);
+      for (int j = 2; j < D; j++)
+        Var.ExtMomTable[i][j] = 0.0;
+    }
   }
   Var.CurrExtMomBin = 0;
+
   // Var.LoopMom[0].fill(0.0);
   // for (int i = 0; i < D; i++)
   //   Var.LoopMom[0][i] = Var.ExtMomTable[Var.CurrExtMomBin][i];
-  Var.LoopMom[0] = Var.ExtMomTable[Var.CurrExtMomBin];
+  if (Para.Type != VERTEX4)
+    Var.LoopMom[0] = Var.ExtMomTable[Var.CurrExtMomBin];
+  else {
+    // vertex4 diagrams assume the transfer momentum to be zero
+    for (int j = 0; j < D; j++)
+      Var.ExtMomTable[0][j] = 0.0;
+  }
 
   // initialize external tau
   Var.Tau[0] = 0.0;

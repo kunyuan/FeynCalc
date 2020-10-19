@@ -15,7 +15,7 @@
 # SymFactor
 -1.0
 # GType
--2  0  0 -3 
+-2 -2 -5 -4 
 # VertexBasis
  0  1  2  2 
  2  2  1  0 

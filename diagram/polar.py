@@ -247,9 +247,18 @@ class polar():
                     Body += "{0:2d} ".format(-2)
                 elif Type == "Vertex3":
                     if i == 0:
-                        Body += "{0:2d} ".format(-2)
+                        Body += "{0:2d} ".format(-2)  # will be set to one
                     elif Permutation[i] == 0:
-                        Body += "{0:2d} ".format(-3)
+                        Body += "{0:2d} ".format(-3)  # will be set to the FS
+                    else:
+                        Body += "{0:2d} ".format(GType[i])
+                elif Type == "Vertex4":
+                    if i == 0 or i == 1:
+                        Body += "{0:2d} ".format(-2)  # will be set to one
+                    elif Permutation[i] == 0:
+                        Body += "{0:2d} ".format(-4)  # will be set to the FS
+                    elif Permutation[i] == 1:
+                        Body += "{0:2d} ".format(-5)  # will be set to the FS
                     else:
                         Body += "{0:2d} ".format(GType[i])
                 else:
@@ -312,6 +321,12 @@ class polar():
                 elif Type == "Vertex3" and SPIN == 2:
                     assert nloop >= 1
                     Body += "{0:2d} ".format(SPIN**(nloop-1) *
+                                             int(Sign)*FactorList[idx])
+                elif Type == "Vertex4" and SPIN == 2:
+                    for (pi, p) in enumerate(Path):
+                        if 0 in p or 1 in p:
+                            Path.pop(pi)
+                    Body += "{0:2d} ".format(SPIN**(len(Path)) *
                                              int(Sign)*FactorList[idx])
                 else:
                     # make sure the sign of the Spin factor of the first diagram is positive
@@ -387,6 +402,30 @@ class polar():
                 if i == g0 or i == g1:
                     continue
                 if np.allclose(k0, LoopBasis[:, i]) or np.allclose(k1, LoopBasis[:, i]):
+                    return True
+        elif Type == "Vertex4":
+            g0, g1 = 0, Permutation.index(0)
+            g2, g3 = 1, Permutation.index(1)
+
+            if g3 == 0 or g1 == 1:
+                return True
+
+            if gtype[g0] != 0 or gtype[g1] != 0 or gtype[g2] != 0 or gtype[g3] != 0:
+                return True
+            k0 = LoopBasis[:, g0]
+            k1 = LoopBasis[:, g1]
+            k2 = LoopBasis[:, g2]
+            k3 = LoopBasis[:, g3]
+
+            if np.allclose(k0, k3) or np.allclose(k1, k2):
+                return True
+
+            for i in range(self.GNum):
+                if i == g0 or i == g1 or i == g2 or i == g3:
+                    continue
+                if np.allclose(k0, LoopBasis[:, i]) or np.allclose(k1, LoopBasis[:, i]):
+                    return True
+                if np.allclose(k2, LoopBasis[:, i]) or np.allclose(k3, LoopBasis[:, i]):
                     return True
 
         ###### Check High order Hatree ######################

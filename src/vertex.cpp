@@ -298,6 +298,22 @@ double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   return green;
 }
 
+momentum K0() {
+  if (D == 2)
+    return {Para.Kf, 0.0};
+  else if (D == 3)
+    return {Para.Kf, 0.0, 0.0};
+  else
+    ABORT("not implemented!");
+}
+
+double dK2(const momentum &K, const momentum &Kref) {
+  double dK = 0.0;
+  for (int i = 0; i < D; ++i)
+    dK += pow(K[i] - Kref[i], 2);
+  return dK;
+}
+
 double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType,
                     const momentum &ExtMom) {
   double green;
@@ -320,9 +336,13 @@ double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType,
     green = 1.0;
   } else if (GType == -3) {
     double k = Mom.norm() - Para.Kf;
-    // green = PhyGreen(Tau, Mom, IsFock);
-    green = exp(-k * k / Para.Kf / Para.Kf * 400.0);
-    // green = 1.0;
+    green = exp(-k * k / Para.Kf / Para.Kf * 100.0);
+  } else if (GType == -4) {
+    double k = dK2(Mom, K0());
+    green = exp(-k * k / Para.Kf / Para.Kf * 100.0);
+  } else if (GType == -5) {
+    double k = dK2(Mom, ExtMom);
+    green = exp(-k * k / Para.Kf / Para.Kf * 100.0);
   } else {
     ABORT("GType " << GType << " has not yet been implemented!");
     // return FakeGreen(Tau, Mom);

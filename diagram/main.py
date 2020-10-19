@@ -68,7 +68,8 @@ if __name__ == "__main__":
     # Type = "ChargePolar"
     # Type = "SpinPolar"
     # Type = "SelfEnergy"
-    Type = "Vertex3"
+    # Type = "Vertex3"
+    Type = "Vertex4"
     SPIN = 2
     for o in range(2, Order+1):
         for v in range(0, Order):
