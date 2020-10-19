@@ -91,7 +91,8 @@ void InitPara() {
           // interaction+lambda counterterm+2*self-energy counter <=Order
           if (o + v + 2 * g > Para.Order)
             continue;
-          if (Para.Type == VERTEX3 && (o == 1 && g > 0))
+          if ((Para.Type == VERTEX3 || Para.Type == VERTEX4) &&
+              (o == 1 && g > 0))
             continue;
 
           auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
@@ -101,7 +102,7 @@ void InitPara() {
         }
       }
     }
-    if (Para.Type != VERTEX3) {
+    if (Para.Type != VERTEX3 && Para.Type != VERTEX4) {
       Para.GroupName.push_back("1_0_2");
       Para.ReWeight.push_back(10.0);
       Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
