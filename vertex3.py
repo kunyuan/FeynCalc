@@ -23,7 +23,7 @@ Spin = 2
 
 # simply set all chemical potenetial shift to be zero
 # rs=1, beta=25
-dMu2, dMu3, dMu4 = -0.2618, -0.1221, -0.0690  # lambda=1.5
+dMu2, dMu3, dMu4 = -0.056295, -0.03698, -0.0282  # lambda=1.5
 
 # rs=2, beta=25
 # dMu2, dMu3, dMu4 = -0.1520, -0.0696, -0.041  # lambda=0.5
