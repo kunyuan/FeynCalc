@@ -43,7 +43,6 @@ public:
 private:
   // polarizatoin for each group
   unordered_map<int, polar> Polar;
-
   // polarizatoin for each group at the zero momentumr;
   unordered_map<int, double> PolarStatic;
 

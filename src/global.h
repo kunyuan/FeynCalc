@@ -14,7 +14,7 @@ const bool DEBUGMODE = false;
 // array.h
 
 enum selfenergy { BARE, FOCK, DRESSED }; // self energy type
-enum type { CHARGEPOLAR, SPINPOLAR, VERTEX3 };
+enum type { CHARGEPOLAR, SPINPOLAR, VERTEX3, VERTEX4 };
 enum obstype { FREQ, EQUALTIME };
 /////////// Global Parameter ////////////////////
 struct parameter {

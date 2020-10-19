@@ -59,7 +59,8 @@ void InitPara() {
 
   // Para.Type = CHARGEPOLAR;
   // Para.Type = SPINPOLAR;
-  Para.Type = VERTEX3;
+  // Para.Type = VERTEX3;  //proper 3-vertex diagrams
+  Para.Type = VERTEX4; // proper 4-vertex diagrams
   Para.SelfEnergyType = FOCK;
   // Para.SelfEnergyType = BARE;
   Para.UseVer4 = false;
@@ -72,6 +73,8 @@ void InitPara() {
       Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
     else if (Para.Type == VERTEX3)
       Para.DiagFileFormat = "groups_vertex3/DiagPolar{}.txt";
+    else if (Para.Type == VERTEX4)
+      Para.DiagFileFormat = "groups_vertex4/DiagPolar{}.txt";
     else
       ABORT("Not implemented!");
     // Para.DiagFileFormat = "groups_spinless/DiagPolar{}.txt";
