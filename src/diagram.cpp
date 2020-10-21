@@ -288,6 +288,7 @@ diagram ReadOneDiagram(istream &DiagFile, pool &Pool, int Order, int LoopNum,
   Diagram.LegTau[OUTL] = _findIndex(Permutation, 0);
   Diagram.LegTau[INR] = Permutation[1];
   Diagram.LegTau[OUTR] = _findIndex(Permutation, 1);
+  // cout << Diagram.LegTau[OUTL] << ", " << Diagram.LegTau[OUTR] << endl;
 
   //////// symmetry factor //////////////////
   _CheckKeyWord(DiagFile, "SymFactor"); // title

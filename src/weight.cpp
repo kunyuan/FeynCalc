@@ -304,7 +304,7 @@ double weight::GetNewWeight(group &Group) {
     }
 
     d.NewWeight = GWeight * VerWeight / pow(2 * PI, D * Group.InternalLoopNum);
-    if (Para.Type == VERTEX3 && Group.InternalLoopNum > 2) {
+    if (Para.Type == VERTEX3 && Group.InternalLoopNum > 1) {
       d.NewWeight *= cos(PI / Para.Beta *
                          (2.0 * Var.Tau[1] - Var.Tau[d.LegTau[INL]] -
                           Var.Tau[d.LegTau[OUTL]]));
