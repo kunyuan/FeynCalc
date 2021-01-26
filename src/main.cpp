@@ -149,9 +149,9 @@ void InitPara() {
                      << "Fermi Energy: " << Para.Ef << "\n"
                      << "Seed: " << Para.Seed << "\n");
 
-  Para.PrinterTimer = 600;
-  Para.SaveFileTimer = 600;
-  Para.ReweightTimer = 600;
+  Para.PrinterTimer = 60;
+  Para.SaveFileTimer = 60;
+  Para.ReweightTimer = 60;
 }
 
 void MonteCarlo() {

@@ -10,11 +10,12 @@ mat.rcParams.update({'font.size': 16})
 mat.rcParams["font.family"] = "Times New Roman"
 size = 12
 
-IsLocalField=False
+IsLocalField = False
 # IsLocalField = True
 
 D = 3
 Spin = 2
+
 
 # load chemical potential shift from the file
 # mu = np.loadtxt("dMu.data")
@@ -22,16 +23,15 @@ Spin = 2
 # dMu2Err, dMu3Err, dMu4Err = mu[1, :]
 
 # simply set all chemical potenetial shift to be zero
-#rs=1, beta=25
+# rs=1, beta=25
 # dMu2, dMu3, dMu4 = -0.2618, -0.1221, -0.0690  #lambda=1.5
 
-#rs=2, beta=25
+# rs=2, beta=25
 # dMu2, dMu3, dMu4 = -0.1520, -0.0696, -0.041  # lambda=0.5
 # dMu2, dMu3, dMu4 = -0.1251, -0.0742, -0.0494  # lambda=1.0
 
-#rs=3, beta=25
+# rs=3, beta=25
 dMu2, dMu3, dMu4 = -0.10773, -0.0499, -0.0322  # lambda=0.3
-
 
 
 Para = param(D, Spin)
