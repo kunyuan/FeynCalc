@@ -67,8 +67,8 @@ class param:
         self.MaxExtMom *= self.kF
 
         print yellow("Parameters:")
-        print "Rs={0}, kF={1}, EF={2}, Beta={3}, Mass2={4}, Lambda={5}\n".format(
-            self.Rs, self.kF, self.EF, self.Beta, self.Mass2, self.Lambda)
+        print "Rs={0}, kF={1}, EF={2}, Beta={3}, Mass2={4}, Lambda={5}, N_F={6}\n".format(
+            self.Rs, self.kF, self.EF, self.Beta, self.Mass2, self.Lambda, self.Nf)
 
 # For the given path, get the List of all files in the directory tree
 
