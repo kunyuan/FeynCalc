@@ -13,4 +13,4 @@ The folder "diagram" contains a python codebase to generate Feynman/Hugenholtz d
 # External libraries:
 
 fmtlib: 
-fmt (formerly cppformat) is an open-source formatting library. It can be used as a fast and safe alternative to printf and IOStreams. [API reference](http://fmtlib.net/latest/api.html).
+fmt (formerly cppformat) is .an open-source formatting library. It can be used as a fast and safe alternative to printf and IOStreams. [API reference](http://fmtlib.net/latest/api.html).
