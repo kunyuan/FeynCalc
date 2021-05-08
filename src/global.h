@@ -13,7 +13,7 @@ const bool DEBUGMODE = false;
 // define NDEBUG will turn off debug checking, including the boundary check in
 // array.h
 
-enum selfenergy { BARE, FOCK, DRESSED }; // self energy type
+enum selfenergy { BARE, FOCK, DRESSED, READ }; // self energy type
 enum type { RG, POLAR };
 enum obstype { FREQ, EQUALTIME };
 /////////// Global Parameter ////////////////////

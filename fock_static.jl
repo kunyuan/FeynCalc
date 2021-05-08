@@ -11,11 +11,12 @@ const kF = (dim == 3) ? (9π / (2spin))^(1 / 3) / rs : sqrt(4 / spin) / rs
 const EF = kF^2 / (2me)
 const β = 1.0 / kF^2
 const mass2 = 1.0
-const maxK = 6kF
+const maxK = 12kF
 
 println("rs=$rs, β=$β, kF=$kF, EF=$EF, mass2=$mass2")
 
-const kgrid = Grid.fermiK(kF, maxK, 0.1kF, 512)  # external K grid for sigma
+# const kgrid = Grid.fermiK(kF, maxK, 0.1kF, 1024)  # external K grid for sigma
+const kgrid = Grid.Uniform{Float64,1024}(0.0, maxK, [false, false])
 
 @inline function linear1D(data, xgrid, x)
     xarray = xgrid.grid
@@ -32,6 +33,16 @@ const kgrid = Grid.fermiK(kF, maxK, 0.1kF, 512)  # external K grid for sigma
     d0, d1 = data[xi0], data[xi1]
 
     return (data[xi0] * dx1 + data[xi1] * dx0) / (dx0 + dx1)
+end
+
+@inline function fockT0(k)
+    l = sqrt(mass2)
+    fock = 1.0 + l / kF * atan((k - kF) / l);
+    fock -= l / kF * atan((k + kF) / l);
+    fock -= (l * l - k * k + kF * kF) / 4.0 / k / kF *
+            log((l * l + (k - kF) * (k - kF)) / (l * l + (k + kF) * (k + kF)));
+    fock *= (-2.0 * kF) / π;
+return fock
 end
 
 @inline function fockT0()
@@ -74,7 +85,11 @@ function FockStatic(dim::Int, k::T, β::T, me::T, mass2::T, spin, sigmaK, dμ::T
         else
             error("not implemented")
         end
-        sigma = linear1D(sigmaK, kgrid, q)
+            if q < maxK
+            sigma = linear1D(sigmaK, kgrid, q)
+        else
+            sigma = fockT0(q)
+        end
         ϵ = β * (q^2 - kF^2 + sigma + dμ) / (2me)
 
         p = - phase * Spectral.fermiDirac(ϵ) * q * log(((k + q)^2 + mass2^2) / ((k - q)^2 + mass2^2))
@@ -152,6 +167,12 @@ if abspath(PROGRAM_FILE) == @__FILE__
     for (ki, k) in enumerate(kgrid.grid)
         println("$(k / kF)   $(sigmaK[ki])  $dμ")
     end
+
+    io = open("sigma.dat", "w")
+    for (ki, k) in enumerate(kgrid.grid)
+        write(io, "$(k / kF)   $(sigmaK[ki])  $dμ\n")
+    end
+    close(io)
 
     # for dμ in LinRange(dμ0 - kF / 3, dμ0 + kF / 3, 10)
     #     println(diff(dμ))

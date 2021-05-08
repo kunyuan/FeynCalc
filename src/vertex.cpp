@@ -44,14 +44,14 @@ double bose::Interaction(double Tau, const momentum &Mom, int VerType) {
 }
 
 fermi::fermi() {
-  UpperBound = 5.0 * Para.Ef;
-  LowerBound = 0.0;
-  DeltaK = UpperBound / MAXSIGMABIN;
-  UpperBound2 = 1.2 * Para.Ef;
-  LowerBound2 = 0.8 * Para.Ef;
-  DeltaK2 = UpperBound2 / MAXSIGMABIN;
-  // if (Para.SelfEnergyType == FOCK)
-  //   BuildFockSigma();
+  // UpperBound = 5.0 * Para.Ef;
+  // LowerBound = 0.0;
+  // DeltaK = UpperBound / MAXSIGMABIN;
+  // UpperBound2 = 1.2 * Para.Ef;
+  // LowerBound2 = 0.8 * Para.Ef;
+  // DeltaK2 = UpperBound2 / MAXSIGMABIN;
+  if (Para.SelfEnergyType == READ)
+    BuildFockSigma();
 }
 
 double fermi::Fock(double k) {
@@ -81,41 +81,69 @@ double fermi::Fock(double k) {
 }
 
 double fermi::BuildFockSigma() {
-  ASSERT_ALLWAYS(D == 3, "The Fock self energy is for 3D!");
-  double fock, k;
-  for (int i = 0; i < MAXSIGMABIN; ++i) {
-    // k: (0^+, UpBound^-)
-    // i=0 ==> k==0.5*DeltaK
-    // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
-    k = (i + 0.5) * DeltaK + LowerBound;
-    Sigma[i] = Fock(k);
-    if (i > 0 && k <= LowerBound2 && k >= UpperBound2) {
-      ASSERT_ALLWAYS(
-          Equal(Sigma[i - 1], Sigma[i], 5.0e-5),
-          fmt::format("Fock are not accurate enough! At k={0}: {1} vs {2}\n", k,
-                      Sigma[i - 1], Sigma[i]));
+  double k, sigma;
+  if (Para.SelfEnergyType == READ) {
+    ifstream sigmafile("sigma.dat");
+    int idx = 0;
+    while (!sigmafile.eof()) {
+      k = -1.0;
+      sigmafile >> k;
+      if (k < 0.0) // if the last line of dat file is \n, k will not be updated
+        break;
+      kgrid.push_back(k * Para.Kf);
+      sigmafile >> sigma;
+      Sigma.push_back(sigma);
+      sigmafile >> dMu;
+      idx++;
     }
-    // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
+    LowerBound = kgrid[0];
+    UpperBound = kgrid[kgrid.size() - 1];
+    // cout << kgrid.size() << endl;
+    // cout << Sigma.size() << endl;
+    // cout << LowerBound / Para.Kf << " -> " << UpperBound / Para.Kf << endl;
+    // cout << Sigma[0] << " -> " << Sigma[Sigma.size() - 1] << endl;
+    // cout << kgrid[1022] << ", " << kgrid[1023] << endl;
+    // cout << Sigma[1022] << ", " << Sigma[1023] << endl;
   }
 
-  for (int i = 0; i < MAXSIGMABIN; ++i) {
-    // k: (0^+, UpBound^-)
-    // i=0 ==> k==0.5*DeltaK
-    // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
-    k = (i + 0.5) * DeltaK2 + LowerBound2;
-    Sigma2[i] = Fock(k);
-    if (i > 0) {
-      ASSERT_ALLWAYS(Equal(Sigma2[i - 1], Sigma2[i], 5.0e-5),
-                     fmt::format("The 2rd level Fock are not accurate enough!"
-                                 "level! At k={0}: {1} vs {2}\n",
-                                 k, Sigma2[i - 1], Sigma2[i]));
-    }
-    // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
-  }
+  // ASSERT_ALLWAYS(D == 3, "The Fock self energy is for 3D!");
+  // double fock, k;
+  // for (int i = 0; i < MAXSIGMABIN; ++i) {
+  //   // k: (0^+, UpBound^-)
+  //   // i=0 ==> k==0.5*DeltaK
+  //   // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
+  //   k = (i + 0.5) * DeltaK + LowerBound;
+  //   Sigma[i] = Fock(k);
+  //   if (i > 0 && k <= LowerBound2 && k >= UpperBound2) {
+  //     ASSERT_ALLWAYS(
+  //         Equal(Sigma[i - 1], Sigma[i], 5.0e-5),
+  //         fmt::format("Fock are not accurate enough! At k={0}: {1} vs
+  //         {2}\n", k,
+  //                     Sigma[i - 1], Sigma[i]));
+  //   }
+  //   // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
+  // }
+
+  // for (int i = 0; i < MAXSIGMABIN; ++i) {
+  //   // k: (0^+, UpBound^-)
+  //   // i=0 ==> k==0.5*DeltaK
+  //   // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
+  //   k = (i + 0.5) * DeltaK2 + LowerBound2;
+  //   Sigma2[i] = Fock(k);
+  //   if (i > 0) {
+  //     ASSERT_ALLWAYS(Equal(Sigma2[i - 1], Sigma2[i], 5.0e-5),
+  //                    fmt::format("The 2rd level Fock are not accurate
+  //                    enough!"
+  //                                "level! At k={0}: {1} vs {2}\n",
+  //                                k, Sigma2[i - 1], Sigma2[i]));
+  //   }
+  //   // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
+  // }
 };
 
 double fermi::FockSigma(const momentum &Mom) {
   double k = Mom.norm(); // bare propagator
+  double fock;
   // double fock;
   // if (k >= LowerBound2 && k < UpperBound2) {
   //   int i = (k - LowerBound2) / DeltaK2;
@@ -132,8 +160,27 @@ double fermi::FockSigma(const momentum &Mom) {
   //     fmt::format("Fock are not accurate enough! At k={0}: {1} vs {2}\n",
   //     k,
   //                 fock, Fock(k)));
-  double fock = Fock(k);
+  if (Para.SelfEnergyType == FOCK) {
+    fock = Fock(k);
+  } else {
+    fock = LinearInterpolate(k) + dMu;
+  }
   return fock;
+}
+
+double fermi::LinearInterpolate(double k) {
+  if (k > UpperBound || k < LowerBound)
+    return 0.0;
+  double dk = UpperBound / (kgrid.size() - 1);
+  int xi0 = int(k / dk);
+  // xi0 = floor(xgrid, x)
+  int xi1 = xi0 + 1;
+  double dx0 = k - kgrid[xi0];
+  double dx1 = kgrid[xi1] - k;
+
+  double d0 = Sigma[xi0];
+  double d1 = Sigma[xi1];
+  return (Sigma[xi0] * dx1 + Sigma[xi1] * dx0) / (dx0 + dx1);
 }
 
 double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {

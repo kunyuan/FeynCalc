@@ -3,6 +3,7 @@
 
 // #include "utility/vector.h"
 #include "global.h"
+#include <vector>
 
 double sum2(const momentum &);
 double norm2(const momentum &);
@@ -29,8 +30,12 @@ private:
   double Fock(double k);
   // warning: this function only works for T=0 and 3D!!!!
   double GetSigma(double k);
-  double Sigma[MAXSIGMABIN];
-  double Sigma2[MAXSIGMABIN];
+  // double Sigma[MAXSIGMABIN];
+  // double Sigma2[MAXSIGMABIN];
+  std::vector<double> Sigma;
+  std::vector<double> kgrid;
+  double LinearInterpolate(double k);
+  double dMu;
 };
 
 class bose {

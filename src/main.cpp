@@ -54,12 +54,13 @@ void InitPara() {
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
-   //Para.ObsType = FREQ;
+  // Para.ObsType = FREQ;
   Para.ObsType = EQUALTIME;
 
   Para.Type = POLAR;
-  Para.SelfEnergyType = FOCK;
+  // Para.SelfEnergyType = FOCK;
   // Para.SelfEnergyType = BARE;
+  Para.SelfEnergyType = READ;
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
 
