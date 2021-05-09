@@ -3,6 +3,7 @@
 
 // #include "utility/vector.h"
 #include "global.h"
+#include <array>
 #include <vector>
 
 double sum2(const momentum &);
@@ -34,6 +35,8 @@ private:
   // double Sigma2[MAXSIGMABIN];
   std::vector<double> Sigma;
   std::vector<double> kgrid;
+  // std::array<double, 1024> Sigma;
+  // std::array<double, 1024> kgrid;
   double LinearInterpolate(double k);
   double dMu;
 };

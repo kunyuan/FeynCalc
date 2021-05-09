@@ -6,12 +6,16 @@ const me = 0.5  # electron mass
 const dim = 3    # dimension (D=2 or 3, doesn't work for other D!!!)
 const spin = 2  # number of spins
 
-const rs = 1.0  
+io = open("parameter", "r")
+line = split(readline(io), " ")
+const rs = parse(Float64, line[3])
 const kF = (dim == 3) ? (9π / (2spin))^(1 / 3) / rs : sqrt(4 / spin) / rs
 const EF = kF^2 / (2me)
-const β = 1.0 / kF^2
-const mass2 = 1.0
-const maxK = 12kF
+const β = parse(Float64, line[2]) / kF^2
+const lambda = parse(Float64, line[4])
+const mass2 = parse(Float64, line[3]) + lambda
+const maxK = 24kF
+close(io)
 
 println("rs=$rs, β=$β, kF=$kF, EF=$EF, mass2=$mass2")
 
@@ -168,7 +172,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
         println("$(k / kF)   $(sigmaK[ki])  $dμ")
     end
 
-    io = open("sigma.dat", "w")
+    io = open("sigma.data", "w")
+    write(io, "$(length(kgrid.grid))\n")
     for (ki, k) in enumerate(kgrid.grid)
         write(io, "$(k / kF)   $(sigmaK[ki])  $dμ\n")
     end

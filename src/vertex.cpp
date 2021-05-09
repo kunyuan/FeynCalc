@@ -52,6 +52,7 @@ fermi::fermi() {
   // DeltaK2 = UpperBound2 / MAXSIGMABIN;
   if (Para.SelfEnergyType == READ)
     BuildFockSigma();
+  cout << "fermi initialized" << endl;
 }
 
 double fermi::Fock(double k) {
@@ -81,20 +82,25 @@ double fermi::Fock(double k) {
 }
 
 double fermi::BuildFockSigma() {
-  double k, sigma;
+  double k, s;
   if (Para.SelfEnergyType == READ) {
-    ifstream sigmafile("sigma.dat");
-    int idx = 0;
-    while (!sigmafile.eof()) {
-      k = -1.0;
-      sigmafile >> k;
-      if (k < 0.0) // if the last line of dat file is \n, k will not be updated
-        break;
-      kgrid.push_back(k * Para.Kf);
-      sigmafile >> sigma;
-      Sigma.push_back(sigma);
-      sigmafile >> dMu;
-      idx++;
+    ifstream sigmafile("sigma.data");
+    ASSERT_ALLWAYS(sigmafile.is_open(), "failed to load sigma.data!");
+    // int size = -1;
+    // cout << "reading ..." << endl;
+    int size = 1024;
+    sigmafile >> size;
+    ASSERT_ALLWAYS(size >= 0, "error in reading sigma size!");
+    kgrid.resize(size);
+    Sigma.resize(size);
+    for (int i = 0; i < size; ++i) {
+      sigmafile >> k >> s >> dMu;
+      //   // cout << "got: " << k << ", " << s << ", " << dMu << endl;
+      //   // kgrid[i] = k * Para.Kf;
+      // k = 12.0 * Para.Kf / 1023 * i;
+      kgrid[i] = k * Para.Kf;
+      // Sigma[i] = Fock(k + 1.0e-4);
+      Sigma[i] = s;
     }
     LowerBound = kgrid[0];
     UpperBound = kgrid[kgrid.size() - 1];
@@ -104,46 +110,15 @@ double fermi::BuildFockSigma() {
     // cout << Sigma[0] << " -> " << Sigma[Sigma.size() - 1] << endl;
     // cout << kgrid[1022] << ", " << kgrid[1023] << endl;
     // cout << Sigma[1022] << ", " << Sigma[1023] << endl;
+    sigmafile.close();
   }
-
-  // ASSERT_ALLWAYS(D == 3, "The Fock self energy is for 3D!");
-  // double fock, k;
-  // for (int i = 0; i < MAXSIGMABIN; ++i) {
-  //   // k: (0^+, UpBound^-)
-  //   // i=0 ==> k==0.5*DeltaK
-  //   // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
-  //   k = (i + 0.5) * DeltaK + LowerBound;
-  //   Sigma[i] = Fock(k);
-  //   if (i > 0 && k <= LowerBound2 && k >= UpperBound2) {
-  //     ASSERT_ALLWAYS(
-  //         Equal(Sigma[i - 1], Sigma[i], 5.0e-5),
-  //         fmt::format("Fock are not accurate enough! At k={0}: {1} vs
-  //         {2}\n", k,
-  //                     Sigma[i - 1], Sigma[i]));
-  //   }
-  //   // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
-  // }
-
-  // for (int i = 0; i < MAXSIGMABIN; ++i) {
-  //   // k: (0^+, UpBound^-)
-  //   // i=0 ==> k==0.5*DeltaK
-  //   // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
-  //   k = (i + 0.5) * DeltaK2 + LowerBound2;
-  //   Sigma2[i] = Fock(k);
-  //   if (i > 0) {
-  //     ASSERT_ALLWAYS(Equal(Sigma2[i - 1], Sigma2[i], 5.0e-5),
-  //                    fmt::format("The 2rd level Fock are not accurate
-  //                    enough!"
-  //                                "level! At k={0}: {1} vs {2}\n",
-  //                                k, Sigma2[i - 1], Sigma2[i]));
-  //   }
-  //   // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
-  // }
-};
+  cout << "sigma initialized" << endl;
+  return 0.0;
+}
 
 double fermi::FockSigma(const momentum &Mom) {
   double k = Mom.norm(); // bare propagator
-  double fock;
+  double fock = 0.0;
   // double fock;
   // if (k >= LowerBound2 && k < UpperBound2) {
   //   int i = (k - LowerBound2) / DeltaK2;
@@ -162,25 +137,34 @@ double fermi::FockSigma(const momentum &Mom) {
   //                 fock, Fock(k)));
   if (Para.SelfEnergyType == FOCK) {
     fock = Fock(k);
-  } else {
-    fock = LinearInterpolate(k) + dMu;
+  } else if (Para.SelfEnergyType == READ) {
+    fock = LinearInterpolate(k);
+    // cout << fock << endl;
   }
   return fock;
 }
 
 double fermi::LinearInterpolate(double k) {
-  if (k > UpperBound || k < LowerBound)
-    return 0.0;
+  // if (k >= UpperBound || k < LowerBound)
+  //   return 0.0;
+  if (k >= UpperBound)
+    return dMu;
   double dk = UpperBound / (kgrid.size() - 1);
   int xi0 = int(k / dk);
   // xi0 = floor(xgrid, x)
   int xi1 = xi0 + 1;
+  if (xi1 == Sigma.size())
+    return Sigma[Sigma.size() - 1];
+
   double dx0 = k - kgrid[xi0];
   double dx1 = kgrid[xi1] - k;
 
   double d0 = Sigma[xi0];
   double d1 = Sigma[xi1];
-  return (Sigma[xi0] * dx1 + Sigma[xi1] * dx0) / (dx0 + dx1);
+  double sigma = (Sigma[xi0] * dx1 + Sigma[xi1] * dx0) / (dx0 + dx1);
+  ASSERT_ALLWAYS(sigma >= Sigma[xi0] && sigma <= Sigma[xi1],
+                 "interpolation error!");
+  return sigma + dMu;
 }
 
 double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
@@ -202,6 +186,7 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   Ek = Mom.squaredNorm(); // bare propagator
   if (IsFock)
     Ek += FockSigma(Mom); // Fock diagram dressed propagator
+  Ek -= Para.Mu;
 
   //// enforce an UV cutoff for the Green's function ////////
   // if(Ek>8.0*EF) then
@@ -209,7 +194,7 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   //   return
   // endif
 
-  double x = Para.Beta * (Ek - Para.Mu) / 2.0;
+  double x = Para.Beta * Ek / 2.0;
   double y = 2.0 * Tau / Para.Beta - 1.0;
   if (x > 100.0)
     green = exp(-x * (y + 1.0));
@@ -348,7 +333,7 @@ double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
 double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
   double green;
   bool IsFock = false;
-  if (Para.SelfEnergyType == FOCK)
+  if (Para.SelfEnergyType == FOCK || Para.SelfEnergyType == READ)
     IsFock = true;
   if (GType == 0) {
     green = PhyGreen(Tau, Mom, IsFock);

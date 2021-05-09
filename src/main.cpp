@@ -177,6 +177,7 @@ void MonteCarlo() {
     Block++;
     for (int i = 0; i < 1000000; i++) {
       Para.Counter++;
+      // cout << Para.Counter << endl;
       // if (Para.Counter == 9) {
       //   cout << "Before: " << Para.Counter << endl;
       //   PrintDeBugMCInfo();

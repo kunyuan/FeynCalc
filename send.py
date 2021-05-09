@@ -5,20 +5,20 @@ import sys
 
 ##### Modify parameters here  ###############
 # Cluster="PBS"
-Cluster = "local"
-# Cluster="condor"
+# Cluster = "local"
+Cluster = "condor"
 
 ############################################
 
 rootdir = os.getcwd()
 execute = "feyncalc.exe"
 
-assert len(sys.argv)==2, "Number of jobs is needed."
+assert len(sys.argv) == 2, "Number of jobs is needed."
 
-Number=int(sys.argv[1])
+Number = int(sys.argv[1])
 print "Creating {0} jobs...".format(Number)
 
-PIDList=range(Number)
+PIDList = range(Number)
 
 # if int(para[-2])==0:
 #     title="freq"
@@ -34,7 +34,8 @@ if(os.path.exists(homedir) != True):
 
 os.system("cp -r groups* "+homedir)
 os.system("cp {0} {1}".format(execute, homedir))
-os.system("cp reweight.data "+homedir)
+os.system("cp *.data "+homedir)
+# os.system("cp reweight.data "+homedir)
 os.system("cp parameter "+homedir)
 
 outfilepath = homedir+"/outfile"
