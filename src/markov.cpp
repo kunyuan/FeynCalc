@@ -296,9 +296,10 @@ double markov::RemoveOldTau(double &OldTau) { return 1.0 / Para.Beta; }
 
 double markov::GetNewK(momentum &NewMom) {
   //====== The hard Way ======================//
-  double dK = Para.Kf / sqrt(Para.Beta) / 4.0;
-  if (dK > Para.Kf / 2)
-    dK = Para.Kf / 2; // to avoid dK>Kf situation
+//  double dK = Para.Kf / sqrt(Para.Beta) / 4.0;
+//  if (dK > Para.Kf / 2)
+//    dK = Para.Kf / 2; // to avoid dK>Kf situation
+  double dK = Para.Kf / 2; 
   double KAmp = Para.Kf + (Random.urn() - 0.5) * 2.0 * dK;
   // Kf-dK<KAmp<Kf+dK
   double Phi = 2.0 * PI * Random.urn();
@@ -332,9 +333,10 @@ double markov::GetNewK(momentum &NewMom) {
 
 double markov::RemoveOldK(momentum &OldMom) {
   //====== The hard Way ======================//
-  double dK = Para.Kf / sqrt(Para.Beta) / 4.0;
-  if (dK > Para.Kf / 2)
-    dK = Para.Kf / 2; // to avoid dK>Kf situation
+//  double dK = Para.Kf / sqrt(Para.Beta) / 4.0;
+//  if (dK > Para.Kf / 2)
+//    dK = Para.Kf / 2; // to avoid dK>Kf situation
+  double dK = Para.Kf / 2;
   double KAmp = OldMom.norm();
   if (KAmp < Para.Kf - dK || KAmp > Para.Kf + dK)
     // Kf-dK<KAmp<Kf+dK

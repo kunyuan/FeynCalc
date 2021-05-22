@@ -9,7 +9,7 @@ double norm2(const momentum &);
 
 namespace diag {
 
-const int MAXSIGMABIN = 100000;
+const int MAXSIGMABIN = 16385; //8193; //2**13+1
 class fermi {
 public:
   fermi();
@@ -19,13 +19,15 @@ private:
   // beyond which the expense sigma function will be called
   double UpperBound, LowerBound;
   double DeltaK;
+  double Mu_ideal;
+  double Mu_shift;
   double UpperBound2, LowerBound2; // lower upbound for better sigma
   double DeltaK2;
   double PhyGreen(double Tau, const momentum &Mom, bool IsFock);
   double TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock);
   double ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock);
   double FockSigma(const momentum &Mom);
-  double BuildFockSigma();
+  void BuildFockSigma();
   double Fock(double k);
   // warning: this function only works for T=0 and 3D!!!!
   double GetSigma(double k);

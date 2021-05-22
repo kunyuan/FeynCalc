@@ -54,8 +54,8 @@ void InitPara() {
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
-   //Para.ObsType = FREQ;
-  Para.ObsType = EQUALTIME;
+  Para.ObsType = FREQ;   //Polariation counterterm
+  //Para.ObsType = EQUALTIME;   //Self-energy counterterm
 
   Para.Type = POLAR;
   Para.SelfEnergyType = FOCK;
@@ -64,8 +64,8 @@ void InitPara() {
   // Para.UseVer4 = true;
 
   if (Para.ObsType == FREQ) {
-    // Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
-    Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+    Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
+    // Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
     // Para.DiagFileFormat = "groups_spinless/DiagPolar{}.txt";
     Para.GroupName = {"0"}; // initialized with a normalization diagram
     Para.ReWeight = {1.0};
@@ -149,9 +149,9 @@ void InitPara() {
                      << "Fermi Energy: " << Para.Ef << "\n"
                      << "Seed: " << Para.Seed << "\n");
 
-  Para.PrinterTimer = 60;
-  Para.SaveFileTimer = 60;
-  Para.ReweightTimer = 60;
+  Para.PrinterTimer = 600;
+  Para.SaveFileTimer = 600;
+  Para.ReweightTimer = 600;
 }
 
 void MonteCarlo() {
