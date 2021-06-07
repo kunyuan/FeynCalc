@@ -12,9 +12,9 @@ const rs = parse(Float64, line[3])
 const kF = (dim == 3) ? (9π / (2spin))^(1 / 3) / rs : sqrt(4 / spin) / rs
 const EF = kF^2 / (2me)
 const β = parse(Float64, line[2]) / kF^2
-const lambda = parse(Float64, line[4])
-const mass2 = parse(Float64, line[3]) + lambda
-const maxK = 24kF
+const lambda = parse(Float64, line[5])
+const mass2 = parse(Float64, line[4]) + lambda
+const maxK = 12kF
 close(io)
 
 println("rs=$rs, β=$β, kF=$kF, EF=$EF, mass2=$mass2")

@@ -85,8 +85,11 @@ dMu4Err = (abs((e50+e12*dMu2**2+e21*dMu3+e31*dMu2) /
 print yellow("Order 4 Mu CT: {0}+-{1}".format(dMu4, dMu4Err))
 
 with open("dMu.data", "w") as f:
-    f.write("{0} {1} {2}\n".format(dMu2, dMu3, dMu4))
-    f.write("{0} {1} {2}\n".format(dMu2Err, dMu3Err, dMu4Err))
+    f.write("#rs={0}, lambda={1}, kF={2}, EF={3}, NF={4}\n".format(Para.Rs, Para.Lambda, Para.kF, Para.EF, Para.Nf))
+    f.write("#   {0:12s}   {1:12s}    {2:12s}  {3:12s}    {4:12s}  {5:12s}\n".format("dMu2", "dMu2_error", "dMu3", "dMu3_error", "dMu4", "dMu4_error"))
+    f.write("{0:12.6f}  {1:12.6f}    {2:12.6f}  {3:12.6f}    {4:12.6f}  {5:12.6f}\n".format(dMu2, dMu2Err, dMu3, dMu3Err, dMu4, dMu4Err))
+    f.write("\n")
+    # f.write("{0} {1} {2}\n".format(dMu2Err, dMu3Err, dMu4Err))
 
 # ax.set_xlim([0.0, KGrid[-1]/Para.kF])
 # ax.set_xlabel("$q/k_F$", size=size)
