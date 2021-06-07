@@ -164,13 +164,14 @@ if abspath(PROGRAM_FILE) == @__FILE__
     # println(density(sigmaK, dμ0), " expected density = $n0")
 
     dμ = find_zero(diff, (0.0, maxK), Bisection(), rtol=1.0e-4)
+    diff(dμ)
     println("finite T : $dμ, zero T: $dμ0")
 
     sigmaK = fockK(dμ)
 
-    for (ki, k) in enumerate(kgrid.grid)
-        println("$(k / kF)   $(sigmaK[ki])  $dμ")
-    end
+    # for (ki, k) in enumerate(kgrid.grid)
+    #     println("$(k / kF)   $(sigmaK[ki])  $dμ")
+    # end
 
     io = open("sigma.data", "w")
     write(io, "$(length(kgrid.grid))\n")
