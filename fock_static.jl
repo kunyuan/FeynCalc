@@ -128,7 +128,7 @@ end
     function fockK(dμ)
     oldsigmaK, _ = fockT0()
     newsigmaK = similar(kgrid.grid)
-    for i in 1:10
+    for i in 1:50
         for (ki, k) in enumerate(kgrid.grid)
             newsigmaK[ki] = FockStatic(dim, k, β, me, mass2, spin, oldsigmaK, dμ)[1]
         end
