@@ -1,4 +1,5 @@
 #!/bin/sh
+julia fock_static.jl
 mkdir data
 cp -r ./groups* ./data
 cp -r ./*.exe ./data
