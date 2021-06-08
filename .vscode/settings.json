@@ -1,10 +1,12 @@
 {
     "files.associations": {
         "array": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "fstream": "cpp",
+        "iostream": "cpp"
     },
     "cmake.configureOnOpen": false,
-    "python.pythonPath": "/Users/kunchen/anaconda3/envs/py2/bin/python",
+    "python.pythonPath": "/usr/bin/python3",
     "spellright.language": [
         "en_US"
     ],
