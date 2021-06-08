@@ -53,4 +53,4 @@ inlist
 *.data
 data/
 parameter
-.vscode/
+.vscode
