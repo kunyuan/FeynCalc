@@ -14,7 +14,7 @@ D = 3
 Spin = 2
 Para = param(D, Spin)
 
-DataDict, Step, Groups, ReWeight, Grids = LoadFile("data", "pid[0-9]+.dat")
+DataDict, Step, Groups, ReWeight, Grids = LoadFile(Para.DataFolder, "pid[0-9]+.dat")
 KGrid = Grids["KGrid"]
 print Groups
 

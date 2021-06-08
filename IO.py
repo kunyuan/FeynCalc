@@ -37,7 +37,7 @@ class param:
     # Order, Beta, Rs, Mass2, Lambda, Charge2, TotalStep = [None, ]*7
     # kF, Nf, EF, Bubble = [0.0, ]*4
     def __init__(self, D, Spin):
-        self.DataFolder = "Data"
+        # self.DataFolder = "Data"
         self.InputFile = "parameter"
         self.Dim = D
         self.Spin = Spin
@@ -51,24 +51,30 @@ class param:
             self.Lambda = float(para[4])
             self.MaxExtMom = float(para[5])
             self.TotalStep = int(para[6])
+            self.DataFolder = "beta{0}_rs{1}_lam{2}".format(self.Beta,self.Rs,self.Lambda)
+        print(self.DataFolder)
+
 
         if self.Dim == 3:
             self.kF = (9.0*np.pi/4.0)**(1.0/3.0)/self.Rs
             self.Nf = self.kF/4.0/np.pi**2*self.Spin
+            # self.kF = (9.0*np.pi/4.0)**(1.0/3.0)/self.Rs
+            # self.Nf = self.kF/2.0/np.pi**2*self.Spin
         elif self.Dim == 2:
             self.kF = np.sqrt(2.0)/self.Rs  # 2D
             self.Nf = 1.0/4.0/np.pi*self.Spin
         else:
-            print "Not Implemented for Dimension {0}".format(self.Dim)
+            print ("Not Implemented for Dimension {0}".format(self.Dim))
             sys.exit(0)
 
+        #self.EF = self.kF**2/2.0
         self.EF = self.kF**2
         self.Beta /= self.EF
         self.MaxExtMom *= self.kF
 
-        print yellow("Parameters:")
-        print "Rs={0}, kF={1}, EF={2}, Beta={3}, Mass2={4}, Lambda={5}\n".format(
-            self.Rs, self.kF, self.EF, self.Beta, self.Mass2, self.Lambda)
+        print (yellow("Parameters:"))
+        print ("Rs={0}, kF={1}, EF={2}, Beta={3}, Mass2={4}, Lambda={5}\n".format(
+            self.Rs, self.kF, self.EF, self.Beta, self.Mass2, self.Lambda))
 
 # For the given path, get the List of all files in the directory tree
 
@@ -82,7 +88,7 @@ def LoadFile(Folder, FileName):
 
     for f in getListOfFiles(Folder):
         if re.search(FileName, f):
-            print "Loading ", f
+            print ("Loading ", f)
             try:
                 with open(f, "r") as file:
                     line = file.readline().strip().split(":")[1]
@@ -110,8 +116,8 @@ def LoadFile(Folder, FileName):
                 Data.append(data)
 
             except Exception as e:
-                print "Failed to load {0}".format(f)
-                print str(e)
+                print ("Failed to load {0}".format(f))
+                print (str(e))
 
     Data = np.array(Data)
     DataDict = {}
@@ -134,7 +140,8 @@ ColorList = ColorList*40
 if __name__ == '__main__':
     Para = param(3, 2)
 
-    dirName = "./data"
+    # dirName = "./data"
+    dirName = Para.DataFolder
     filename = "pid[0-9]+.dat"
 
     LoadFile(dirName, filename)

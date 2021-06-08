@@ -83,7 +83,7 @@ void weight::Initialization() {
   // initialize external momentum
   for (int i = 0; i < ExtMomBinSize; i++) {
     // the external momentum only has x component
-    Var.ExtMomTable[i][0] = i * Para.MaxExtMom / ExtMomBinSize;
+    Var.ExtMomTable[i][0] = Para.MinExtMom + i*(Para.MaxExtMom-Para.MinExtMom)/ExtMomBinSize;
     for (int j = 1; j < D; j++)
       Var.ExtMomTable[i][j] = 0.0;
   }

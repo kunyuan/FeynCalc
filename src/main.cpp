@@ -42,7 +42,7 @@ int main(int argc, const char *argv[]) {
           "PID\n";
 
   File >> Para.Order >> Para.Beta >> Para.Rs >> Para.Mass2 >> Para.Lambda >>
-      Para.MaxExtMom >> Para.TotalStep;
+      Para.MinExtMom >> Para.MaxExtMom >> Para.TotalStep;
   File.close();
   InitPara(); // initialize global parameters
   MonteCarlo();
@@ -54,8 +54,8 @@ void InitPara() {
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
-   //Para.ObsType = FREQ;
-  Para.ObsType = EQUALTIME;
+  // Para.ObsType = FREQ;   //Polariation counterterm
+  Para.ObsType = EQUALTIME;   //Self-energy counterterm
 
   Para.Type = POLAR;
   Para.SelfEnergyType = FOCK;
@@ -64,8 +64,8 @@ void InitPara() {
   // Para.UseVer4 = true;
 
   if (Para.ObsType == FREQ) {
-    // Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
-    Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+    Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
+    // Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
     // Para.DiagFileFormat = "groups_spinless/DiagPolar{}.txt";
     Para.GroupName = {"0"}; // initialized with a normalization diagram
     Para.ReWeight = {1.0};
@@ -134,6 +134,7 @@ void InitPara() {
   Para.Kf = Kf;
   Para.Ef = Kf * Kf;
   Para.Mu = Para.Ef;
+  Para.MinExtMom *= Kf;
   Para.MaxExtMom *= Kf;
 
   // scale all energy with E_F

@@ -18,9 +18,9 @@ def Reduce(Dict, Map):
     """reduce Dict.keys() to mapped keys"""
     mappedDict = {}
     for g in Dict.keys():
-        if Map.has_key(g):
+        if g in Map:
             key = Map[g]
-            if mappedDict.has_key(key):
+            if key in mappedDict:
                 mappedDict[key] += Dict[g]
             else:
                 mappedDict[key] = Dict[g]
@@ -29,7 +29,7 @@ def Reduce(Dict, Map):
 
 def EstimateGroup(DataDict, Steps, Phys, group):
     Norm = np.sum(DataDict[(0, )][:, :], axis=-1)  # shape=pid
-    if DataDict.has_key(group):
+    if group in DataDict:
         data = DataDict[group][:, :]/Norm[:, np.newaxis]*Phys
         return Estimate(data, Steps)
     else:
@@ -47,7 +47,7 @@ def GetData(Data, Groups, Steps, Phys, Map):
         Dict[g] = Data[:, idx, :]
 
     Dict = Reduce(Dict, Map)
-    print "Groups {0} reduced to {1}".format(Groups, list(set(Dict.keys())))
+    print ("Groups {0} reduced to {1}".format(Groups, list(set(Dict.keys()))))
 
     EsData = {}
     for key in sorted(Dict.keys()):

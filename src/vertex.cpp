@@ -44,19 +44,24 @@ double bose::Interaction(double Tau, const momentum &Mom, int VerType) {
 }
 
 fermi::fermi() {
-  UpperBound = 5.0 * Para.Ef;
+  UpperBound = 24.0 * Para.Kf;  //6.0
   LowerBound = 0.0;
-  DeltaK = UpperBound / MAXSIGMABIN;
+  DeltaK = UpperBound / (MAXSIGMABIN-1);
+  // LowerBound = DeltaK;
+  // Mu_shift = Para.Ef;
+
   UpperBound2 = 1.2 * Para.Ef;
   LowerBound2 = 0.8 * Para.Ef;
   DeltaK2 = UpperBound2 / MAXSIGMABIN;
-  // if (Para.SelfEnergyType == FOCK)
-  //   BuildFockSigma();
+  if (Para.SelfEnergyType == FOCK)
+     BuildFockSigma();
 }
 
 double fermi::Fock(double k) {
   // warning: this function only works for T=0!!!!
   double kF = Para.Kf;
+
+  // if(k>UpperBound)  cout << 'k=' << k<< '>'<< UpperBound<< endl;
   if (D == 3) {
     double l = sqrt(Para.Mass2 + Para.Lambda);
     double fock = 1.0 + l / kF * atan((k - kF) / l);
@@ -65,58 +70,100 @@ double fermi::Fock(double k) {
             log((l * l + (k - kF) * (k - kF)) / (l * l + (k + kF) * (k + kF)));
     fock *= (-2.0 * kF) / PI;
 
-    double shift = 1.0 - l / kF * atan(2.0 * kF / l);
-    shift -= l * l / 4.0 / kF / kF * log(l * l / (l * l + 4.0 * kF * kF));
-    shift *= (-2.0 * kF) / PI;
-    return fock - shift;
+    // double shift = 1.0 - l / kF * atan(2.0 * kF / l);
+    // shift -= l * l / 4.0 / kF / kF * log(l * l / (l * l + 4.0 * kF * kF));
+    // shift *= (-2.0 * kF) / PI;
+    // return fock - shift;
+    return fock;
   } else if (D == 2) {
     double l2 = Para.Mass2 + Para.Lambda;
     double x = Para.Kf * Para.Kf + l2 - k * k;
-    double c = 4.0 * k * k * l2;
+    double c = 4.0 * k * k  * l2;
     double fock = -2.0 * log((sqrt(x * x + c) + x) / 2.0 / l2);
 
-    double shift = -2.0 * log((Para.Kf * Para.Kf + l2) / l2);
-    return fock - shift;
+    // double shift = -2.0 * log((Para.Kf * Para.Kf + l2) / l2);
+    // return fock - shift;
+    return fock;
   }
 }
 
-double fermi::BuildFockSigma() {
+void fermi::BuildFockSigma() {
   ASSERT_ALLWAYS(D == 3, "The Fock self energy is for 3D!");
-  double fock, k;
-  for (int i = 0; i < MAXSIGMABIN; ++i) {
-    // k: (0^+, UpBound^-)
-    // i=0 ==> k==0.5*DeltaK
-    // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
-    k = (i + 0.5) * DeltaK + LowerBound;
-    Sigma[i] = Fock(k);
-    if (i > 0 && k <= LowerBound2 && k >= UpperBound2) {
-      ASSERT_ALLWAYS(
-          Equal(Sigma[i - 1], Sigma[i], 5.0e-5),
-          fmt::format("Fock are not accurate enough! At k={0}: {1} vs {2}\n", k,
-                      Sigma[i - 1], Sigma[i]));
-    }
-    // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
+  double fockE, k, beta, rs, lambda, kmax;
+  int num_k;
+  double dk;
+  
+  string FileName = "sigma3D.txt";
+  ifstream FockFile(FileName);
+  ASSERT_ALLWAYS(FockFile.is_open(),
+                  "Unable to find the file " << FileName << endl);
+  LOG_INFO("Find " << FileName << "\n");
+  
+  FockFile >> beta >> rs >> lambda;
+  FockFile >> kmax >> num_k;
+  FockFile >> Mu_shift >> Mu_ideal;
+  dk = kmax/num_k;
+  Mu_ideal = Mu_ideal* Para.Ef;
+  if(!(Equal(beta/Para.Ef, Para.Beta, 1.0e-6)&&Equal(rs, Para.Rs, 1.0e-6)&&
+     Equal(lambda, Para.Lambda, 1.0e-6)&&Equal(dk, DeltaK, 1.0e-6)&&
+     (num_k>=MAXSIGMABIN))){
+      ASSERT_ALLWAYS(false,
+                  "The parameters in the file"<< FileName<<" unmatch." << endl);
+      FockFile.close();
   }
+  LOG_INFO("Read " << FileName << "with right parameters\n");
+  for (int i=0; i < MAXSIGMABIN; i++){
+    FockFile >> fockE;
+    Sigma[i]=fockE-Mu_shift;
+    k = i * DeltaK + LowerBound;
+    // cout << k << " : " << Sigma[i] << " vs " << Fock(k)-Mu_shift << endl;
+  }
+  FockFile.close();
 
-  for (int i = 0; i < MAXSIGMABIN; ++i) {
-    // k: (0^+, UpBound^-)
-    // i=0 ==> k==0.5*DeltaK
-    // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
-    k = (i + 0.5) * DeltaK2 + LowerBound2;
-    Sigma2[i] = Fock(k);
-    if (i > 0) {
-      ASSERT_ALLWAYS(Equal(Sigma2[i - 1], Sigma2[i], 5.0e-5),
-                     fmt::format("The 2rd level Fock are not accurate enough!"
-                                 "level! At k={0}: {1} vs {2}\n",
-                                 k, Sigma2[i - 1], Sigma2[i]));
-    }
-    // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
-  }
+  //   for (int i = 0; i < MAXSIGMABIN; ++i) {
+  //   // k: (0^+, UpBound^-)
+  //   // i=0 ==> k==0.5*DeltaK
+  //   // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
+  //   k = (i + 0.5) * DeltaK + LowerBound;
+  //   Sigma[i] = Fock(k);
+  //   if (i > 0 && k <= LowerBound2 && k >= UpperBound2) {
+  //     ASSERT_ALLWAYS(
+  //         Equal(Sigma[i - 1], Sigma[i], 5.0e-5),
+  //         fmt::format("Fock are not accurate enough! At k={0}: {1} vs {2}\n", k,
+  //                     Sigma[i - 1], Sigma[i]));
+  //   }
+  //   cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
+  // }
+  // for (int i = 0; i < MAXSIGMABIN; ++i) {
+  //   // k: (0^+, UpBound^-)
+  //   // i=0 ==> k==0.5*DeltaK
+  //   // i=MAXSIGMABIN-1 ==> k==(MAXSIGMABIN-0.5)*DeltaK
+  //   k = (i + 0.5) * DeltaK2 + LowerBound2;
+  //   Sigma2[i] = Fock(k);
+  //   if (i > 0) {
+  //     ASSERT_ALLWAYS(Equal(Sigma2[i - 1], Sigma2[i], 5.0e-5),
+  //                    fmt::format("The 2rd level Fock are not accurate enough!"
+  //                                "level! At k={0}: {1} vs {2}\n",
+  //                                k, Sigma2[i - 1], Sigma2[i]));
+  //   }
+  //   // cout << k << " : " << Sigma[i] << " vs " << Fock(k) << endl;
+  // }
 };
 
 double fermi::FockSigma(const momentum &Mom) {
   double k = Mom.norm(); // bare propagator
-  // double fock;
+  double fock;
+  if (k >= LowerBound && k < UpperBound) {
+    int i = (k - LowerBound) / DeltaK;
+    fock = Sigma[i]+(k-DeltaK*i-LowerBound)*(Sigma[i+1]-Sigma[i])/DeltaK;
+  } 
+  // else if(k<LowerBound){
+    // fock = Sigma[0]+(k-LowerBound)*(Sigma[1]-Sigma[0])/DeltaK;}
+  else {
+    fock = Fock(k) - Mu_shift;
+  }
+  // cout << k <<" : "<< fock <<" vs "<< Fock(k)-Mu_shift << endl;
+
   // if (k >= LowerBound2 && k < UpperBound2) {
   //   int i = (k - LowerBound2) / DeltaK2;
   //   fock = Sigma2[i];
@@ -132,7 +179,7 @@ double fermi::FockSigma(const momentum &Mom) {
   //     fmt::format("Fock are not accurate enough! At k={0}: {1} vs {2}\n",
   //     k,
   //                 fock, Fock(k)));
-  double fock = Fock(k);
+  // double fock = Fock(k);
   return fock;
 }
 
@@ -155,6 +202,8 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   Ek = Mom.squaredNorm(); // bare propagator
   if (IsFock)
     Ek += FockSigma(Mom); // Fock diagram dressed propagator
+  else 
+    Ek -= Mu_ideal;
 
   //// enforce an UV cutoff for the Green's function ////////
   // if(Ek>8.0*EF) then
@@ -162,7 +211,7 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   //   return
   // endif
 
-  double x = Para.Beta * (Ek - Para.Mu) / 2.0;
+ double x = Para.Beta * Ek / 2.0;
   double y = 2.0 * Tau / Para.Beta - 1.0;
   if (x > 100.0)
     green = exp(-x * (y + 1.0));
@@ -204,7 +253,8 @@ double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   Ek = Mom.squaredNorm(); // bare propagator
   if (IsFock)
     Ek += FockSigma(Mom); // Fock diagram dressed propagator
-  Ek -= Para.Mu;
+  else 
+    Ek -= Mu_ideal;
 
   // double x = Para.Beta * (Ek - Para.Mu) / 2.0;
   // double y = 2.0 * Tau / Para.Beta - 1.0;
@@ -254,7 +304,8 @@ double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   Ek = Mom.squaredNorm(); // bare propagator
   if (IsFock)
     Ek += FockSigma(Mom); // Fock diagram dressed propagator
-  Ek -= Para.Mu;
+  else
+    Ek -= Mu_ideal;
 
   // double x = Para.Beta * (Ek - Para.Mu) / 2.0;
   // double y = 2.0 * Tau / Para.Beta - 1.0;

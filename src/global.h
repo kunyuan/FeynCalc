@@ -27,6 +27,7 @@ struct parameter {
   double UVCoupling; // the coupling constant at the UV scale
   double Mass2;      // screening length^2
   double Lambda;
+  double MinExtMom; // the minimum external momentum
   double MaxExtMom; // the maximum external momentum
   selfenergy SelfEnergyType;
 
@@ -54,7 +55,7 @@ struct parameter {
 // D=2 or D=3
 const int D = 3;
 // number of q bins of the external momentum
-const int ExtMomBinSize = 4;
+const int ExtMomBinSize = 16;
 // number of bins for the angle between InL and InR legs
 const int InInAngBinSize = 32;
 // number of bins for the angle between InL and OutL legs
