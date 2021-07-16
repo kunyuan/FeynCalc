@@ -175,7 +175,7 @@ class polar():
         #     PermutationDict)
         return list(DeformationFinal)
 
-    def ToString(self, PolarHugenList, VerOrder, SigmaOrder, IsSelfEnergy, IsSpinPolar, SPIN):
+    def ToString(self, PolarHugenList, VerOrder, SigmaOrder, QOrder, IsSelfEnergy, IsSpinPolar, IsSysPolar, SPIN):
         if len(PolarHugenList) == 0:
             return
 
@@ -195,7 +195,7 @@ class polar():
                     FactorList = []
 
                     for FeynPermu in FeynList:
-                        if self.__IsReducibile(FeynPermu, Diag.LoopBasis, vertype, gtype, IsSelfEnergy):
+                        if self.__IsReducibile(FeynPermu, Diag.LoopBasis, vertype, gtype, IsSelfEnergy, IsSysPolar):
                             FactorList.append(0)
                         else:
                             FactorList.append(1)
@@ -214,24 +214,20 @@ class polar():
         print yellow(
             "Irreducible Polar Diag Num: {0}".format(len(IrreDiagList)))
 
-        Title = "#Type: {0}\n".format("Polarization")
-        Title += "#DiagNum: {0}\n".format(len(IrreDiagList))
-        Title += "#Order: {0}\n".format(self.Order)
-        Title += "#GNum: {0}\n".format(self.GNum)
-        Title += "#Ver4Num: {0}\n".format(self.Ver4Num)
-        Title += "#LoopNum: {0}\n".format(self.LoopNum)
-        Title += "#ExtLoopIndex: {0}\n".format(0)
-        Title += "#DummyLoopIndex: \n"
-        Title += "#TauNum: {0}\n".format(self.Ver4Num+2)
-        Title += "#ExtTauIndex: {0} {1}\n".format(0, 1)
-        Title += "#DummyTauIndex: \n"
-        Title += "\n"
-
         Body = ""
+        DiagNum = 0
         for Diag, FeynList, FactorList, VerType, GType in IrreDiagList:
             Permutation = Diag.GetPermu()
+            SymFactor = Diag.SymFactor
+            if IsSysPolar and Permutation[0] == 1:
+                # only save one of symmetric self-energy diagrams
+                if QOrder == 2:
+                    continue
+                SymFactor *= 2
+            elif QOrder == 1:
+                continue
             Mom = Diag.LoopBasis
-
+            DiagNum += 1
             print "Save {0}".format(Permutation)
 
             Body += "# Permutation\n"
@@ -239,7 +235,7 @@ class polar():
                 Body += "{0:2d} ".format(i)
             Body += "\n"
 
-            Body += "# SymFactor\n{0}\n".format(Diag.SymFactor)
+            Body += "# SymFactor\n{0}\n".format(SymFactor)
 
             Body += "# GType\n"
             for i in range(self.GNum):
@@ -310,8 +306,23 @@ class polar():
 
             Body += "\n"
             Body += "\n"
+        Title = "#Type: {0}\n".format("Polarization")
+        Title += "#DiagNum: {0}\n".format(DiagNum)
+        Title += "#Order: {0}\n".format(self.Order)
+        Title += "#GNum: {0}\n".format(self.GNum)
+        Title += "#Ver4Num: {0}\n".format(self.Ver4Num)
+        Title += "#LoopNum: {0}\n".format(self.LoopNum)
+        Title += "#ExtLoopIndex: {0}\n".format(0)
+        Title += "#DummyLoopIndex: \n"
+        Title += "#TauNum: {0}\n".format(self.Ver4Num+2)
+        Title += "#ExtTauIndex: {0} {1}\n".format(0, 1)
+        Title += "#DummyTauIndex: \n"
+        Title += "\n"
 
-        return Title+Body
+        if Body == "":
+            return None
+        else:
+            return Title+Body
 
     def HugenToFeyn(self, HugenPermu):
         """construct a list of feyn diagram permutation from a hugen diagram permutation"""
@@ -339,7 +350,7 @@ class polar():
         else:
             return int(index/2)+1
 
-    def __IsReducibile(self, Permutation, LoopBasis, vertype, gtype, IsSelfEnergy):
+    def __IsReducibile(self, Permutation, LoopBasis, vertype, gtype, IsSelfEnergy, IsSysPolar):
         ExterLoop = [0, ]*self.LoopNum
         ExterLoop[0] = 1
         for i in range(1, self.Ver4Num+1):
@@ -370,17 +381,26 @@ class polar():
             # for i in range(1, self.GNum):
             #     if np.allclose(k, LoopBasis[:, i]):
             #         return True
+        if IsSysPolar:
+            if Permutation[1] == 0:
+                return True
 
         ###### Check High order Hatree ######################
         # kG, kW = diag.AssignMomentums(
         #     Permutation, self.GetReference(), self.GetInteractionPairs(True))
-
+        # last = Permutation.index(1)
+        # first = 0
+        # print '###############################################'
+        # if abs(kG[first]- kG[last])<1e-6:
+        #     print 'Reduc Perm:', Permutation, 'kG:', kG, 'index:', last
+        #     return True
+        # print 'irReduc Perm:', Permutation, 'kG:', kG, 'index:', last
+        
         # for i in range(len(kW)):
         #     if abs(kW[i]) < 1e-12:
         #             # print "k=0 on W {0}: {1}".format(p, kW[i])
         #         print "Contain high-order Hartree: ", Permutation
         #         return True
-
         return False
 
     def __GetInteractionMom(self, Permutation, Mom):

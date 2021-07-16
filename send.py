@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import random
 import os
 import sys
@@ -21,6 +21,7 @@ for index, eachline in enumerate(inlist):
         print ("All submitted!")
         break
     
+    order= int(para[0])
     beta = float(para[1])
     rs   = float(para[2])
     lam  = float(para[4])
@@ -37,7 +38,8 @@ for index, eachline in enumerate(inlist):
         break
     execute = "feyncalc"+title+".exe"
     fname = "beta{0}_rs{1}_lam{2}".format(beta,rs,lam)
-    homedir = os.getcwd() +"/"+fname
+    homedir = os.getcwd() +"/"+fname+"_o{0}".format(order)
+#    homedir = os.getcwd() +"/"+fname.format(order)
     if(title=='_freq'):
         homedir = homedir + title
 

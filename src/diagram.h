@@ -85,6 +85,8 @@ struct group {
   int ExtTauNum;       // dimension of external tau basis
   int InternalTauNum;  // dimension of internal tau basis
   double ReWeight;
+  std::vector<double> ReWeight_ExtMom;    // reweight factor with ExtMom for each group
+  
   double Weight;
   double NewWeight;
   array<bool, MaxLoopNum> IsExtLoop;

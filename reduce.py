@@ -10,7 +10,7 @@ def Estimate(Data, Weights, axis=0):
     assert Data.shape[0] == Num, "Data and Weights size must match!"
     Avg = np.average(Data, weights=Weights, axis=0)
     Var = np.average((Data-Avg)**2, weights=Weights, axis=0)
-    Err = np.sqrt(Var/(Num-1)) if Num > 1 else 0.0
+    Err = np.sqrt(Var/(Num-1)) if Num > 1 else np.zeros(len(Avg))
     return np.array((Avg, Err))
 
 

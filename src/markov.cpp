@@ -42,18 +42,34 @@ markov::markov() : Var(Weight.Var), Groups(Weight.Groups) {
 
   InitialArray(&Accepted[0][0], 1.0e-10, MCUpdates * MaxGroupNum);
   InitialArray(&Proposed[0][0], 1.0e-10, MCUpdates * MaxGroupNum);
+  InitialArray(&Temp_Proposed[0], 0.0, MaxGroupNum);
 
   ///==== initialize observable =======================//
   for (auto &g : Groups) {
     Polar[g.ID].fill(1.0e-10);
     PolarStatic[g.ID] = 1.0e-10;
+    for (auto &d: g.Diag){
+      string CurrdiagName = g.Name+"_"+to_string(d.ID);
+      Polar_Diag[CurrdiagName].fill(1.0e-10);
+    }
   }
   ///=== Do all kinds of test  =======================//
   Weight.StaticTest();
   Weight.DynamicTest();
 
   ///==== Set Reweighting factor =====================//
-  AdjustGroupReWeight();
+  // AdjustGroupReWeight();
+  for (int i = 0; i < Weight.Groups.size(); i++){
+    Weight.Groups[i].ReWeight = Para.ReWeight[i];
+    for (int j = 0; j < ExtMomBinSize; j++) {
+      if (Weight.Groups[i].Name.back() == '1')
+        Weight.Groups[i].ReWeight_ExtMom.push_back(pow(Var.ExtMomTable[j][0],2.0));
+      else if (Weight.Groups[i].Name.back() == '2')
+        Weight.Groups[i].ReWeight_ExtMom.push_back(pow(Var.ExtMomTable[j][0],4.0));
+      else
+        Weight.Groups[i].ReWeight_ExtMom.push_back(1.0);
+    }
+  }
 };
 
 int markov::DynamicTest() { return Weight.DynamicTest(); }
@@ -97,17 +113,45 @@ void markov::PrintDeBugMCInfo() {
 }
 
 void markov::AdjustGroupReWeight() {
-  for (int i = 0; i < Weight.Groups.size(); i++)
+  Para.ReWeight[0] = 1.0;
+  Weight.Groups[0].ReWeight = Para.ReWeight[0];
+
+  cout << 0 <<"  " << Temp_Proposed[0] << "  "<<Proposed[3][0]<<endl;
+  cout << Para.ReWeight[0] <<endl;
+  for (int i = 1; i < Weight.Groups.size(); i++){
+    cout << i <<"  " << Temp_Proposed[i] << "  "<<Proposed[3][i]<<endl;
+    Para.ReWeight[i] = (Proposed[3][0]-Temp_Proposed[0])/(Proposed[3][i]-Temp_Proposed[i])* Para.ReWeight[i]/10.0;
+    if (i==1)
+      Para.ReWeight[i] = Para.ReWeight[i]*10.0;
+    if (i==2)
+      Para.ReWeight[i] = Para.ReWeight[i]*4.0;
     Weight.Groups[i].ReWeight = Para.ReWeight[i];
+    Temp_Proposed[i] = Proposed[3][i];
+    cout << Para.ReWeight[i] <<endl;
+  }
+  Temp_Proposed[0] = Proposed[3][0];
 };
 
 void markov::Measure() {
   // cout << Var.Tau[1] << endl;
-  double MCWeight = fabs(Var.CurrGroup->Weight) * Var.CurrGroup->ReWeight;
+  double MCWeight = fabs(Var.CurrGroup->Weight) *Var.CurrGroup->ReWeight *Var.CurrGroup->ReWeight_ExtMom[Var.CurrExtMomBin];
   double WeightFactor = Var.CurrGroup->Weight / MCWeight;
 
   Polar[Var.CurrGroup->ID][Var.CurrExtMomBin] += WeightFactor;
   PolarStatic[Var.CurrGroup->ID] += WeightFactor;
+
+  for (auto &d : Var.CurrGroup->Diag) {
+    double WeightFactor_Diag = d.Weight /fabs(Var.CurrGroup->Weight) /Var.CurrGroup->ReWeight;
+    WeightFactor_Diag /= Var.CurrGroup->ReWeight_ExtMom[Var.CurrExtMomBin];
+    // if (d.Weight!=0){
+    //   cout << Var.CurrGroup->ID <<"  "<< d.ID << " "<<d.Weight<< " "<< Var.CurrGroup->Weight<<endl;
+    // }else{
+    //   cout <<d.Weight<<"  error!"<<endl;
+    //   exit(-1);
+    // }
+    string CurrdiagName = Var.CurrGroup->Name+"_"+to_string(d.ID);
+    Polar_Diag[CurrdiagName][Var.CurrExtMomBin] += WeightFactor_Diag;
+  }
 };
 
 void markov::SaveToFile() {
@@ -149,13 +193,49 @@ void markov::SaveToFile() {
   } else {
     LOG_WARNING("Polarization for PID " << Para.PID << " fails to save!");
   }
+
+  for (auto &group : Groups) {
+    // ofstream PolarFile;
+    // string FileName = fmt::format("group{0}_pid{1}.dat", group.Name, Para.PID);
+    // PolarFile.open(FileName, ios::out | ios::trunc);
+    // if (PolarFile.is_open()) {
+    //   PolarFile << fmt::sprintf(
+    //       "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Group: %s, Step: %d\n",
+    //       Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name, Para.Counter);
+
+    //   for (int j = 0; j < Polar[group.ID].size(); j++)
+    //     PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
+    //                               Polar[group.ID][j]);
+    //   PolarFile.close();
+    // } else {
+    //   LOG_WARNING("Polarization for PID " << Para.PID <<", Group "<<group.Name<< " fails to save!");
+    // }
+    for (auto &d : group.Diag){
+      ofstream PolarFile;
+      string CurrdiagName = group.Name+"_"+to_string(d.ID);
+      string FileName = fmt::format("Diag{0}_pid{1}.dat", CurrdiagName, Para.PID);
+      PolarFile.open(FileName, ios::out | ios::trunc);
+      if (PolarFile.is_open()) {
+        PolarFile << fmt::sprintf(
+            "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Diag: %s, Step: %d\n",
+            Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name+"_"+to_string(d.ID), Para.Counter);
+
+        for (int j = 0; j < Polar_Diag[CurrdiagName].size(); j++)
+          PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
+                                    Polar_Diag[CurrdiagName][j]);
+        PolarFile.close();
+      } else {
+        LOG_WARNING("Polarization for PID " << Para.PID <<", Diag "<<CurrdiagName <<" fails to save!");
+      }
+    }
+  }
 }
 
 void markov::ChangeGroup() {
   group &NewGroup = Groups[Random.irn(0, Groups.size() - 1)];
   if (NewGroup.ID == Var.CurrGroup->ID)
     return;
-
+  // cout << NewGroup.ID <<'    '<< Groups[NewGroup.ID].Name<<endl;
   Updates Name;
   double Prop = 1.0;
 
@@ -200,9 +280,9 @@ void markov::ChangeGroup() {
   // }
 
   Weight.ChangeGroup(NewGroup);
-  double NewWeight = Weight.GetNewWeight(NewGroup) * NewGroup.ReWeight;
+  double NewWeight = Weight.GetNewWeight(NewGroup) * NewGroup.ReWeight* NewGroup.ReWeight_ExtMom[Var.CurrExtMomBin];
   double R = Prop * fabs(NewWeight) / fabs(Var.CurrGroup->Weight) /
-             Var.CurrGroup->ReWeight;
+             Var.CurrGroup->ReWeight/ Var.CurrGroup->ReWeight_ExtMom[Var.CurrExtMomBin];
 
   // if (NewGroup.ID == 2) {
   //   cout << endl << NewGroup.Name << ", TauNum: " << NewGroup.TauNum << endl;
@@ -281,11 +361,15 @@ void markov::ChangeMomentum() {
   Weight.ChangeMom(*Var.CurrGroup, LoopIndex);
   double NewWeight = Weight.GetNewWeight(*Var.CurrGroup);
   double R = Prop * fabs(NewWeight) / fabs(Var.CurrGroup->Weight);
+  if (Var.CurrGroup->IsExtLoop[LoopIndex])
+    R = R* Var.CurrGroup->ReWeight_ExtMom[NewExtMomBin]/ Var.CurrGroup->ReWeight_ExtMom[Var.CurrExtMomBin];
+
   if (Random.urn() < R) {
     Accepted[CHANGE_MOM][Var.CurrGroup->ID]++;
     Weight.AcceptChange(*Var.CurrGroup);
-    if (Var.CurrGroup->IsExtLoop[LoopIndex])
+    if (Var.CurrGroup->IsExtLoop[LoopIndex]){
       Var.CurrExtMomBin = NewExtMomBin;
+    }
   } else {
     Var.LoopMom[LoopIndex] = CurrMom;
     Weight.RejectChange(*Var.CurrGroup);
@@ -378,7 +462,7 @@ double markov::ShiftK(const momentum &OldMom, momentum &NewMom) {
       Prop = 0.0;
       NewMom = OldMom;
     } else {
-      const double Lambda = 1.5;
+      const double Lambda = 1.5;   //Lambda can be larger for large-q 
       double knew = k / Lambda + Random.urn() * (Lambda - 1.0 / Lambda) * k;
       double Ratio = knew / k;
       for (int i = 0; i < D; i++)

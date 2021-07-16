@@ -50,7 +50,9 @@ for index, eachline in enumerate(inlist):
 
     DataDict, Step, Groups, ReWeight, Grids = LoadFile(Para.DataFolder, "pid[0-9]+.dat")
     KGrid = Grids["KGrid"]
-    # print (Groups)
+    print (Groups)
+    print(Step)
+    print(DataDict)
 
     ###### Calculate finite-temperature polarization ################
     BubbleQ = np.zeros((len(KGrid),2))
@@ -124,7 +126,7 @@ for index, eachline in enumerate(inlist):
     ###### Calculate static local field factor ################
     G = {}
     G_Err = {} 
-    for o in range(3, Para.Order+1):
+    for o in range(2, Para.Order+1):
         G[o] = KGrid**2/8.0/np.pi*(-1.0/BubbleQ[:, 0]-1.0/Accu[o][0, :])
         G_Err[o] = KGrid**2/8.0/np.pi* np.sqrt(BubbleQ[:, 1]**2.0/BubbleQ[:, 0]**4.0 +Accu[o][1, :]**2.0/Accu[o][0, :]**4.0)
 
@@ -137,9 +139,6 @@ for index, eachline in enumerate(inlist):
         omin = 5
         # G_Err[Para.Order] = G_Err[Para.Order] + np.abs(G[Para.Order] - G[Para.Order-1])
         for qi, q in enumerate(KGrid):
-            if qi == 9:
-                print(q, Accu[o][0, qi], G[Para.Order][qi])
-
             if Gfactor[qi]<G[Para.Order][qi]:
                 Gfactor[qi] = G[Para.Order][qi]
                 Gfactor_Err[qi] = G_Err[Para.Order][qi]
@@ -158,7 +157,7 @@ for index, eachline in enumerate(inlist):
     if index==0:
         ax1.set_ylabel("$G(\omega=0, q)$", size=size)
         # ax1.set_ylim([0.0, 1.4])
-    ax.set_xlim([0.0, KGrid[-1]/Para.kF])
+    ax1.set_xlim([0.0, KGrid[-1]/Para.kF])
     ax1.set_xlabel("$q/k_F$", size=size)
     ax1.legend(loc=2, frameon=False, fontsize=size)
 
@@ -168,16 +167,16 @@ for index, eachline in enumerate(inlist):
 plt.suptitle(r"$\beta={0}, r_s={1}$".format(beta,rs))
 # plt.tight_layout()
 if plt_type==0:
-    with open('../PIMC_data/PIMC_rs{0}_theta{1:3.1f}.txt'.format(rs,1/beta), 'r') as file:
-        PIMC_para = file.readline()
-        G_PIMC= np.loadtxt(file)
-    ax1.errorbar(G_PIMC[:,0], G_PIMC[:,1], yerr=G_PIMC[:,2], fmt='o-', marker='3', capthick=1, capsize=1, ms=6,
-                color=ColorList[-2], label='PIMC')
+    # with open('../PIMC_data/PIMC_rs{0}_theta{1:3.1f}.txt'.format(rs,1/beta), 'r') as file:
+    #     PIMC_para = file.readline()
+    #     G_PIMC= np.loadtxt(file)
+    # ax1.errorbar(G_PIMC[:,0], G_PIMC[:,1], yerr=G_PIMC[:,2], fmt='o-', marker='3', capthick=1, capsize=1, ms=6,
+    #             color=ColorList[-2], label='PIMC')
     ax1.errorbar(KGrid/Para.kF, Gfactor, yerr=Gfactor_Err, fmt='o-', marker='o', capthick=1, capsize=1, ms=6,
                 color= ColorList[-1], label="optimzied $G(q)$")
     ax1.legend(loc=2, frameon=False, fontsize=size)
-    plt.savefig('Plot/'+Quan+'_charge_beta{0}_rs{1}_opt.pdf'.format(beta,rs))
+    # plt.savefig('Plot/'+Quan+'_charge_beta{0}_rs{1}_opt.pdf'.format(beta,rs))
 elif plt_type==1:
     fig.subplots_adjust(wspace=0)
-    plt.savefig('Plot/'+Quan+'_charge_beta{0}_rs{1}_lam.pdf'.format(beta,rs))
+    # plt.savefig('Plot/'+Quan+'_charge_beta{0}_rs{1}_lam.pdf'.format(beta,rs))
 plt.show()
