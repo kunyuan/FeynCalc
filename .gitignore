@@ -42,6 +42,7 @@ outfile/
 Beta*/
 build/
 Data/
+inlist
 *.log
 *.dat
 blitz/
