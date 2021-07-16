@@ -4,6 +4,7 @@ import glob
 import re
 import sys
 import os
+
 # import seaborn as sns
 
 # import matplotlib as mat
@@ -51,13 +52,20 @@ class param:
             self.Lambda = float(para[4])
             self.MaxExtMom = float(para[5])
             self.TotalStep = int(para[6])
-            self.DataFolder = "beta{0}_rs{1}_lam{2}".format(self.Beta,self.Rs,self.Lambda)
+            if self.MaxExtMom==10:
+                self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq".format(self.Beta,self.Rs,self.Lambda,self.Order)
+            elif self.MaxExtMom==15:
+                self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq_hq".format(self.Beta,self.Rs,self.Lambda,self.Order)
+            else:
+                self.DataFolder = "beta{0}_rs{1}_lam{2}_freq".format(self.Beta,self.Rs,self.Lambda)
         print(self.DataFolder)
 
 
         if self.Dim == 3:
             self.kF = (9.0*np.pi/4.0)**(1.0/3.0)/self.Rs
             self.Nf = self.kF/4.0/np.pi**2*self.Spin
+            # self.kF = (9.0*np.pi/4.0)**(1.0/3.0)/self.Rs
+            # self.Nf = self.kF/2.0/np.pi**2*self.Spin
         elif self.Dim == 2:
             self.kF = np.sqrt(2.0)/self.Rs  # 2D
             self.Nf = 1.0/4.0/np.pi*self.Spin
@@ -65,6 +73,7 @@ class param:
             print ("Not Implemented for Dimension {0}".format(self.Dim))
             sys.exit(0)
 
+        #self.EF = self.kF**2/2.0
         self.EF = self.kF**2
         self.Beta /= self.EF
         self.MaxExtMom *= self.kF
@@ -84,8 +93,8 @@ def LoadFile(Folder, FileName):
     Grid = {}
 
     for f in getListOfFiles(Folder):
-        if re.search(FileName, f):
-            print ("Loading ", f)
+        if re.search(FileName, f) and not('group' in f) and not ('Diag' in f):
+            # print ("Loading ", f)
             try:
                 with open(f, "r") as file:
                     line = file.readline().strip().split(":")[1]
@@ -109,7 +118,9 @@ def LoadFile(Folder, FileName):
                             break
 
                 data = np.loadtxt(f)
-                # print Groups[-1], data[2, 0]
+                # if abs(data[1,0]-2.948e8) > 5e6:
+                    # continue
+                # print (f, data[1])
                 Data.append(data)
 
             except Exception as e:
@@ -122,6 +133,42 @@ def LoadFile(Folder, FileName):
         DataDict[g] = np.array(Data[:, idx, :])
 
     return DataDict, np.array(Step), Groups, np.array(ReWeight), Grid
+
+def LoadFile_Diag(Folder):
+    # Diags = {'0_0': None, '1_0_0_0': None, '1_0_1_0': None, '1_0_2_0': None, '1_0_2_1': None}
+    DataDict = {}
+    Step = {}
+    Grid = None
+    fname1 = "Diag"
+    fname2 = "pid[0-9]+.dat"
+
+    for f in getListOfFiles(Folder):
+        if re.search(fname1,f) and re.search(fname2,f):
+            # print ("Loading ", f)
+            try:
+                with open(f, "r") as file:
+                    line = file.readline().strip().split(":")
+                    DiagName = line[-2].split(",")[0]
+                    DiagName = tuple([int(o)for o in DiagName.split("_")])
+                    # Step.append(float(line[-1]))
+                    data = np.loadtxt(file)
+                if DiagName == (0,0):
+                    DiagName = (0,)
+                if DiagName in DataDict:
+                    # Diags[DiagName] = np.row_stack(Diags[DiagName],data[:,1])
+                    DataDict[DiagName].append(data[:,1])
+                    Step[DiagName].append(float(line[-1]))
+                else:
+                    DataDict[DiagName] = [data[:,1]]
+                    Step[DiagName] = [float(line[-1])]
+                Grid = data[:,0]
+            except Exception as e:
+                print ("Failed to load {0}".format(f))
+                print (str(e))
+    for g in DataDict.keys():
+        DataDict[g] = np.array(DataDict[g])
+
+    return DataDict, Step[0,], Grid
 
 
 def ErrorPlot(p, x, d, color='k', marker='s', label=None, size=4, shift=False):
