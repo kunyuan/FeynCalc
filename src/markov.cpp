@@ -120,9 +120,9 @@ void markov::AdjustGroupReWeight() {
   cout << Para.ReWeight[0] <<endl;
   for (int i = 1; i < Weight.Groups.size(); i++){
     cout << i <<"  " << Temp_Proposed[i] << "  "<<Proposed[3][i]<<endl;
-    Para.ReWeight[i] = (Proposed[3][0]-Temp_Proposed[0])/(Proposed[3][i]-Temp_Proposed[i])* Para.ReWeight[i]/10.0;
+    Para.ReWeight[i] = (Proposed[3][0]-Temp_Proposed[0])/(Proposed[3][i]-Temp_Proposed[i])* Para.ReWeight[i]/8.0;
     if (i==1)
-      Para.ReWeight[i] = Para.ReWeight[i]*10.0;
+      Para.ReWeight[i] = Para.ReWeight[i]*4.0;
     if (i==2)
       Para.ReWeight[i] = Para.ReWeight[i]*4.0;
     Weight.Groups[i].ReWeight = Para.ReWeight[i];
