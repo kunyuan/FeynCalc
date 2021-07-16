@@ -96,6 +96,8 @@ def shift0_value(x):
         return -0.021460754987
     elif x==2:
         return 0.743112084259
+    elif x==3:
+        return 0.892499404946
     elif x==4:
         return 0.942615755201
     elif x==8:
@@ -140,9 +142,9 @@ if __name__ == '__main__':
     mu = shift0*EF
     print('idel mu=', mu)
 
-    kmax = 12*kF
-    MAXBIN = 2**14
-    iterNum = 8
+    kmax = 24*kF
+    MAXBIN = 2**15
+    iterNum = 10
     km=np.linspace(0, kmax, num=MAXBIN+1)
     # km=np.linspace(kmax/MAXBIN, kmax+kmax/MAXBIN, num=MAXBIN+1)
 
@@ -170,9 +172,9 @@ if __name__ == '__main__':
             forkSigma[j] = integral[0]
             j = j + 1
         sigma = interpolate.PchipInterpolator(km, forkSigma)
-        mu0 = mu
+        mu0 = mu        
         mu = optimize.fsolve(ferm_density, mu0)
-        print('mu=',mu)  
+        print('mu=',mu)         # real chemical potential 
         if abs(mu0-mu)<1e-8:
             break
         # mu_iter.append(mu)
