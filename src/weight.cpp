@@ -80,10 +80,10 @@ void weight::Initialization() {
   for (auto &sp : Var.LoopSpin)
     sp = (spin)(Random.irn(0, 1));
 
-  // initialize external momentum
+  // initialize external momentum and its reweight factor for each group
   for (int i = 0; i < ExtMomBinSize; i++) {
     // the external momentum only has x component
-    Var.ExtMomTable[i][0] = i * Para.MaxExtMom / ExtMomBinSize;
+    Var.ExtMomTable[i][0] = Para.MinExtMom + i*(Para.MaxExtMom-Para.MinExtMom)/ExtMomBinSize;
     for (int j = 1; j < D; j++)
       Var.ExtMomTable[i][j] = 0.0;
   }
@@ -253,7 +253,7 @@ double weight::GetNewWeight(group &Group) {
       _Tree[0][1] = Ver4->Excited[EXCHANGE] ? Ver4->NewWeight[EXCHANGE]
                                             : Ver4->Weight[EXCHANGE];
 
-      // if (Group.ID == 2) {
+      // if (Group.ID == 4) {
       //   cout << "0, 0:  " << _Tree[0][0] << ", 0, 1: " << _Tree[0][1] <<
       //   endl;
       //   // exit(0);
@@ -280,9 +280,9 @@ double weight::GetNewWeight(group &Group) {
       }
 
       VerWeight = 0.0;
-      for (int j = 0; j < BlockNum; j++)
+      for (int j = 0; j < BlockNum; j++){
         VerWeight += _Tree[Group.Ver4Num - 1][j] * d.SpinFactor[j];
-
+      }
       //============= for spin case ===========================//
 
       // double TempWeightIn, TempWeightOut;
@@ -309,6 +309,15 @@ double weight::GetNewWeight(group &Group) {
   // if (Group.ID == 2) {
   //   cout << Group.NewWeight << endl;
   //   // exit(0);
+  // }
+  // return Group.NewWeight;
+  // cout <<Var.CurrExtMomBin<<"  "<< Var.ExtMomTable[Var.CurrExtMomBin][0]<<"  "<< Var.ExtMomTable[Var.CurrExtMomBin].squaredNorm()<<endl;
+
+  // if (Var.ExtMomTable[0][0] != 0){
+  //   if (Group.ID == 2 || Group.ID == 5)
+  //     Group.NewWeight *= Var.ExtMomTable[Group.ExtLoopNum].squaredNorm();
+  //   else if(Group.ID == 3|| Group.ID == 4)
+  //     Group.NewWeight *= pow((Var.ExtMomTable[Group.ExtLoopNum].squaredNorm()), 2.0);
   // }
   return Group.NewWeight;
 }

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
+=======
+import decimal
+>>>>>>> dev_WDM
 from scipy import interpolate
 from scipy import integrate
 from scipy import optimize
@@ -11,6 +15,7 @@ def freeE(k):
     return k**2/2/mass-EF
 
 def v_q(q, lam):
+<<<<<<< HEAD
     return 8*pi/(eps*(q**2+lam**2))
 
 def Sigma_x(k):
@@ -19,6 +24,9 @@ def Sigma_x(k):
         pp = lam/kF*(np.arctan((k+kF)/lam)-np.arctan((k-kF)/lam))
     qq = 1 - pp - (lam**2+kF**2-k**2)/(4*k*kF)*np.log((lam**2+(k-kF)**2)/(lam**2+(k+kF)**2))
     return -2*kF/(pi*eps)*qq
+=======
+    return 8*pi/(eps*(q**2+lam+Mass2))
+>>>>>>> dev_WDM
 
 def n_bose(x,beta):
     if x*beta>100:
@@ -42,16 +50,39 @@ def ferm_0T(x):
     elif x<0:
         return 1.0
 
+<<<<<<< HEAD
 def Sigma0T_integrand(q):
     f1 = ferm_0T(freeE(q))
     f2 = np.log(((k-q)**2+lam**2)/((k+q)**2+lam**2))
+=======
+#def ferm(x,beta):
+#    return 1./(np.exp(x*beta)+1.)
+
+# def Sigma_integrand(q):
+#     f1 = ferm(freeE(q)+sigma, beta)
+#     f2 = np.log(((k-q)**2+lam**2)/((k+q)**2+lam**2))
+# #    print('q=',q,q*f1*f2/pi/k)
+#     return q*f1*f2/pi/k
+
+def Sigma0T_integrand(q):
+    f1 = ferm_0T(freeE(q))
+    l = np.sqrt(Mass2+lam)
+    f2 = np.log(((k-q)**2+l**2)/((k+q)**2+l**2))
+>>>>>>> dev_WDM
     return q*f1*f2/pi/k
 
 def Sigma0T(k):
     pp = 0
+<<<<<<< HEAD
     if(lam>0):
         pp = lam/kF*(np.arctan((k+kF)/lam)-np.arctan((k-kF)/lam))
     qq = 1 - pp - (lam**2+kF**2-k**2)/(4*k*kF)*np.log((lam**2+(k-kF)**2)/(lam**2+(k+kF)**2))
+=======
+    l = np.sqrt(Mass2 + lam)
+    if lam>0:
+        pp = l/kF*(np.arctan((k+kF)/l)-np.arctan((k-kF)/l))
+    qq = 1 - pp - (l**2+kF**2-k**2)/(4*k*kF)*np.log((l**2+(k-kF)**2)/(l**2+(k+kF)**2))
+>>>>>>> dev_WDM
     return -2*kF/(pi*eps)*qq
 
 def Sigma_integrand(q, iter):
@@ -62,11 +93,20 @@ def Sigma_integrand(q, iter):
             f1 = ferm(q**2/2/mass + Sigma0T(q) - mu, beta)
         else:
             f1 = ferm(q**2/2/mass + sigma(q) - mu, beta)
+<<<<<<< HEAD
     if (abs(k)<1e-10):
         f2 = -4*q/(q**2+lam**2)
         return q*f1*f2/pi
     else:
         f2 = np.log(((k-q)**2+lam**2)/((k+q)**2+lam**2))
+=======
+    l2 = Mass2 + lam
+    if (abs(k)<1e-10):
+        f2 = -4*q/(q**2+l2)
+        return q*f1*f2/pi
+    else:
+        f2 = np.log(((k-q)**2+l2)/((k+q)**2+l2))
+>>>>>>> dev_WDM
         return q*f1*f2/pi/k
 
 
@@ -75,9 +115,17 @@ def ferm_density(x):
     ferm_integrand = km**2*np.exp(-tmp)/(np.exp(-tmp)+1.)/(2*np.pi**2)
     # ferm_integrand = km**2/(np.exp(tmp)+1.)/(2*np.pi**2)
 
+<<<<<<< HEAD
     return integrate.romb(ferm_integrand, dx=kmax/MAXBIN) - 3/(8*pi)*rs**(-3)
 
 def shift0_value(x):
+=======
+    # ferm_integrand = km**2/(np.exp((km**2 + forkSigma - x)*beta)+1.)/(2*np.pi**2)
+    return integrate.romb(ferm_integrand, dx=kmax/MAXBIN) - 3/(8*pi)*rs**(-3)
+
+def shift0_value(x):
+    print(x)
+>>>>>>> dev_WDM
     if x==0.125:
         return -27.136773591511
     elif x==0.25:
@@ -88,12 +136,22 @@ def shift0_value(x):
         return -0.021460754987
     elif x==2:
         return 0.743112084259
+<<<<<<< HEAD
+=======
+    elif x==3:
+        return 0.892499404946
+>>>>>>> dev_WDM
     elif x==4:
         return 0.942615755201
     elif x==8:
         return 0.986801399943
     elif x==16:
         return 0.996768053583
+<<<<<<< HEAD
+=======
+    elif x==40:
+        return 0.999485480206
+>>>>>>> dev_WDM
     else:
         str1 = input("beta>>1, set mu=EF ?(Y or N)")
         if str1 == 'Y' or str1 == 'y':
@@ -105,6 +163,11 @@ def shift0_value(x):
 if __name__ == '__main__':
     
     pi=np.pi
+<<<<<<< HEAD
+=======
+    # mu_r = {[0.25,-9.323691469984], [1/3,-5.644560852191], [0.5,-2.461438843431], [1,-0.021460754987], [2,0.743112084259], 
+    # [4,0.942615755201], [8,0.986801399943] [16,0.996768053583], [25,0.998680896718]} #[beta,mu*]
+>>>>>>> dev_WDM
 
     beta0, rs, lam = (input("beta, rs, lam: ").split())
     beta0 = float(beta0)
@@ -114,6 +177,10 @@ if __name__ == '__main__':
     # rs = 1.0
     # lam = 3.0
     mass = 0.5
+<<<<<<< HEAD
+=======
+    Mass2 = 0
+>>>>>>> dev_WDM
     eps = 1.
     kF = (9*pi/4.)**(1./3.) /rs
     print('kF=', kF)
@@ -127,9 +194,15 @@ if __name__ == '__main__':
     mu = shift0*EF
     print('idel mu=', mu)
 
+<<<<<<< HEAD
     kmax = 12*kF
     MAXBIN = 2**14  # must be 2**N
     iterNum = 7
+=======
+    kmax = 24*kF
+    MAXBIN = 2**15
+    iterNum = 10
+>>>>>>> dev_WDM
     km=np.linspace(0, kmax, num=MAXBIN+1)
     # km=np.linspace(kmax/MAXBIN, kmax+kmax/MAXBIN, num=MAXBIN+1)
 
@@ -140,6 +213,16 @@ if __name__ == '__main__':
     sigma_order={}
     mu_iter = []
 
+<<<<<<< HEAD
+=======
+## calculate shift energy (fermi surface energy)
+    # k=kF
+    # sigma = 0
+    # integral = integrate.quad(Sigma_integrand, 0, np.inf)
+    # shift = integral[0]
+    # print("shift", shift)
+
+>>>>>>> dev_WDM
     forkSigma=np.zeros(MAXBIN+1)
 
     for i in range(iterNum):
@@ -150,6 +233,7 @@ if __name__ == '__main__':
             forkSigma[j] = integral[0]
             j = j + 1
         sigma = interpolate.PchipInterpolator(km, forkSigma)
+<<<<<<< HEAD
         mu0 = mu
         mu = optimize.fsolve(ferm_density, mu0)
         print('mu=',mu)  
@@ -157,6 +241,22 @@ if __name__ == '__main__':
 #    filename = 'sigma/sigma_beta{0}_rs{1}.txt'.format(beta0,rs)
 #    np.savetxt(filename, forkSigma, fmt='%.12e', delimiter=' ')
     filename = 'sigma/sigma3D_beta{0}_rs{1}_lam{2}.txt'.format(beta0,rs,lam)
+=======
+        mu0 = mu        
+        mu = optimize.fsolve(ferm_density, mu0)
+        print('mu=',mu)         # real chemical potential 
+        if abs(mu0-mu)<1e-8:
+            break
+        # mu_iter.append(mu)
+        # filename = 'data/sigma_{0}_iter{1}.txt'.format(beta0, i+1)
+        # np.savetxt(filename, forkSigma[:-1], fmt='%.12e', delimiter=' ')
+    # print(mu_iter)
+
+#    filename = 'data/sigmaG0W0_{0}.csv'.format(beta0)
+    filename = 'data/sigma_beta{0}_rs{1}.txt'.format(beta0,rs)
+    np.savetxt(filename, forkSigma, fmt='%.12e', delimiter=' ')
+    filename = 'data/sigma3D_beta{0}_rs{1}_lam{2}.txt'.format(beta0,rs,lam)
+>>>>>>> dev_WDM
     with open(filename,'w') as f:
         f.write(str(beta0)+" "+str(rs)+" "+str(lam)+"\n")
         f.write(str(kmax)+" "+str(MAXBIN+1)+"\n")
@@ -171,6 +271,11 @@ if __name__ == '__main__':
     # for k in np.nditer(km):
     #     Sigma_0T.append(Sigma0T(k))
     # Sigma_0T = np.array(Sigma_0T)
+<<<<<<< HEAD
+=======
+    # filename = 'data/sigma_0T.csv'
+    # np.savetxt(filename, Sigma_0T,fmt='%.12e',delimiter=' ')
+>>>>>>> dev_WDM
 
     # shift0 = EF
     # shift0 = 0.998680896718   # beta=25

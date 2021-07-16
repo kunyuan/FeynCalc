@@ -37,12 +37,12 @@ int main(int argc, const char *argv[]) {
   }
   ifstream File;
   File.open("parameter", ios::in);
-  cout << "Order, Beta, Rs, Mass2, Lambda, MaxExtMom(*kF), TotalStep(*1e6), "
+  cout << "Order, Beta, Rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6), "
           "Seed, "
           "PID\n";
 
   File >> Para.Order >> Para.Beta >> Para.Rs >> Para.Mass2 >> Para.Lambda >>
-      Para.MaxExtMom >> Para.TotalStep;
+      Para.MinExtMom >> Para.MaxExtMom >> Para.TotalStep;
   File.close();
   InitPara(); // initialize global parameters
   MonteCarlo();
@@ -55,7 +55,11 @@ void InitPara() {
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
   Para.ObsType = FREQ;   //Polariation counterterm
+<<<<<<< HEAD
   //Para.ObsType = EQUALTIME;   //Self-energy counterterm
+=======
+  // Para.ObsType = EQUALTIME;   //Self-energy counterterm
+>>>>>>> dev_WDM
 
   Para.Type = POLAR;
   Para.SelfEnergyType = FOCK;
@@ -80,15 +84,20 @@ void InitPara() {
           // interaction+lambda counterterm+2*self-energy counter <=Order
           if (o + v + 2 * g > Para.Order)
             continue;
-          auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
-          cout << name << ", ";
-          Para.GroupName.push_back(name);
-          Para.ReWeight.push_back(pow(2.0, o));
+          for (int qo = 1; qo<=2; qo++){
+            if ((o==1&&(g==0||g==1)&&qo==2) ||(o==2&&v==0&&g==0&&qo==1))
+              continue;
+            auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g)+ "_" + to_string(qo);
+            cout << name << ", ";
+            Para.GroupName.push_back(name);
+            Para.ReWeight.push_back(pow(2.0, o));
+          }
         }
       }
-    Para.GroupName.push_back("1_0_2");
-    Para.ReWeight.push_back(10.0);
-    Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
+    // Para.GroupName.push_back("1_0_2");
+    // Para.ReWeight.push_back(10.0);
+    // Para.ReWeight[0] = Para.ReWeight[1] * 4.0;    
+    Para.ReWeight[0] = 1.0;    
   } else if (Para.ObsType == EQUALTIME) {
     Para.DiagFileFormat = "groups_mu/DiagPolar{}.txt";
     Para.GroupName = {
@@ -134,6 +143,7 @@ void InitPara() {
   Para.Kf = Kf;
   Para.Ef = Kf * Kf;
   Para.Mu = Para.Ef;
+  Para.MinExtMom *= Kf;
   Para.MaxExtMom *= Kf;
 
   // scale all energy with E_F
@@ -151,7 +161,7 @@ void InitPara() {
 
   Para.PrinterTimer = 600;
   Para.SaveFileTimer = 600;
-  Para.ReweightTimer = 600;
+  Para.ReweightTimer = 100*Para.ReWeight.size();
 }
 
 void MonteCarlo() {
@@ -170,15 +180,16 @@ void MonteCarlo() {
 
   LOG_INFO("Start simulation ...")
 
+
   // for (int Block = 0; Block < Para.TotalStep; Block++) {
   int Block = 0;
   while (Block < Para.TotalStep || Para.TotalStep <= 0) {
     Block++;
     for (int i = 0; i < 1000000; i++) {
       Para.Counter++;
-      // if (Para.Counter == 9) {
+      // if (Para.Counter == 1243) {
       //   cout << "Before: " << Para.Counter << endl;
-      //   PrintDeBugMCInfo();
+      //   Markov.PrintDeBugMCInfo();
       // }
 
       double x = Random.urn();
@@ -193,9 +204,9 @@ void MonteCarlo() {
         // ;
       }
 
-      // if (Para.Counter == 8831001) {
+      // if (Para.Counter == 1243) {
       //   cout << "After: " << Para.Counter << endl;
-      //   PrintDeBugMCInfo();
+      //   Markov.PrintDeBugMCInfo();
       // }
 
       Markov.Measure();
@@ -205,7 +216,7 @@ void MonteCarlo() {
         // Markov.PrintDeBugMCInfo();
         if (PrinterTimer.check(Para.PrinterTimer)) {
           Markov.DynamicTest();
-          Markov.PrintDeBugMCInfo();
+          // Markov.PrintDeBugMCInfo();
           Markov.PrintMCInfo();
           LOG_INFO(ProgressBar((double)Block / Para.TotalStep));
         }

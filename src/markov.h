@@ -41,11 +41,14 @@ public:
   vector<diag::group> &Groups;
 
 private:
-  // polarizatoin for each group
+  // polarization for each group
   unordered_map<int, polar> Polar;
 
-  // polarizatoin for each group at the zero momentumr;
+  // polarization for each group at the zero momentumr;
   unordered_map<int, double> PolarStatic;
+
+  // polarization for each diagrams
+  unordered_map<string, polar> Polar_Diag;
 
   // MC updates
 
@@ -62,6 +65,8 @@ private:
   std::string UpdatesName[MCUpdates];
   double Accepted[MCUpdates][MaxGroupNum];
   double Proposed[MCUpdates][MaxGroupNum];
+  // temp of the last Proposed[3] for AdjustGroupReWeight
+  double Temp_Proposed[MaxGroupNum]; 
 
   enum Updates {
     INCREASE_ORDER = 0,

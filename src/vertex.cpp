@@ -44,7 +44,11 @@ double bose::Interaction(double Tau, const momentum &Mom, int VerType) {
 }
 
 fermi::fermi() {
+<<<<<<< HEAD
   UpperBound = 12.0 * Para.Kf;  //6.0
+=======
+  UpperBound = 24.0 * Para.Kf;  //6.0
+>>>>>>> dev_WDM
   LowerBound = 0.0;
   DeltaK = UpperBound / (MAXSIGMABIN-1);
   // LowerBound = DeltaK;
@@ -116,7 +120,11 @@ void fermi::BuildFockSigma() {
     FockFile >> fockE;
     Sigma[i]=fockE-Mu_shift;
     k = i * DeltaK + LowerBound;
+<<<<<<< HEAD
     cout << k << " : " << Sigma[i] << " vs " << Fock(k)-Mu_shift << endl;
+=======
+    // cout << k << " : " << Sigma[i] << " vs " << Fock(k)-Mu_shift << endl;
+>>>>>>> dev_WDM
   }
   FockFile.close();
 
