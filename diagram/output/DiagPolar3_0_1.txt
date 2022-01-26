@@ -1,3 +1,4 @@
+#FeynDiagNum: 60.0
 #Type: Polarization
 #DiagNum: 36
 #Order: 3
@@ -115,8 +116,6 @@
 # SpinFactor
  4 -2 -2  0 
 
-# External Leg
-0 1
 # Permutation
  2  0  5  4  3  1 
 # SymFactor

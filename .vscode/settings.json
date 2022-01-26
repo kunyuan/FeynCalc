@@ -11,5 +11,6 @@
     "spellright.documentTypes": [
         "markdown",
         "latex"
-    ]
+    ],
+    "cmake.sourceDirectory": "${workspaceFolder}/src"
 }

@@ -310,6 +310,12 @@ double weight::GetNewWeight(group &Group) {
   //   cout << Group.NewWeight << endl;
   //   // exit(0);
   // }
+  // cout << Group.NewWeight * cos(2 * PI * (Var.Tau[1] - Var.Tau[0]) /
+  // Para.Beta)
+  //      << endl;
+
+  // return Group.NewWeight * cos(2 * PI * (Var.Tau[1] - Var.Tau[0]) /
+  // Para.Beta);
   return Group.NewWeight;
 }
 

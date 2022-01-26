@@ -54,8 +54,8 @@ void InitPara() {
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
-  // Para.ObsType = FREQ;
-  Para.ObsType = EQUALTIME;
+  Para.ObsType = FREQ;
+  // Para.ObsType = EQUALTIME;
 
   Para.Type = POLAR;
   // Para.SelfEnergyType = FOCK;
@@ -65,8 +65,8 @@ void InitPara() {
   // Para.UseVer4 = true;
 
   if (Para.ObsType == FREQ) {
-    // Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
-    Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+    Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
+    // Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
     // Para.DiagFileFormat = "groups_spinless/DiagPolar{}.txt";
     Para.GroupName = {"0"}; // initialized with a normalization diagram
     Para.ReWeight = {1.0};
@@ -201,7 +201,7 @@ void MonteCarlo() {
       // }
 
       Markov.Measure();
-      // Markov.DynamicTest();
+      Markov.DynamicTest();
 
       if (i % 1000 == 0) {
         // Markov.PrintDeBugMCInfo();
