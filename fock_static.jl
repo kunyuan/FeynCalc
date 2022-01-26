@@ -12,9 +12,9 @@ const rs = parse(Float64, line[3])
 const kF = (dim == 3) ? (9π / (2spin))^(1 / 3) / rs : sqrt(4 / spin) / rs
 const EF = kF^2 / (2me)
 const β = parse(Float64, line[2]) / kF^2
-const lambda = parse(Float64, line[4])
-const mass2 = parse(Float64, line[3]) + lambda
-const maxK = 24kF
+const lambda = parse(Float64, line[5])
+const mass2 = parse(Float64, line[4]) + lambda
+const maxK = 12kF
 close(io)
 
 println("rs=$rs, β=$β, kF=$kF, EF=$EF, mass2=$mass2")
@@ -128,7 +128,7 @@ end
     function fockK(dμ)
     oldsigmaK, _ = fockT0()
     newsigmaK = similar(kgrid.grid)
-    for i in 1:10
+    for i in 1:50
         for (ki, k) in enumerate(kgrid.grid)
             newsigmaK[ki] = FockStatic(dim, k, β, me, mass2, spin, oldsigmaK, dμ)[1]
         end
@@ -164,13 +164,14 @@ if abspath(PROGRAM_FILE) == @__FILE__
     # println(density(sigmaK, dμ0), " expected density = $n0")
 
     dμ = find_zero(diff, (0.0, maxK), Bisection(), rtol=1.0e-4)
+    diff(dμ)
     println("finite T : $dμ, zero T: $dμ0")
 
     sigmaK = fockK(dμ)
 
-    for (ki, k) in enumerate(kgrid.grid)
-        println("$(k / kF)   $(sigmaK[ki])  $dμ")
-    end
+    # for (ki, k) in enumerate(kgrid.grid)
+    #     println("$(k / kF)   $(sigmaK[ki])  $dμ")
+    # end
 
     io = open("sigma.data", "w")
     write(io, "$(length(kgrid.grid))\n")
