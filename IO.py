@@ -52,12 +52,13 @@ class param:
             self.Lambda = float(para[4])
             self.MaxExtMom = float(para[5])
             self.TotalStep = int(para[6])
-            if self.MaxExtMom==10:
-                self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq".format(self.Beta,self.Rs,self.Lambda,self.Order)
-            elif self.MaxExtMom==15:
-                self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq_hq".format(self.Beta,self.Rs,self.Lambda,self.Order)
-            else:
-                self.DataFolder = "beta{0}_rs{1}_lam{2}_freq".format(self.Beta,self.Rs,self.Lambda)
+            # if self.MaxExtMom==10:
+            #     self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq_lq".format(self.Beta,self.Rs,self.Lambda,self.Order)
+            # elif self.MaxExtMom==15:
+            #     self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq_hq".format(self.Beta,self.Rs,self.Lambda,self.Order)
+            # else:
+            self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_tau".format(self.Beta,self.Rs,self.Lambda,self.Order)
+            #self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_eqTime".format(self.Beta,self.Rs,self.Lambda,self.Order)
         print(self.DataFolder)
 
 

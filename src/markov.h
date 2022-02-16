@@ -12,7 +12,8 @@ namespace mc {
 using namespace std;
 const int MCUpdates = 5;
 
-typedef array<double, ExtMomBinSize> polar;
+typedef array<double, ExtMomBinSize> polar_q;
+typedef array<array<double, ExtTauBinSize>, ExtMomBinSize> polar;
 
 class markov {
 public:
@@ -41,19 +42,23 @@ public:
   vector<diag::group> &Groups;
 
 private:
-  // polarization for each group
+  // polarization for each group at external Momentum
+  unordered_map<int, polar_q> PolarStatic;
+
+  // polarization for each group at the external Tau;
   unordered_map<int, polar> Polar;
 
-  // polarization for each group at the zero momentumr;
-  unordered_map<int, double> PolarStatic;
-
   // polarization for each diagrams
-  unordered_map<string, polar> Polar_Diag;
+  unordered_map<string, polar_q> Polar_Diag;
+
+  // kinetic energy for each group
+  unordered_map<int, polar_q> E_k;
 
   // MC updates
 
   double ShiftExtK(const int &, int &);
   double ShiftK(const momentum &, momentum &);
+  double ShiftExtTau(const int &, int &);
   double ShiftTau(const double &, double &);
 
   double GetNewTau(double &);

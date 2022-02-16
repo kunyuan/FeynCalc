@@ -1,5 +1,5 @@
 #Type: Polarization
-#DiagNum: 1
+#DiagNum: 2
 #Order: 1
 #GNum: 2
 #Ver4Num: 0
@@ -13,9 +13,9 @@
 # Permutation
  1  0 
 # SymFactor
--1.0
+-2.0
 # GType
--2  2
+ 0  1
 # VertexBasis
  0  1
  1  0
@@ -27,3 +27,19 @@
 # SpinFactor
 2
 
+# Permutation
+ 1  0 
+# SymFactor
+2.0
+# GType
+ -1  -3
+# VertexBasis
+ 0  1
+ 1  0
+# LoopBasis
+ 1  0 
+ 1  1  
+# Ver4Legs(InL,OutL,InR,OutR)
+# WType(Direct,Exchange)
+# SpinFactor
+2

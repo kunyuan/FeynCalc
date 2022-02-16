@@ -1,4 +1,6 @@
+# Calculate dMu in counterterms
 #!/usr/bin/python
+from typing import OrderedDict
 from IO import *
 import bubble
 import scipy.integrate as integrate
@@ -47,7 +49,7 @@ for index, eachline in enumerate(inlist):
         y = EsDataDict[key]
         print (yellow("(Order: {0}, VerCT: {1}, SigamCT: {2}) = {3:12.6f} +- {4:12.6f}".format(
             key[0], key[1], key[2], np.average(y[0]), np.average(y[1])*2.0)))
-        EsDataDict[key] = np.array((np.average(y), np.average(y[1])))
+        EsDataDict[key] = np.array((np.average(y[0]), np.average(y[1])))
 
     # print EsDataDict[(4, 0, 0)][0]
     # print EsDataDict[(3, 1, 0)][0]
@@ -104,8 +106,9 @@ for index, eachline in enumerate(inlist):
         beta = float(para[1])
         rs   = float(para[2])
         lam  = float(para[4])
+        order = int(para[0])
 
-    filename = Para.DataFolder+"_freq/dMu_beta{0}_rs{1}_lam{2}".format(beta,rs,lam)
+    filename = "dMu/dMu_beta{0}_rs{1}_lam{2}".format(beta,rs,lam,order)
     with open(filename, "w") as f:
         print ('Save dMu.data in '+filename)
         f.write("{0} {1} {2}\n".format(dMu2, dMu3, dMu4))

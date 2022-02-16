@@ -9,11 +9,7 @@ double norm2(const momentum &);
 
 namespace diag {
 
-<<<<<<< HEAD
-const int MAXSIGMABIN = 16385; //8193; //2**13+1
-=======
 const int MAXSIGMABIN = 32769; 
->>>>>>> dev_WDM
 class fermi {
 public:
   fermi();

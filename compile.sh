@@ -1,16 +1,10 @@
 #!/bin/bash
 #compiler=clang++
-#compiler=icpc
-compiler=g++
-<<<<<<< HEAD
+compiler=icpc
+# compiler=g++
 #type=Debug
 type=Release
-#mkdir build
-=======
-type=Debug
-#type=Release
 mkdir build
->>>>>>> dev_WDM
 cd build
 if [ -n "$1" ]
   then

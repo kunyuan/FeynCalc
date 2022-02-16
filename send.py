@@ -1,16 +1,11 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 import random
 import os
 import sys
 
 ##### Modify parameters here  ###############
-<<<<<<< HEAD
-Cluster="PBS"
-# Cluster = "local"
-=======
 # Cluster="PBS"
 Cluster = "local"
->>>>>>> dev_WDM
 # Cluster="condor"
 
 ############################################
@@ -20,40 +15,31 @@ rootdir = os.getcwd()
 # assert len(sys.argv)==2, "Number of jobs is needed."
 # Number=int(sys.argv[1])
 
+suffix = ["_eqTime", "_freq", "_freqTau", "_Ek"]
+
 for index, eachline in enumerate(inlist):
     para = eachline.split()
     if len(para)==0:
         print ("All submitted!")
         break
     
-<<<<<<< HEAD
-=======
     order= int(para[0])
->>>>>>> dev_WDM
     beta = float(para[1])
     rs   = float(para[2])
     lam  = float(para[4])
+    kmin  = float(para[5])
 
     print ("Creating {0} jobs...".format(int(para[-2])))
 
     PIDList=range(int(para[-2]))
-    if int(para[-1])==0:
-        title="_eqTime"
-    elif int(para[-1])==1:
-        title="_freq"
-    else:
-        print ("Not yet implemented!")
-        break
+    title = suffix[int(para[-1])]
     execute = "feyncalc"+title+".exe"
     fname = "beta{0}_rs{1}_lam{2}".format(beta,rs,lam)
-<<<<<<< HEAD
-    homedir = os.getcwd() +"/"+fname
-=======
-    homedir = os.getcwd() +"/"+fname+"_o{0}".format(order)
-#    homedir = os.getcwd() +"/"+fname.format(order)
->>>>>>> dev_WDM
-    if(title=='_freq'):
-        homedir = homedir + title
+    homedir = os.getcwd() +"/"+fname+"_o{0}".format(order)+title
+#    if kmin == 0.02:
+#        homedir = os.getcwd() +"/"+fname+"_o{0}".format(order)+title+"_1"
+#    else:
+#        homedir = os.getcwd() +"/"+fname+"_o{0}".format(order)+title+"_2"
 
     if(os.path.exists(homedir) != True):
         os.system("mkdir "+homedir)
@@ -66,17 +52,14 @@ for index, eachline in enumerate(inlist):
     with open("./parameter", "w") as file:
         parameters = ' '.join(para[:-2])
         file.write(parameters+"\n\n")
-<<<<<<< HEAD
-        file.write("#Order, Beta, rs, Mass2, Lambda, MaxExtMom(*kF), TotalStep(*1e6)")
-=======
         file.write("#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6)")
->>>>>>> dev_WDM
 
     os.system("cp -r groups* "+homedir)
     os.system("cp {0} {1}".format(execute, homedir))
     os.system("cp reweight.data "+homedir)
     os.system("cp parameter "+homedir)
-    os.system("cp sigma/sigma3D_"+fname+".txt "+homedir+"/sigma3D.txt")
+    os.system("cp ph_10000_1e-8.dlr "+homedir)
+    os.system("cp ./sigma/sigma3D_"+fname+".txt "+homedir+"/sigma3D.txt")
 
     outfilepath = homedir+"/outfile"
     if(os.path.exists(outfilepath) != True):

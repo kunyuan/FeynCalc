@@ -46,8 +46,10 @@ markov::markov() : Var(Weight.Var), Groups(Weight.Groups) {
 
   ///==== initialize observable =======================//
   for (auto &g : Groups) {
-    Polar[g.ID].fill(1.0e-10);
-    PolarStatic[g.ID] = 1.0e-10;
+    PolarStatic[g.ID].fill(1.0e-10);
+    for (int i = 0; i < ExtMomBinSize; i++)
+      Polar[g.ID][i].fill(1.0e-10);
+    E_k[g.ID].fill(1.0e-10);
     for (auto &d: g.Diag){
       string CurrdiagName = g.Name+"_"+to_string(d.ID);
       Polar_Diag[CurrdiagName].fill(1.0e-10);
@@ -62,9 +64,9 @@ markov::markov() : Var(Weight.Var), Groups(Weight.Groups) {
   for (int i = 0; i < Weight.Groups.size(); i++){
     Weight.Groups[i].ReWeight = Para.ReWeight[i];
     for (int j = 0; j < ExtMomBinSize; j++) {
-      if (Weight.Groups[i].Name.back() == '1')
+      if (Weight.Groups[i].Name.back() == '1' && Para.ObsType == FREQ_q && Para.MinExtMom!=0.0)
         Weight.Groups[i].ReWeight_ExtMom.push_back(pow(Var.ExtMomTable[j][0],2.0));
-      else if (Weight.Groups[i].Name.back() == '2')
+      else if (Weight.Groups[i].Name.back() == '2' && Para.ObsType == FREQ_q && Para.MinExtMom!=0.0)
         Weight.Groups[i].ReWeight_ExtMom.push_back(pow(Var.ExtMomTable[j][0],4.0));
       else
         Weight.Groups[i].ReWeight_ExtMom.push_back(1.0);
@@ -120,11 +122,9 @@ void markov::AdjustGroupReWeight() {
   cout << Para.ReWeight[0] <<endl;
   for (int i = 1; i < Weight.Groups.size(); i++){
     cout << i <<"  " << Temp_Proposed[i] << "  "<<Proposed[3][i]<<endl;
-    Para.ReWeight[i] = (Proposed[3][0]-Temp_Proposed[0])/(Proposed[3][i]-Temp_Proposed[i])* Para.ReWeight[i]/8.0;
-    if (i==1)
-      Para.ReWeight[i] = Para.ReWeight[i]*4.0;
-    if (i==2)
-      Para.ReWeight[i] = Para.ReWeight[i]*4.0;
+    Para.ReWeight[i] = (Proposed[3][0]-Temp_Proposed[0])/(Proposed[3][i]-Temp_Proposed[i])* Para.ReWeight[i]/4.0;
+    // if (i==2)
+    //   Para.ReWeight[i] = Para.ReWeight[i]*4.0;
     Weight.Groups[i].ReWeight = Para.ReWeight[i];
     Temp_Proposed[i] = Proposed[3][i];
     cout << Para.ReWeight[i] <<endl;
@@ -133,12 +133,19 @@ void markov::AdjustGroupReWeight() {
 };
 
 void markov::Measure() {
-  // cout << Var.Tau[1] << endl;
   double MCWeight = fabs(Var.CurrGroup->Weight) *Var.CurrGroup->ReWeight *Var.CurrGroup->ReWeight_ExtMom[Var.CurrExtMomBin];
   double WeightFactor = Var.CurrGroup->Weight / MCWeight;
 
-  Polar[Var.CurrGroup->ID][Var.CurrExtMomBin] += WeightFactor;
-  PolarStatic[Var.CurrGroup->ID] += WeightFactor;
+  PolarStatic[Var.CurrGroup->ID][Var.CurrExtMomBin] += WeightFactor;
+  Polar[Var.CurrGroup->ID][Var.CurrExtMomBin][Var.CurrExtTauBin] += WeightFactor;
+  // if (Var.CurrGroup->ID != 0 && Para.ObsType == KINETIC){
+    // momentum _KMom;
+    // for (auto &d : Var.CurrGroup->Diag){
+    //   green *G = d.G[1];
+    //   Weight.GetMom(G->LoopBasis, Var.CurrGroup->LoopNum, _KMom);
+    // }
+    // E_k[Var.CurrGroup->ID][Var.CurrExtMomBin] += WeightFactor* _KMom.squaredNorm();
+  // }
 
   for (auto &d : Var.CurrGroup->Diag) {
     double WeightFactor_Diag = d.Weight /fabs(Var.CurrGroup->Weight) /Var.CurrGroup->ReWeight;
@@ -155,80 +162,149 @@ void markov::Measure() {
 };
 
 void markov::SaveToFile() {
-  string FileName = fmt::format("pid{0}.dat", Para.PID);
-  ofstream PolarFile;
-  PolarFile.open(FileName, ios::out | ios::trunc);
-  if (PolarFile.is_open()) {
-    PolarFile << "# Step: " << Para.Counter << endl;
-    PolarFile << "# Group: ";
-    for (auto &group : Groups)
-      PolarFile << group.Name << ", ";
-    PolarFile << endl;
-
-    PolarFile << "# ReWeight: ";
-    for (auto &group : Groups)
-      PolarFile << group.ReWeight << ", ";
-    PolarFile << endl;
-
-    PolarFile << "# KGrid: ";
-    for (int j = 0; j < Polar[Groups[0].ID].size(); j++)
-      PolarFile << Var.ExtMomTable[j][0] << " ";
-    PolarFile << endl;
-
-    for (auto &group : Groups) {
-      for (int j = 0; j < Polar[group.ID].size(); j++) {
-        PolarFile << Polar[group.ID][j] << " ";
-      }
-      PolarFile << endl;
-    }
-    // PolarFile << fmt::sprintf(
-    //     "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Group: %s, Step: %d\n",
-    //     Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name,
-    //     Para.Counter);
-
-    // for (int j = 0; j < Polar[group.ID].size(); j++)
-    //   PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
-    //                             Polar[group.ID][j]);
-    PolarFile.close();
-  } else {
-    LOG_WARNING("Polarization for PID " << Para.PID << " fails to save!");
-  }
-
-  for (auto &group : Groups) {
-    // ofstream PolarFile;
-    // string FileName = fmt::format("group{0}_pid{1}.dat", group.Name, Para.PID);
-    // PolarFile.open(FileName, ios::out | ios::trunc);
-    // if (PolarFile.is_open()) {
-    //   PolarFile << fmt::sprintf(
-    //       "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Group: %s, Step: %d\n",
-    //       Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name, Para.Counter);
-
-    //   for (int j = 0; j < Polar[group.ID].size(); j++)
-    //     PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
-    //                               Polar[group.ID][j]);
-    //   PolarFile.close();
-    // } else {
-    //   LOG_WARNING("Polarization for PID " << Para.PID <<", Group "<<group.Name<< " fails to save!");
-    // }
-    for (auto &d : group.Diag){
+  if (Para.ObsType == FREQ_tau){
+    for (int qi = 0; qi < ExtMomBinSize; qi++){
+      string FileName = fmt::format("pid{0}_q{1}.dat", Para.PID, qi);
       ofstream PolarFile;
-      string CurrdiagName = group.Name+"_"+to_string(d.ID);
-      string FileName = fmt::format("Diag{0}_pid{1}.dat", CurrdiagName, Para.PID);
       PolarFile.open(FileName, ios::out | ios::trunc);
       if (PolarFile.is_open()) {
-        PolarFile << fmt::sprintf(
-            "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Diag: %s, Step: %d\n",
-            Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name+"_"+to_string(d.ID), Para.Counter);
+        PolarFile << "# Step: " << Para.Counter << endl;
+        PolarFile << "# Group: ";
+        for (auto &group : Groups)
+          PolarFile << group.Name << ", ";
+        PolarFile << endl;
 
-        for (int j = 0; j < Polar_Diag[CurrdiagName].size(); j++)
-          PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
-                                    Polar_Diag[CurrdiagName][j]);
-        PolarFile.close();
+        PolarFile << "# ReWeight: ";
+        for (auto &group : Groups)
+          PolarFile << group.ReWeight << ", ";
+        PolarFile << endl;
+
+        PolarFile << "# TauGrid: ";
+        for (int j = 0; j < Polar[Groups[0].ID][qi].size(); j++)
+          PolarFile << Var.ExtTauTable[j] << " ";
+        PolarFile << endl;
+
+        for (auto &group : Groups) {
+          for (int j = 0; j < Polar[Groups[0].ID][qi].size(); j++) 
+            PolarFile << Polar[group.ID][qi][j] << " ";
+          PolarFile << endl;
+        }
       } else {
-        LOG_WARNING("Polarization for PID " << Para.PID <<", Diag "<<CurrdiagName <<" fails to save!");
+        LOG_WARNING("Polarization for ExtQ "<< qi << " PID " << Para.PID << " fails to save!");
       }
+      PolarFile.close();
     }
+  } else {
+    string FileName = fmt::format("pid{0}.dat", Para.PID);
+    ofstream PolarFile;
+    PolarFile.open(FileName, ios::out | ios::trunc);
+    if (PolarFile.is_open()) {
+      PolarFile << "# Step: " << Para.Counter << endl;
+      PolarFile << "# Group: ";
+      for (auto &group : Groups)
+        PolarFile << group.Name << ", ";
+      PolarFile << endl;
+
+      PolarFile << "# ReWeight: ";
+      for (auto &group : Groups)
+        PolarFile << group.ReWeight << ", ";
+      PolarFile << endl;
+
+      PolarFile << "# KGrid: ";
+      for (int j = 0; j < PolarStatic[Groups[0].ID].size(); j++)
+        PolarFile << Var.ExtMomTable[j][0] << " ";
+      PolarFile << endl;
+
+      for (auto &group : Groups) {
+        for (int j = 0; j < PolarStatic[group.ID].size(); j++) {
+          PolarFile << PolarStatic[group.ID][j] << " ";
+        }
+        PolarFile << endl;
+      }
+        // PolarFile << fmt::sprintf(
+        //     "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Group: %s, Step: %d\n",
+        //     Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name,
+        //     Para.Counter);
+
+        // for (int j = 0; j < Polar[group.ID].size(); j++)
+        //   PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
+        //                             Polar[group.ID][j]);
+    } else {
+      LOG_WARNING("Polarization "<< " PID " << Para.PID << " fails to save!");
+    }
+    PolarFile.close();
   }
+  // for (auto &group : Groups) {
+  //   // ofstream PolarFile;
+  //   // string FileName = fmt::format("group{0}_pid{1}.dat", group.Name, Para.PID);
+  //   // PolarFile.open(FileName, ios::out | ios::trunc);
+  //   // if (PolarFile.is_open()) {
+  //   //   PolarFile << fmt::sprintf(
+  //   //       "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Group: %s, Step: %d\n",
+  //   //       Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name, Para.Counter);
+
+  //   //   for (int j = 0; j < Polar[group.ID].size(); j++)
+  //   //     PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
+  //   //                               Polar[group.ID][j]);
+  //   //   PolarFile.close();
+  //   // } else {
+  //   //   LOG_WARNING("Polarization for PID " << Para.PID <<", Group "<<group.Name<< " fails to save!");
+  //   // }
+  //   for (auto &d : group.Diag){
+  //     ofstream PolarFile;
+  //     string CurrdiagName = group.Name+"_"+to_string(d.ID);
+  //     string FileName = fmt::format("Diag{0}_pid{1}.dat", CurrdiagName, Para.PID);
+  //     PolarFile.open(FileName, ios::out | ios::trunc);
+  //     if (PolarFile.is_open()) {
+  //       PolarFile << fmt::sprintf(
+  //           "#PID:%d, Type:%d, rs:%.3f, Beta: %.3f, Diag: %s, Step: %d\n",
+  //           Para.PID, Para.ObsType, Para.Rs, Para.Beta, group.Name+"_"+to_string(d.ID), Para.Counter);
+
+  //       for (int j = 0; j < Polar_Diag[CurrdiagName].size(); j++)
+  //         PolarFile << fmt::sprintf("%13.6f\t%13.6f\n", Var.ExtMomTable[j][0],
+  //                                   Polar_Diag[CurrdiagName][j]);
+  //       PolarFile.close();
+  //     } else {
+  //       LOG_WARNING("Polarization for PID " << Para.PID <<", Diag "<<CurrdiagName <<" fails to save!");
+  //     }
+  //   }
+  // }
+
+  // if (Para.ObsType == KINETIC){
+  //   string fname = fmt::format("Ek_pid{0}.dat", Para.PID);
+  //   ofstream EkFile;
+  //   EkFile.open(fname, ios::out | ios::trunc);
+  //   if (EkFile.is_open()) {
+  //     EkFile << "# Step: " << Para.Counter << endl;
+  //     EkFile << "# Group: ";
+  //     for (auto &group : Groups)
+  //       EkFile << group.Name << ", ";
+  //     EkFile << endl;
+
+  //     EkFile << "# ReWeight: ";
+  //     for (auto &group : Groups)
+  //       EkFile << group.ReWeight << ", ";
+  //     EkFile << endl;
+
+  //     EkFile << "# KGrid: ";
+  //     for (int j = 0; j < E_k[Groups[0].ID].size(); j++)
+  //       EkFile << Var.ExtMomTable[j][0] << " ";
+  //     EkFile << endl;
+
+  //     for (auto &group : Groups) {
+  //       for (int j = 0; j < E_k[group.ID].size(); j++) {
+  //         if (group.ID == 0)
+  //           EkFile << Polar[group.ID][j] << " ";
+  //         else
+  //           EkFile << E_k[group.ID][j] << " ";
+  //       }
+  //       EkFile << endl;
+  //     }
+  //     EkFile.close();
+  //   } else {
+  //     LOG_WARNING("Kinetic energy for PID " << Para.PID << " fails to save!");
+  //   }
+  // }
 }
 
 void markov::ChangeGroup() {
@@ -300,7 +376,8 @@ void markov::ChangeGroup() {
 };
 
 void markov::ChangeTau() {
-  int TauIndex = Random.irn(0, Var.CurrGroup->TauNum);
+  // int TauIndex = Random.irn(0, Var.CurrGroup->TauNum);
+  int TauIndex = Random.irn(1, Var.CurrGroup->TauNum);
 
   // if TauIndex is a locked tau, skip
   if (Var.CurrGroup->IsLockedTau[TauIndex])
@@ -309,17 +386,28 @@ void markov::ChangeTau() {
   Proposed[CHANGE_TAU][Var.CurrGroup->ID]++;
 
   double CurrTau = Var.Tau[TauIndex];
-  double NewTau;
-  double Prop = ShiftTau(CurrTau, NewTau);
-
-  Var.Tau[TauIndex] = NewTau;
+  int NewExtTauBin;
+  double Prop;
+  
+  if (Var.CurrGroup->IsExtTau[TauIndex] && Para.ObsType == FREQ_tau) {
+    Prop = ShiftExtTau(Var.CurrExtTauBin, NewExtTauBin);
+    Var.Tau[TauIndex] = Var.ExtTauTable[NewExtTauBin];
+  } else {
+    Prop = ShiftTau(CurrTau, Var.Tau[TauIndex]);
+  }
+  // Var.Tau[TauIndex] = NewTau;
 
   Weight.ChangeTau(*Var.CurrGroup, TauIndex);
   double NewWeight = Weight.GetNewWeight(*Var.CurrGroup);
   double R = Prop * fabs(NewWeight) / fabs(Var.CurrGroup->Weight);
+  // if (Var.CurrGroup->IsExtTau[TauIndex] && Para.ObsType == FREQ_tau)
+    // cout << Var.CurrGroup->ID <<" " << NewWeight << " " << Var.CurrGroup->Weight <<endl;
+
   if (Random.urn() < R) {
     Accepted[CHANGE_TAU][Var.CurrGroup->ID]++;
     Weight.AcceptChange(*Var.CurrGroup);
+    if (Var.CurrGroup->IsExtTau[TauIndex] && Para.ObsType == FREQ_tau)
+      Var.CurrExtTauBin = NewExtTauBin;
   } else {
     // retore the old Tau if the update is rejected
     // if TauIndex is external, then its partner can be different
@@ -524,6 +612,11 @@ double markov::ShiftTau(const double &OldTau, double &NewTau) {
     NewTau -= Para.Beta;
   return 1.0;
 }
+
+double markov::ShiftExtTau(const int &OldExtTauBin, int &NewExtTauBin) {
+  NewExtTauBin = Random.irn(0, ExtTauBinSize - 1);
+  return 1.0;
+};
 
 std::string markov::_DetailBalanceStr(Updates op) {
   string Output = string(80, '-') + "\n";
