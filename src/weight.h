@@ -13,11 +13,13 @@ struct variable {
   group *CurrGroup;
   long int CurrVersion;
   int CurrExtMomBin;                   // current bin of the external momentum
+  int CurrExtTauBin;                   // current bin of the external Tau
   double CurrTau;                      // current external tau
   array<momentum, MaxLoopNum> LoopMom; // all momentum loop variables
   array<double, MaxTauNum> Tau;        // all tau variables
   array<int, MaxLoopNum> LoopSpin;     // all spin variables
   array<momentum, ExtMomBinSize> ExtMomTable;
+  array<double, ExtTauBinSize> ExtTauTable;
 };
 
 class weight {
@@ -27,6 +29,8 @@ public:
 
   // initialization, read diagrams, then initialize variables
   void ReadDiagrams();
+  // build DLR basis, initialize ExtTauBin
+  void BuildDLR();
 
   // MC updates related operations
   // double ChangeTemperature(double NewBeta);
@@ -36,8 +40,10 @@ public:
   void ChangeGroup(group &,
                    bool Forced = false); // recalculate the weights in one group
   double GetNewWeight(group &);          // return the current weight
+  double G0G0Weight(group &);
   void AcceptChange(group &);
   void RejectChange(group &);
+  // void GetMom(const loop &LoopBasis, const int &LoopNum, momentum &Mom);
 
   // run test in MC updates
   int DynamicTest();

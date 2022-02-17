@@ -27,3 +27,19 @@
 # SpinFactor
 2
 
+# Permutation
+ 1  0 
+# SymFactor
+ 1.0
+# GType
+-2 -1
+# VertexBasis
+ 0  1
+ 1  0
+# LoopBasis
+ 1  0 
+ 1  1  
+# Ver4Legs(InL,OutL,InR,OutR)
+# WType(Direct,Exchange)
+# SpinFactor
+2

@@ -42,6 +42,7 @@ outfile/
 Beta*/
 build/
 Data/
+inlist
 *.log
 *.dat
 blitz/
@@ -49,7 +50,7 @@ src/blitz/
 callgrind*
 *.pyc
 in00
-inlist
 *.data
 data/
 parameter
+.vscode/*
