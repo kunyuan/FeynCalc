@@ -151,7 +151,7 @@ for index, eachline in enumerate(inlist):
         #     # print ("{0:10.6f}  {1:10.6f}".format(q/Para.kF, BubbleQ[qi]))
 
         list_polar = np.array(list_polar)
-        filename = './Data_Polar/polar_beta{0}_rs{1:3.1f}_lam{2}_o{3}_q{4}.dat'.format(
+        filename = './Data_Polar/polar_beta{0}_rs{1:3.1f}_lam{2}_o{3}_q{4}.dat1'.format(
             beta, rs, lam, Para.Order, QBin)
         # with open(filename, 'a') as file:
         with open(filename, 'w') as file:
