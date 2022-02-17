@@ -7,7 +7,7 @@ const me = 0.5  # electron mass
 const dim = 3    # dimension (D=2 or 3, doesn't work for other D!!!)
 const spin = 2  # number of spins
 const EPS = 1e-10
-const rs =3.0 #4.0
+const rs = 1.0 #4.0
 const density = 3 / 4π / rs^3
 const kF = (dim == 3) ? (9π / (2spin))^(1 / 3) / rs : sqrt(4 / spin) / rs
 const EF = kF^2 / (2me)
@@ -23,8 +23,8 @@ const INL, OUTL, INR, OUTR = 1, 2, 3, 4
 println("rs=$rs, β=$β, kF=$kF, EF=$EF, mass2=$mass2")
 
 ###### numerical parameters ######
-const λ = 0.5 #0.17
-const order = 5
+const λ = 4.0 #0.17
+const order = 3
 
 ###### grid constants ###
 # const Nk = 32

@@ -57,10 +57,10 @@ class param:
             # elif self.MaxExtMom==15:
             #     self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq_hq".format(self.Beta,self.Rs,self.Lambda,self.Order)
             # else:
-            self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_tau".format(self.Beta,self.Rs,self.Lambda,self.Order)
+            self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freqTau".format(
+                self.Beta, self.Rs, self.Lambda, self.Order)
             #self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_eqTime".format(self.Beta,self.Rs,self.Lambda,self.Order)
         print(self.DataFolder)
-
 
         if self.Dim == 3:
             self.kF = (9.0*np.pi/4.0)**(1.0/3.0)/self.Rs
@@ -71,7 +71,7 @@ class param:
             self.kF = np.sqrt(2.0)/self.Rs  # 2D
             self.Nf = 1.0/4.0/np.pi*self.Spin
         else:
-            print ("Not Implemented for Dimension {0}".format(self.Dim))
+            print("Not Implemented for Dimension {0}".format(self.Dim))
             sys.exit(0)
 
         #self.EF = self.kF**2/2.0
@@ -79,8 +79,8 @@ class param:
         self.Beta /= self.EF
         self.MaxExtMom *= self.kF
 
-        print (yellow("Parameters:"))
-        print ("Rs={0}, kF={1}, EF={2}, Beta={3}, Mass2={4}, Lambda={5}\n".format(
+        print(yellow("Parameters:"))
+        print("Rs={0}, kF={1}, EF={2}, Beta={3}, Mass2={4}, Lambda={5}\n".format(
             self.Rs, self.kF, self.EF, self.Beta, self.Mass2, self.Lambda))
 
 # For the given path, get the List of all files in the directory tree
@@ -120,13 +120,13 @@ def LoadFile(Folder, FileName):
 
                 data = np.loadtxt(f)
                 # if abs(data[1,0]-2.948e8) > 5e6:
-                    # continue
+                # continue
                 # print (f, data[1])
                 Data.append(data)
 
             except Exception as e:
-                print ("Failed to load {0}".format(f))
-                print (str(e))
+                print("Failed to load {0}".format(f))
+                print(str(e))
 
     Data = np.array(Data)
     DataDict = {}
@@ -134,6 +134,7 @@ def LoadFile(Folder, FileName):
         DataDict[g] = np.array(Data[:, idx, :])
 
     return DataDict, np.array(Step), Groups, np.array(ReWeight), Grid
+
 
 def LoadFile_Diag(Folder):
     # Diags = {'0_0': None, '1_0_0_0': None, '1_0_1_0': None, '1_0_2_0': None, '1_0_2_1': None}
@@ -144,7 +145,7 @@ def LoadFile_Diag(Folder):
     fname2 = "pid[0-9]+.dat"
 
     for f in getListOfFiles(Folder):
-        if re.search(fname1,f) and re.search(fname2,f):
+        if re.search(fname1, f) and re.search(fname2, f):
             # print ("Loading ", f)
             try:
                 with open(f, "r") as file:
@@ -153,23 +154,23 @@ def LoadFile_Diag(Folder):
                     DiagName = tuple([int(o)for o in DiagName.split("_")])
                     # Step.append(float(line[-1]))
                     data = np.loadtxt(file)
-                if DiagName == (0,0):
+                if DiagName == (0, 0):
                     DiagName = (0,)
                 if DiagName in DataDict:
                     # Diags[DiagName] = np.row_stack(Diags[DiagName],data[:,1])
-                    DataDict[DiagName].append(data[:,1])
+                    DataDict[DiagName].append(data[:, 1])
                     Step[DiagName].append(float(line[-1]))
                 else:
-                    DataDict[DiagName] = [data[:,1]]
+                    DataDict[DiagName] = [data[:, 1]]
                     Step[DiagName] = [float(line[-1])]
-                Grid = data[:,0]
+                Grid = data[:, 0]
             except Exception as e:
-                print ("Failed to load {0}".format(f))
-                print (str(e))
+                print("Failed to load {0}".format(f))
+                print(str(e))
     for g in DataDict.keys():
         DataDict[g] = np.array(DataDict[g])
 
-    return DataDict, Step[0,], Grid
+    return DataDict, Step[0, ], Grid
 
 
 def ErrorPlot(p, x, d, color='k', marker='s', label=None, size=4, shift=False):
