@@ -1,8 +1,8 @@
 #!/bin/bash
 # compiler=clang++
-# compiler=icpc
-compiler=g++
-#type=Debug
+compiler=icpc
+# compiler=g++
+# type=Debug
 type=Release
 mkdir build
 cd build
