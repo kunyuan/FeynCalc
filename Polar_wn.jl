@@ -65,7 +65,7 @@ function susceptibility(para, QBin)
         χ0[idn] = Polarization.Polarization0_FiniteTemp(q, n, param) * 2
         @printf("%d %10.8f %10.8f \n", n, -χ0[idn], χ[idn])
     end
-    return -χ0, real(χ)
+    return -χ0, real(χ), param
 end
 
 function run()
