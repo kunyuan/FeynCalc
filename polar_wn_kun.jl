@@ -5,7 +5,8 @@ using Roots, Polylogarithms, FastGaussQuadrature
 using Gaston, LaTeXStrings, ElectronGas
 #using QuantumStatistics
 
-include("parameter.jl")
+# include("parameter.jl")
+const Qsize = 5
 
 function chemical_potential(beta)
     f(β, μ) = real(polylog(3 / 2, -exp(β * μ))) + 4 / 3 / π^0.5 * (β)^(3 / 2)
@@ -14,20 +15,39 @@ function chemical_potential(beta)
 end
 
 @with_kw struct Para
-    Qsize::Int = 5
+    beta::Float64
+    rs::Float64
+    λ::Float64
+    order::Int
+
+    kF::Float64
+    EF::Float64 = kF^2
+    β::Float64 = beta / EF
+    qGrid::Vector{Float64} = [q for q in LinRange(0.0, 0.08 * kF, Qsize)]
     nsize::Int = 11
-    qGrid::Vector{Float64} = [q for q in LinRange(0.0, 0.1 * kF, Qsize)]
     nGrid::Vector{Int64} = [n for n in 0:nsize-1]
     μ = chemical_potential(beta) * EF
-    χdlr = DLRGrid(EF * 100, β, 1e-8, false, :ph)
+    χdlr = DLRGrid(EF * 100, beta / EF, 1e-8, false, :ph)
+end
+
+function readPara(fname)
+    line = readdlm(fname, '\n')
+    param = parse.(Float64, split.(line[1, :])[1])
+    order, beta, rs, λ = param[1], param[2], param[3], param[5]
+    minQ, maxQ = param[5], param[6]
+    kF = (9π / 4)^(1 / 3) / rs
+    qGrid = [q for q in LinRange(0.0, (maxQ - (maxQ - minQ) / Qsize) * kF, Qsize)]
+
+    return Para(beta = beta, rs = rs, λ = λ, order = order, kF = kF, qGrid = qGrid)
 end
 
 function susceptibility(para, QBin)
-    #χ_tau = zeros(Float64, para.χdlr.size)
-    χ0 = zeros(Float64, para.nsize)
+    @unpack beta, β, rs, λ, order, qGrid, nsize, nGrid, μ, χdlr = para
+
+    χ0 = zeros(Float64, nsize)
     # χ = similar(χ0)
-    q = para.qGrid[QBin]
-    @printf("ExtMom: %f, DLR nsize: %d\n", q, para.χdlr.size)
+    q = qGrid[QBin]
+    @printf("ExtMom: %f, DLR nsize: %d\n", q, χdlr.size)
 
     filename = "Data_Polar/polar_beta$(beta)_rs$(rs)_lam$(λ)_o$(order)_q$(QBin-1).dat1"
     print("Loading ", filename, "\n")
@@ -35,7 +55,7 @@ function susceptibility(para, QBin)
     χ_tau::Vector{Float64} = polar_tau[6:end, 2]
     #print(χ_tau)    
     #print(χ)
-    χ = tau2matfreq(para.χdlr, χ_tau, para.nGrid)
+    χ = tau2matfreq(χdlr, χ_tau, para.nGrid)
     #χ = DLR.tau2matfreq(:corr, χ_tau, para.χdlr, para.nGrid, axis=1)
     #print(tau2matfreq(para.χdlr,χ_tau))
 
