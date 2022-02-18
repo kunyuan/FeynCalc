@@ -26,18 +26,23 @@ void MonteCarlo();
 parameter Para; // parameters as a global variable
 RandomFactory Random;
 
-int main(int argc, const char *argv[]) {
-  if (argc > 1) {
+int main(int argc, const char *argv[])
+{
+  if (argc > 1)
+  {
     Para.PID = atoi(argv[1]);
     Para.Seed = Para.PID;
-  } else {
+  }
+  else
+  {
     std::random_device rd;
     Para.PID = rd() % 1000000;
     Para.Seed = Para.PID;
   }
   ifstream File;
   File.open("parameter", ios::in);
-  cout << "Order, Beta, Rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6), "
+  cout << "Order, Beta, Rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, "
+          "TotalStep(*1e6), "
           "Seed, "
           "PID\n";
 
@@ -49,15 +54,16 @@ int main(int argc, const char *argv[]) {
   return 0;
 }
 
-void InitPara() {
+void InitPara()
+{
   //// initialize the global log configuration   /////////////
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
-  
-  // Para.ObsType = FREQ_q;   
-  Para.ObsType = FREQ_tau;   
-  // Para.ObsType = EQUALTIME;   
-  // Para.ObsType = KINETIC;   
+
+  // Para.ObsType = FREQ_q;
+  Para.ObsType = FREQ_tau;
+  // Para.ObsType = EQUALTIME;
+  // Para.ObsType = KINETIC;
 
   Para.Type = POLAR;
   Para.SelfEnergyType = FOCK;
@@ -65,44 +71,50 @@ void InitPara() {
   Para.UseVer4 = false;
   // Para.UseVer4 = true;
 
-  if (Para.ObsType != EQUALTIME) {
-    // Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
-    Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+  if (Para.ObsType != EQUALTIME)
+  {
+    Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
+    // Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
     // Para.DiagFileFormat = "groups_spinless/DiagPolar{}.txt";
     Para.GroupName = {"0"}; // initialized with a normalization diagram
     Para.ReWeight = {1.0};
     for (int o = 1; o <= Para.Order; o++)
-      for (int v = 0; v <= Para.Order - 1; v++) {
+      for (int v = 0; v <= Para.Order - 1; v++)
+      {
         // order 1 do not allow lambda counterterm
         if (o == 1 && v > 0)
           continue;
-        for (int g = 0; g <= (Para.Order - 1) / 2; g++) {
+        for (int g = 0; g <= (Para.Order - 1) / 2; g++)
+        {
           // if (g != 0)
           //   continue;
           // interaction+lambda counterterm+2*self-energy counter <=Order
           if (o + v + 2 * g > Para.Order)
             continue;
-  //  Reweight for large external momentum
+          //  Reweight for large external momentum
           // for (int qo = 1; qo<=2; qo++){
           //   // if ((o==1&&(g==0||g==1)&&qo==2) ||(o==2&&v==0&&g==0&&qo==1))
           //   if ((o==1&&g==1&&qo==1) ||((o==1||o==2)&&v==0&&g==0&&qo==1))
           //     continue;
-            // auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g)+ "_" + to_string(qo);
-            auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
-            cout << name << ", ";
-            Para.GroupName.push_back(name);
-            Para.ReWeight.push_back(pow(2.0, o));
+          // auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g)+
+          // "_" + to_string(qo);
+          auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
+          cout << name << ", ";
+          Para.GroupName.push_back(name);
+          Para.ReWeight.push_back(pow(2.0, o));
           // }
         }
       }
     // Para.GroupName.push_back("1_0_2");
     // Para.ReWeight.push_back(10.0);
-    // Para.ReWeight[0] = Para.ReWeight[1] * 4.0;    
-    Para.ReWeight[0] = 1.0;    
-  } else {
+    // Para.ReWeight[0] = Para.ReWeight[1] * 4.0;
+    Para.ReWeight[0] = 1.0;
+  }
+  else
+  {
     Para.DiagFileFormat = "groups_mu/DiagPolar{}.txt";
     Para.GroupName = {
-        "0",     "1_0_0", "1_0_1", "1_0_2", "2_1_0", "2_2_0",
+        "0", "1_0_0", "1_0_1", "1_0_2", "2_1_0", "2_2_0",
         "2_3_0", "2_0_1", "2_1_1", "3_0_0", "3_1_0", "3_2_0",
         "3_0_1", "4_0_0", "4_1_0", "5_0_0"}; // initialized with a
                                              // normalization diagram
@@ -134,11 +146,16 @@ void InitPara() {
 
   //// initialize the global parameter //////////////////////
   double Kf;
-  if (D == 3) {
+  if (D == 3)
+  {
     Kf = pow(9.0 * PI / 4.0, 1.0 / 3.0) / Para.Rs; // 3D
-  } else if (D == 2) {
+  }
+  else if (D == 2)
+  {
     Kf = sqrt(2.0) / Para.Rs; // 2D
-  } else {
+  }
+  else
+  {
     ABORT("Dimension " << D << " has not yet been implemented!");
   }
   Para.Kf = Kf;
@@ -162,10 +179,12 @@ void InitPara() {
 
   Para.PrinterTimer = 600;
   Para.SaveFileTimer = 600;
-  Para.ReweightTimer = 120*Para.ReWeight.size();
+  // Para.ReweightTimer = 120 * Para.ReWeight.size();
+  Para.ReweightTimer = 60 * Para.ReWeight.size();
 }
 
-void MonteCarlo() {
+void MonteCarlo()
+{
   LOG_INFO("Initializing Markov!");
   markov Markov;
   InterruptHandler Interrupt;
@@ -181,54 +200,65 @@ void MonteCarlo() {
 
   LOG_INFO("Start simulation ...")
 
-
   // for (int Block = 0; Block < Para.TotalStep; Block++) {
   int Block = 0;
-  while (Block < Para.TotalStep || Para.TotalStep <= 0) {
+  while (Block < Para.TotalStep || Para.TotalStep <= 0)
+  {
     Block++;
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 1000000; i++)
+    {
       Para.Counter++;
       // if (Para.Counter == 1243) {
       //   cout << "Before: " << Para.Counter << endl;
-        // Markov.PrintDeBugMCInfo();
+      // Markov.PrintDeBugMCInfo();
       // }
 
       double x = Random.urn();
-      if (x < 1.0 / 3.0) {
+      if (x < 1.0 / 3.0)
+      {
         Markov.ChangeGroup();
         // ;
-      } else if (x < 2.0 / 3.0) {
+      }
+      else if (x < 2.0 / 3.0)
+      {
         Markov.ChangeMomentum();
         // ;
-      } else if (x < 3.0 / 3.0) {
+      }
+      else if (x < 3.0 / 3.0)
+      {
         Markov.ChangeTau();
         // ;
       }
 
       // if (Para.Counter == 1243) {
       //   cout << "After: " << Para.Counter << endl;
-        // Markov.PrintDeBugMCInfo();
+      // Markov.PrintDeBugMCInfo();
       // }
 
       Markov.Measure();
       // Markov.DynamicTest();
 
-      if (i % 1000 == 0) {
+      if (i % 1000 == 0)
+      {
         // Markov.PrintDeBugMCInfo();
-        if (PrinterTimer.check(Para.PrinterTimer)) {
+        if (PrinterTimer.check(Para.PrinterTimer))
+        {
           Markov.DynamicTest();
           // Markov.PrintDeBugMCInfo();
           Markov.PrintMCInfo();
           LOG_INFO(ProgressBar((double)Block / Para.TotalStep));
         }
 
-        if (SaveFileTimer.check(Para.SaveFileTimer)) {
+        if (SaveFileTimer.check(Para.SaveFileTimer))
+        {
           Interrupt.Delay(); // the process can not be killed in saving
           Markov.SaveToFile();
           Interrupt.Resume(); // after this point, the process can be killed
         }
 
-        if (ReweightTimer.check(Para.ReweightTimer) && (Para.ObsType == FREQ_q || Para.ObsType == FREQ_tau)) {
+        if (ReweightTimer.check(Para.ReweightTimer) &&
+            (Para.ObsType == FREQ_q || Para.ObsType == FREQ_tau))
+        {
           Markov.AdjustGroupReWeight();
           Para.ReweightTimer *= 1.5;
         }
