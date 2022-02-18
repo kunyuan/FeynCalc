@@ -16,7 +16,7 @@ end
 @with_kw struct Para
     Qsize::Int = 5
     nsize::Int = 11
-    qGrid::Vector{Float64} = [q for q in LinRange(0.0, 0.08 * kF, Qsize)]
+    qGrid::Vector{Float64} = [q for q in LinRange(0.0, 0.1 * kF, Qsize)]
     nGrid::Vector{Int64} = [n for n in 0:nsize-1]
     μ = chemical_potential(beta) * EF
     χdlr = DLRGrid(EF * 100, β, 1e-8, false, :ph)
@@ -38,50 +38,57 @@ function susceptibility(para, QBin)
     χ = tau2matfreq(para.χdlr, χ_tau, para.nGrid)
     #χ = DLR.tau2matfreq(:corr, χ_tau, para.χdlr, para.nGrid, axis=1)
     #print(tau2matfreq(para.χdlr,χ_tau))
-    print(" n χ_0 χ for q=$q\n")
 
-    param = Parameter.rydbergUnit(1 / β, rs, dim; μ = para.μ)
+    param = Parameter.rydbergUnit(1.0 / (β * EF), rs, dim; μ = para.μ)
+
+    # print(" n χ_0 χ for q/kF=$(q/param.kF)\n")
     # println(Polarization.Polarization0_FiniteTemp(q, 0, param) * 2)
     # println(Polarization.Polarization0_ZeroTemp(q, 0, param) * 2)
     for (idn, n) in enumerate(para.nGrid)
         # χ0[idn] = TwoPoint.LindhardΩnFiniteTemperature(param.dim, q, n, para.μ, param.kF, param.β, param.me, param.spin)[1]
         χ0[idn] = Polarization.Polarization0_FiniteTemp(q, n, param) * param.spin
-        @printf("%d %10.8f %10.8f \n", n, -χ0[idn], χ[idn])
+        # @printf("%d %10.8f %10.8f \n", n, -χ0[idn], χ[idn])
     end
-    return -χ0, real(χ)
+    return -χ0, real(χ), param
 end
 
 function run()
     para = Para()
     @unpack Qsize, qGrid, nGrid = para
-    #p = Gaston.Figure[]
+    # p = Gaston.Figure[]
     wnGrid = nGrid * 2π / β
     for qi in 1:Qsize
-        χ0, χ = susceptibility(para, qi)
+        χ0, χ, param = susceptibility(para, qi)
         # y0 = χ0.*(wnGrid.*wnGrid)/qGrid[qi]^2
         # y = χ.*(wnGrid.*wnGrid)/qGrid[qi]^2
-        y0 = χ0 .* (wnGrid .* wnGrid) / qGrid[qi]^2
-        y = χ .* (wnGrid .* wnGrid) / qGrid[qi]^2
+        # y0 = χ0 .* (wnGrid .* wnGrid) / qGrid[qi]^2
+        # y = χ .* (wnGrid .* wnGrid) / qGrid[qi]^2
+
+        NF = -Polarization.Polarization0_FiniteTemp(0.0, 0, param) * param.spin
+        fxc = @. (1.0 / χ0 - 1 / χ) * NF / wnGrid / wnGrid * (para.qGrid[qi])^2
+        # fxc = @. (1.0 / χ0 / 0.955 - 1 / χ) * NF
 
         filename = "Plot/chi_beta$(beta)_rs$(rs)_lam$(λ)_o$(order)_q$(qi-1).dat1"
         f = open(filename, "w")
 
+        println("# q/kF: $(para.qGrid[qi]/kF)")
+        @printf(f, "# %10s\t%10s\t%10s\t%10s\t%10s\n", "n", "ωn/EF", "Π", "Π0", "fxc")
         for (idn, n) in enumerate(nGrid)
-            @printf(f, "%d\t%10.8f\t%10.8f\t%10.8f\t%10.8f\t%10.8f\n", n, wnGrid[idn], y[idn], y0[idn], χ[idn], χ0[idn])
+            @printf(f, "%8i\t%10.8f\t%10.8f\t%10.8f\t%10.8f\n", n, wnGrid[idn] / EF, χ[idn], χ0[idn], fxc[idn])
         end
-        fxc = @. 1.0 / χ0 - 1 / χ
 
-        println("q: $(para.qGrid[qi])")
+        @printf("%10s\t%10s\t%10s\t%10s\t%10s\n", "n", "ωn/EF", "Π", "Π0", "fxc")
         for (idn, n) in enumerate(nGrid)
-            @printf("%d\t%10.8f\t%10.8f\t%10.8f\t%10.8f\n", n, wnGrid[idn], χ[idn], χ0[idn], fxc[idn])
+            @printf("%8i\t%10.8f\t%10.8f\t%10.8f\t%10.8f\n", n, wnGrid[idn] / EF, χ[idn], χ0[idn], fxc[idn])
         end
         #plot(wnGrid, y0, curveconf = "w lp lw 1 lc '#08F7FE' pt 7 t 'χ_0 '")
-        # lot!(wnGrid, y0, curveconf = "w lp lw 1 lc '#FFE64D' pt 7 t 'χ_0'")
+        # plot!(f, wnGrid / EF, fxc, curveconf = "w lp lw 1 lc '#FFE64D' pt 7 t 'fxc'")
         #push!(p,plot(wnGrid, y0, curveconf = "w lp lw 1 lc '#FFE64D' pt 7 t 'χ_0'"))
     end
     #print(p)
     #plot(p)
     #save(term = "pdf",output= "myfigure.pdf",size = "1280,900",linewidth = 1)
+    # display(f)
 end
 
 run()

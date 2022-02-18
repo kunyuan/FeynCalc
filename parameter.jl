@@ -11,7 +11,7 @@ const rs = 1.0 #4.0
 const density = 3 / 4π / rs^3
 const kF = (dim == 3) ? (9π / (2spin))^(1 / 3) / rs : sqrt(4 / spin) / rs
 const EF = kF^2 / (2me)
-const beta = 40.0
+const beta = 100.0
 const β = beta / EF
 const mass2 = 0
 
