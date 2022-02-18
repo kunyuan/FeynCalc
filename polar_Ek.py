@@ -26,10 +26,10 @@ for index, eachline in enumerate(inlist):
     rs = float(para[2])
     lam = float(para[4])
     with open("./parameter", "w") as file:
-        parameters = ' '.join(para[:-2])
+        parameters = ' '.join(para[:-2]) + " 3"
         file.write(parameters+"\n\n")
         file.write(
-            "#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6)")
+            "#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6), Observable")
 
     Para = param(D, Spin)
 

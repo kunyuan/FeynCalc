@@ -43,6 +43,8 @@ class param:
         self.Dim = D
         self.Spin = Spin
 
+        suffix = ["_eqTime", "_freq", "_freqTau", "_Ek"]
+
         with open(self.InputFile, "r") as file:
             para = file.readline().split(" ")
             self.Order = int(para[0])
@@ -53,14 +55,8 @@ class param:
             self.MinExtMom = float(para[5])
             self.MaxExtMom = float(para[6])
             self.TotalStep = int(para[7])
-            # if self.MaxExtMom==10:
-            #     self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq_lq".format(self.Beta,self.Rs,self.Lambda,self.Order)
-            # elif self.MaxExtMom==15:
-            #     self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freq_hq".format(self.Beta,self.Rs,self.Lambda,self.Order)
-            # else:
-            self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_freqTau".format(
-                self.Beta, self.Rs, self.Lambda, self.Order)
-            #self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}_eqTime".format(self.Beta,self.Rs,self.Lambda,self.Order)
+            self.DataFolder = "beta{0}_rs{1}_lam{2}_o{3}".format(
+                self.Beta, self.Rs, self.Lambda, self.Order) + suffix[int(para[-1])]
         print(self.DataFolder)
 
         if self.Dim == 3:

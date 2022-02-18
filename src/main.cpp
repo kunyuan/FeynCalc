@@ -179,8 +179,7 @@ void InitPara()
 
   Para.PrinterTimer = 600;
   Para.SaveFileTimer = 600;
-  // Para.ReweightTimer = 120 * Para.ReWeight.size();
-  Para.ReweightTimer = 60 * Para.ReWeight.size();
+  Para.ReweightTimer = 120 * Para.ReWeight.size();
 }
 
 void MonteCarlo()

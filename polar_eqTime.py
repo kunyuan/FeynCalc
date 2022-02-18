@@ -22,10 +22,10 @@ for index, eachline in enumerate(inlist):
     if len(para) == 0:
         break
     with open("./parameter", "w") as file:
-        parameters = ' '.join(para[:-2])
+        parameters = ' '.join(para[:-2]) + " 0"
         file.write(parameters+"\n\n")
         file.write(
-            "#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6)")
+            "#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6), Observable")
 
     Para = param(D, Spin)
 

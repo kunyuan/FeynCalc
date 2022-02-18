@@ -1,4 +1,4 @@
-## Polarization Pi(\tau) for external momentum q=0
+# Polarization Pi(\tau) for external momentum q=0
 import numpy as np
 import scipy.integrate as integrate
 
@@ -17,6 +17,8 @@ import scipy.integrate as integrate
 #         return f*np.exp(-abs(x))
 
 #  Bubble with q=0, tau=0
+
+
 def __normbubble(k, Dim, Beta, Spin, Kf, mur):
     mu = mur*Kf*Kf
     x = Beta*(k*k-mu)
@@ -26,11 +28,12 @@ def __normbubble(k, Dim, Beta, Spin, Kf, mur):
         # Dim==2
         f = Spin/4.0/np.pi/Beta
     if x > -200.0 and x < 200.0:
-        return f/(1.0+np.exp(x)) 
+        return f/(1.0+np.exp(x))
     elif x <= -200.0:
         return f
     else:
         return 0.0
+
 
 def __uniformbubble(k, Dim, Beta, Spin, Kf, mur, extQ):
     mu = mur*Kf*Kf
@@ -39,14 +42,15 @@ def __uniformbubble(k, Dim, Beta, Spin, Kf, mur, extQ):
     x2 = Beta*((k-extQ)**2-mu)
     if Dim == 3:
         f = Spin/2.0/np.pi**2
-        f1 = 1 + np.log((1+np.exp(-x1))/(1+np.exp(-x2)))/ (4*k*extQ*Beta)
+        f1 = 1 + np.log((1+np.exp(-x1))/(1+np.exp(-x2))) / (4*k*extQ*Beta)
     else:
         # Dim==2
         f = Spin/2.0/np.pi
     if x > -200.0 and x < 200.0:
-        return f*k*k *f1 / (1.0+np.exp(x)) 
+        return f*k*k * f1 / (1.0+np.exp(x))
     else:
         return 0.0
+
 
 def __uniformbubbleStatic(k, Dim, Beta, Spin, Kf, mur):
     mu = mur*Kf*Kf
@@ -64,6 +68,7 @@ def __uniformbubbleStatic(k, Dim, Beta, Spin, Kf, mur):
     else:
         return 0.0
 
+
 def __bubble3DStatic(k, Dim, Beta, Spin, Kf, mur, q):
     mu = mur*Kf*Kf
     x = Beta*(k*k-mu)
@@ -75,10 +80,12 @@ def __bubble3DStatic(k, Dim, Beta, Spin, Kf, mur, q):
     else:
         return 0.0
 
+
 def __bubble3D(k, Dim, Beta, Spin, Kf, mur, z, q):
     mu = mur*Kf*Kf
     x = Beta*(k*k-mu)
-    f = -Spin/8.0/np.pi**2/q*k*np.log((z**2+(q**2-2.0*k*q)**2)/ (z**2+(q**2+2.0*k*q)**2))
+    f = -Spin/8.0/np.pi**2/q*k * \
+        np.log((z**2+(q**2-2.0*k*q)**2) / (z**2+(q**2+2.0*k*q)**2))
     if x > -200.0 and x < 200.0:
         return f/(1.0+np.exp(x))
     elif x <= -200.0:
@@ -114,9 +121,11 @@ def Getmu(beta_):
         mu_r = 0.998680896718
     elif beta_ == 40:
         mu_r = 0.999485480206
+    elif beta_ == 100:
+        mu_r = 0.999917741111
     else:
         mu_r = 1
-        print('beta>>1?  mu=Ef')    
+        print('beta>>1?  mu=Ef')
     return mu_r
 
 
@@ -124,7 +133,7 @@ def Bubble(Dim, Beta, Spin, Kf, Tau, ExtQ):
     assert Dim == 2 or Dim == 3, "Only Dim=2 and 3 are implemented."
     # bub = integrate.quad(__uniformbubble, 0.0,
     #                           100.0*Kf*Kf, args=(Dim, Beta, Spin, Kf*Kf))
-    # print ("Polarization at Q={0}: {1}+-{2}".format(0, bub[0], bub[1]))     
+    # print ("Polarization at Q={0}: {1}+-{2}".format(0, bub[0], bub[1]))
 
     # mu_r = {[0.5,-2.461438843431], [1,-0.021460754987], [2,0.743112084259], [4,0.942615755201], [16,0.996768053583]} #[beta,mu*]
     with open("./parameter", "r") as file:
@@ -134,16 +143,17 @@ def Bubble(Dim, Beta, Spin, Kf, Tau, ExtQ):
 
     if (abs(Tau) < 1e-10 and abs(ExtQ) < 1e-10):
         return integrate.quad(__normbubble, 0.0,
-                    100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r))
+                              100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r))
     else:
         return integrate.quad(__uniformbubble, 0.0,
-                        100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r, ExtQ))
+                              100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r, ExtQ))
+
 
 def Bubble_wn(Dim, Beta, Spin, Kf, OmegaN, ExtQ):
     assert Dim == 2 or Dim == 3, "Only Dim=2 and 3 are implemented."
     # bub = integrate.quad(__uniformbubble, 0.0,
     #                           100.0*Kf*Kf, args=(Dim, Beta, Spin, Kf*Kf))
-    # print ("Polarization at Q={0}: {1}+-{2}".format(0, bub[0], bub[1]))     
+    # print ("Polarization at Q={0}: {1}+-{2}".format(0, bub[0], bub[1]))
 
     # mu_r = {[0.5,-2.461438843431], [1,-0.021460754987], [2,0.743112084259], [4,0.942615755201], [16,0.996768053583]} #[beta,mu*]
     with open("./parameter", "r") as file:
@@ -153,12 +163,12 @@ def Bubble_wn(Dim, Beta, Spin, Kf, OmegaN, ExtQ):
 
     if (abs(OmegaN) < 1e-10 and abs(ExtQ) < 1e-10):
         return integrate.quad(__uniformbubbleStatic, 0.0,
-                    100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r))
+                              100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r))
     elif (abs(OmegaN) < 1e-10):
         return integrate.quad(__bubble3DStatic, 0.0,
-                        100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r, ExtQ))
+                              100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r, ExtQ))
         # return integrate.quad(__bubble3D, 0.0,
-                        # 100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r, ExtQ, OmegaN), points=[-ExtQ/2,ExtQ/2])
+        # 100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r, ExtQ, OmegaN), points=[-ExtQ/2,ExtQ/2])
     else:
         return integrate.quad(__bubble3D, 0.0,
-                        200.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r, OmegaN, ExtQ))
+                              200.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r, OmegaN, ExtQ))

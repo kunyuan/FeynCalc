@@ -24,9 +24,9 @@ for index, eachline in enumerate(inlist):
     lam = float(para[4])
 
     with open("./parameter", "w") as file:
-        file.write(' '.join(para[:-2])+"\n\n")
+        file.write(' '.join(para[:-2])+" 1\n\n")
         file.write(
-            "#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6)")
+            "#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6), Observable")
 
     Para = param(D, Spin)
     # load chemical potential shift from the file

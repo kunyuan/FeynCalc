@@ -15,6 +15,7 @@ import scipy.integrate as integrate
 #     else:
 #         return f*np.exp(-abs(x))
 
+
 def __uniformbubble(k, Dim, Beta, Spin, Kf, mur):
     mu = mur*Kf*Kf
     x = Beta*(k*k-mu)
@@ -52,7 +53,7 @@ def __bubble3D(k, q, Dim, Beta, Spin, Kf, mur):
 def __bubble2D(k, q, Dim, Beta, Spin, Kf, mur):
     """ Dim==2 """
     f = Spin/np.pi*k/q/np.sqrt(q**2-4.0*k**2)
-    mu = mur *Kf*Kf
+    mu = mur * Kf*Kf
     x = Beta*(k*k-mu)
     if x > -100.0 and x < 100.0:
         return f/(1.0+np.exp(x))
@@ -76,8 +77,9 @@ def __bubble2D(k, q, Dim, Beta, Spin, Kf, mur):
 #     else:
 #         return 0.0
 
+
 def __uniformbubbleCT(k, Dim, Beta, Spin, Kf, mur):
-    mu = mur*Kf* Kf
+    mu = mur*Kf * Kf
     x = Beta*(k*k-mu)
     if Dim == 3:
         f = -Spin/4.0/np.pi**2
@@ -88,7 +90,7 @@ def __uniformbubbleCT(k, Dim, Beta, Spin, Kf, mur):
     if x > -100.0 and x < 100.0:
         return f*(-Beta/2.0) / (1.0+np.cosh(x))
     else:
-        return f*(-Beta/2.0) *np.exp(-abs(x))
+        return f*(-Beta/2.0) * np.exp(-abs(x))
 
 
 def __bubbleCT3D(k, q, Dim, Beta, Spin, Kf, mur):
@@ -101,24 +103,26 @@ def __bubbleCT3D(k, q, Dim, Beta, Spin, Kf, mur):
     else:
         return f*(-Beta/2.0)*np.exp(-abs(x))
 
+
 def __bubbleCT2D(k, q, Dim, Beta, Spin, Kf, mur):
     """ Dim==2 """
     f = Spin/np.pi*k/q/np.sqrt(q**2-4.0*k**2)
-    mu = mur *Kf*Kf
+    mu = mur * Kf*Kf
     x = Beta*(k*k-mu)
     if x > -200.0 and x < 200.0:
         return f*(-Beta/2.0)/(1.0+np.cosh(x))
     else:
         return f*(-Beta/2.0)*np.exp(-abs(x))
 
+
 def Getmu(beta_):
-    if beta_==0.0625:
+    if beta_ == 0.0625:
         return -71.030575819501
-    elif abs(beta_-0.08333333)<1e-6:
+    elif abs(beta_-0.08333333) < 1e-6:
         return -48.067757106278
-    elif beta_==0.125:
+    elif beta_ == 0.125:
         return -27.136773591511
-    elif abs(beta_-0.16666667)<1e-6:
+    elif abs(beta_-0.16666667) < 1e-6:
         return -17.725431801201
     elif beta_ == 0.25:
         mu_r = -9.323691469984
@@ -142,9 +146,11 @@ def Getmu(beta_):
         mu_r = 0.998680896718
     elif beta_ == 40:
         mu_r = 0.999485480206
+    elif beta_ == 100:
+        mu_r = 0.9999177411111
     else:
         mu_r = 1
-        print('beta>>1?  mu=Ef')    
+        print('beta>>1?  mu=Ef')
     return mu_r
 
 
@@ -152,7 +158,7 @@ def Bubble(Dim, Beta, Spin, Kf, Mom):
     assert Dim == 2 or Dim == 3, "Only Dim=2 and 3 are implemented."
     # bub = integrate.quad(__uniformbubble, 0.0,
     #                           100.0*Kf*Kf, args=(Dim, Beta, Spin, Kf*Kf))
-    # print ("Polarization at Q={0}: {1}+-{2}".format(0, bub[0], bub[1]))     
+    # print ("Polarization at Q={0}: {1}+-{2}".format(0, bub[0], bub[1]))
 
     # mu_r = {[0.5,-2.461438843431], [1,-0.021460754987], [2,0.743112084259], [4,0.942615755201], [16,0.996768053583]} #[beta,mu*]
     with open("./parameter", "r") as file:
@@ -161,9 +167,9 @@ def Bubble(Dim, Beta, Spin, Kf, Mom):
     mu_r = Getmu(beta_)
     if(abs(Mom) < 1.0e-10):
         return integrate.quad(__uniformbubble, 0.0,
-                            100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r))
+                              100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r))
         # return integrate.quad(__uniformbubble, 0.0,
-                            #   100.0*Kf*Kf, args=(Dim, Beta, Spin, Kf*Kf, mu_r))
+        #   100.0*Kf*Kf, args=(Dim, Beta, Spin, Kf*Kf, mu_r))
         # print "Polarization at Q={0}: {1}+-{2}".format(
         #     Mom, Bubble[0], Bubble[1])
     else:
@@ -178,6 +184,7 @@ def Bubble(Dim, Beta, Spin, Kf, Mom):
             #           (1.0+np.exp(-Beta*(Mom*Mom-Kf*Kf))), result[1])
             return result
 
+
 def BubbleCT(Dim, Beta, Spin, Kf, Mom):
     assert Dim == 2 or Dim == 3, "Only Dim=2 and 3 are implemented."
     with open("./parameter", "r") as file:
@@ -187,11 +194,11 @@ def BubbleCT(Dim, Beta, Spin, Kf, Mom):
 
     if(abs(Mom) < 1.0e-10):
         return integrate.quad(__uniformbubbleCT, 0.0,
-                            100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r))
+                              100.0*Kf, args=(Dim, Beta, Spin, Kf, mu_r))
     else:
         if Dim == 3:
             return integrate.quad(__bubbleCT3D, 0.0, 100.0*Kf,
-                                    args=(Mom, Dim, Beta, Spin, Kf, mu_r))
+                                  args=(Mom, Dim, Beta, Spin, Kf, mu_r))
         else:
             # Dim==2
             result = integrate.quad(__bubbleCT2D, 0.0, Mom/2.0,
