@@ -15,7 +15,7 @@ const bool DEBUGMODE = false;
 
 enum selfenergy { BARE, FOCK, DRESSED }; // self energy type
 enum type { RG, POLAR };
-enum obstype { FREQ, EQUALTIME };
+enum obstype { FREQ_q, FREQ_tau, EQUALTIME, KINETIC};
 /////////// Global Parameter ////////////////////
 struct parameter {
   // physical parameters
@@ -27,12 +27,13 @@ struct parameter {
   double UVCoupling; // the coupling constant at the UV scale
   double Mass2;      // screening length^2
   double Lambda;
+  double MinExtMom; // the minimum external momentum
   double MaxExtMom; // the maximum external momentum
   selfenergy SelfEnergyType;
 
   // MC inputs
   type Type;             // polarization, RG
-  obstype ObsType;       // 0: static polarization, 1: equal-time polarization
+  obstype ObsType;       // 0: static polarization, 1: equal-time polarization, 2: kinetic energy
   bool UseVer4;          // use vertex4 to calculate weight or not
   int TotalStep;         // total steps of the Monte Carlo
   int Seed;              // rng seed
@@ -54,7 +55,9 @@ struct parameter {
 // D=2 or D=3
 const int D = 3;
 // number of q bins of the external momentum
-const int ExtMomBinSize = 4;
+const int ExtMomBinSize = 5;
+// number of tau bins of the external tau
+const int ExtTauBinSize = 32;
 // number of bins for the angle between InL and InR legs
 const int InInAngBinSize = 32;
 // number of bins for the angle between InL and OutL legs

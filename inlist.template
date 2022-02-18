@@ -1,0 +1,4 @@
+5 40.0 2.0 0.0 0.5 0.0 2.0 200001 10 0
+5 40.0 2.0 0.0 0.5 0.0 2.0 200001 10 2
+
+#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6), Duplication, Observable(0:eqTime 1:freq, 2:tau, 3:Ek)

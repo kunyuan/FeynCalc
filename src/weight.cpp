@@ -37,6 +37,22 @@ void weight::ReadDiagrams() {
   Initialization();
 }
 
+void weight::BuildDLR(){
+  int ind, n, n1, i;
+  double omega, tauGrid;
+  string FileName = "ph_10000_1e-8.dlr";
+  ifstream DLRFile(FileName);
+  ASSERT_ALLWAYS(DLRFile.is_open(),
+                  "Unable to find the file " << FileName << endl);
+  LOG_INFO("Find " << FileName << "\n");
+  LOG_INFO("Read " << FileName << "# i, omega, tau, n \n");
+  i = 0;
+  while(DLRFile >> ind >> omega >> tauGrid >> n){
+    Var.ExtTauTable[i] = tauGrid* Para.Beta;
+    i++;
+  }
+}
+
 void weight::Initialization() {
 
   LOG_INFO("Initializating diagram states ...")
@@ -62,6 +78,14 @@ void weight::Initialization() {
           // to measure equal-time observable, lock all external tau
           group.IsLockedTau[i] = true;
     }
+    //  else if (Para.ObsType == FREQ_tau){
+    //   for (int i = 0; i < group.LoopNum; ++i)
+    //     if (group.IsExtLoop[i])
+    //       // to measure external q=q0 observable, lock all external Mom
+    //       group.IsLockedLoop[i] = true;
+    // }
+    // fix Tau=0 for external Tau (Tauindex=0) 
+    group.IsLockedTau[0] = true;
   }
 
   LOG_INFO("Initializating MC variables ...")
@@ -80,10 +104,10 @@ void weight::Initialization() {
   for (auto &sp : Var.LoopSpin)
     sp = (spin)(Random.irn(0, 1));
 
-  // initialize external momentum
+  // initialize external momentum and its reweight factor for each group
   for (int i = 0; i < ExtMomBinSize; i++) {
     // the external momentum only has x component
-    Var.ExtMomTable[i][0] = i * Para.MaxExtMom / ExtMomBinSize;
+    Var.ExtMomTable[i][0] = Para.MinExtMom + i*(Para.MaxExtMom-Para.MinExtMom)/ExtMomBinSize;
     for (int j = 1; j < D; j++)
       Var.ExtMomTable[i][j] = 0.0;
   }
@@ -93,11 +117,15 @@ void weight::Initialization() {
   //   Var.LoopMom[0][i] = Var.ExtMomTable[Var.CurrExtMomBin][i];
   Var.LoopMom[0] = Var.ExtMomTable[Var.CurrExtMomBin];
 
-  // initialize external tau
+  // Read DLR and initialize external tau
+  Var.CurrExtTauBin = 0;
   Var.Tau[0] = 0.0;
   Var.Tau[1] = 1.0e-10; // do not make Tau[1]==Tau[0], otherwise the Green's
                         // function is not well-defined
-
+  BuildDLR();
+  // for (int i = 0; i < ExtTauBinSize; i++) {
+  //   Var.ExtTauTable[i] = 1.0e-10 + i * Para.Beta / ExtTauBinSize;
+  // }
   Var.CurrTau = Var.Tau[1] - Var.Tau[0];
 
   // initialize group
@@ -129,7 +157,13 @@ void weight::ChangeGroup(group &Group, bool Forced) {
         double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
-        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
+        if (Para.ObsType == KINETIC && i == 1 && Group.ID != 0)
+          G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type) * _Mom.squaredNorm();
+          // if (Group.ID ==1){
+          //   cout << Group.Name << ", " << d.ID << ", "<<  _Mom.squaredNorm() << endl;
+          // }
+        else
+          G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
         // if (Group.ID == 2) {
         //   cout << Group.Name << ", " << G->NewWeight << endl;
         //   ;
@@ -170,7 +204,12 @@ void weight::ChangeMom(group &Group, int MomIndex) {
         double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
-        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
+        // if(Group.ID==1)
+          // cout << _Mom.norm() << endl;
+        if (Para.ObsType == KINETIC && i == 1 && Group.ID != 0)
+          G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type) * _Mom.squaredNorm();
+        else
+          G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
       }
     }
     for (int i = 0; i < Group.Ver4Num; i++) {
@@ -221,10 +260,35 @@ void weight::ChangeTau(group &Group, int TauIndex) {
         double Tau = Var.Tau[TauOut] - Var.Tau[TauIn];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
-        G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
+        if (Para.ObsType == KINETIC && i == 1 && Group.ID != 0)
+          G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type) * _Mom.squaredNorm();
+        else
+          G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
       }
     }
   }
+}
+
+double weight::G0G0Weight(group &Group){
+  double NewWeight;
+  if (Group.ID != 1){
+    cout << Group.Name << ", " << Group.HugenNum << endl;
+    return -1;
+  }
+  auto d = Group.Diag[0];
+  NewWeight = -2.0 / pow(2 * PI, D);
+  // for (int i = 0; i < Group.GNum; i++) {
+  // // cout << "G: " << i << endl;
+  //   green *G = d.G[i];
+  //   double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
+  //   GetMom(G->LoopBasis, Group.LoopNum, _Mom);
+  //   NewWeight *= Fermi.Green(Tau, _Mom, UP, -1);
+  // }
+  green *G = d.G[1];
+  double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
+  GetMom(G->LoopBasis, Group.LoopNum, _Mom);
+  NewWeight *= Fermi.Green(Tau, _Mom, UP, -1) * _Mom.squaredNorm();
+  return NewWeight;
 }
 
 double weight::GetNewWeight(group &Group) {
@@ -253,7 +317,7 @@ double weight::GetNewWeight(group &Group) {
       _Tree[0][1] = Ver4->Excited[EXCHANGE] ? Ver4->NewWeight[EXCHANGE]
                                             : Ver4->Weight[EXCHANGE];
 
-      // if (Group.ID == 2) {
+      // if (Group.ID == 4) {
       //   cout << "0, 0:  " << _Tree[0][0] << ", 0, 1: " << _Tree[0][1] <<
       //   endl;
       //   // exit(0);
@@ -280,9 +344,9 @@ double weight::GetNewWeight(group &Group) {
       }
 
       VerWeight = 0.0;
-      for (int j = 0; j < BlockNum; j++)
+      for (int j = 0; j < BlockNum; j++){
         VerWeight += _Tree[Group.Ver4Num - 1][j] * d.SpinFactor[j];
-
+      }
       //============= for spin case ===========================//
 
       // double TempWeightIn, TempWeightOut;
@@ -306,10 +370,21 @@ double weight::GetNewWeight(group &Group) {
     // Group Weight= sum of all diagram weight in the group
     Group.NewWeight += d.NewWeight;
   }
-  // if (Group.ID == 2) {
-  //   cout << Group.NewWeight << endl;
-  //   // exit(0);
+
+  // if (Group.ID == 1 && Para.ObsType == FREQ_q){
+  //   // cout << Group.NewWeight<<"  "<< G0G0Weight(Group) <<endl;
+  //   Group.NewWeight -= G0G0Weight(Group);
   // }
+
+  // if (Var.ExtMomTable[0][0] != 0){
+  //   if (Group.ID == 2 || Group.ID == 5)
+  //     Group.NewWeight *= Var.ExtMomTable[Group.ExtLoopNum].squaredNorm();
+  //   else if(Group.ID == 3|| Group.ID == 4)
+  //     Group.NewWeight *= pow((Var.ExtMomTable[Group.ExtLoopNum].squaredNorm()), 2.0);
+  // }
+  // cout << Var.LoopMom[0].norm() << "   ," << Var.LoopMom[1].norm() << endl;
+  // if (Para.ObsType == KINETIC && Group.ID != 0)
+  //   Group.NewWeight *= Var.LoopMom[1].squaredNorm();
   return Group.NewWeight;
 }
 

@@ -1,4 +1,4 @@
-rm -r Beta*
+rm -r beta*
 rm *.log
 rm *.dat
 rm callgrind*

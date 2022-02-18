@@ -1,10 +1,10 @@
 #!/bin/bash
-#compiler=clang++
-#compiler=icpc
-compiler=g++
-#type=Debug
+# compiler=clang++
+compiler=icpc
+# compiler=g++
+# type=Debug
 type=Release
-#mkdir build
+mkdir build
 cd build
 if [ -n "$1" ]
   then

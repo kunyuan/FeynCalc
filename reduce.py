@@ -10,7 +10,7 @@ def Estimate(Data, Weights, axis=0):
     assert Data.shape[0] == Num, "Data and Weights size must match!"
     Avg = np.average(Data, weights=Weights, axis=0)
     Var = np.average((Data-Avg)**2, weights=Weights, axis=0)
-    Err = np.sqrt(Var/(Num-1)) if Num > 1 else 0.0
+    Err = np.sqrt(Var/(Num-1)) if Num > 1 else np.zeros(len(Avg))
     return np.array((Avg, Err))
 
 
@@ -18,9 +18,9 @@ def Reduce(Dict, Map):
     """reduce Dict.keys() to mapped keys"""
     mappedDict = {}
     for g in Dict.keys():
-        if Map.has_key(g):
+        if g in Map:
             key = Map[g]
-            if mappedDict.has_key(key):
+            if key in mappedDict:
                 mappedDict[key] += Dict[g]
             else:
                 mappedDict[key] = Dict[g]
@@ -29,7 +29,7 @@ def Reduce(Dict, Map):
 
 def EstimateGroup(DataDict, Steps, Phys, group):
     Norm = np.sum(DataDict[(0, )][:, :], axis=-1)  # shape=pid
-    if DataDict.has_key(group):
+    if group in DataDict:
         data = DataDict[group][:, :]/Norm[:, np.newaxis]*Phys
         return Estimate(data, Steps)
     else:
@@ -47,7 +47,7 @@ def GetData(Data, Groups, Steps, Phys, Map):
         Dict[g] = Data[:, idx, :]
 
     Dict = Reduce(Dict, Map)
-    print "Groups {0} reduced to {1}".format(Groups, list(set(Dict.keys())))
+    print ("Groups {0} reduced to {1}".format(Groups, list(set(Dict.keys()))))
 
     EsData = {}
     for key in sorted(Dict.keys()):
