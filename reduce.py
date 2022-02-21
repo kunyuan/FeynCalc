@@ -1,5 +1,5 @@
 import numpy as np
-
+import math
 
 def Estimate(Data, Weights, axis=0):
     """ Return Mean and Error  with given weights"""
@@ -31,7 +31,24 @@ def EstimateGroup(DataDict, Steps, Phys, group):
     Norm = np.sum(DataDict[(0, )][:, :], axis=-1)  # shape=pid
     if group in DataDict:
         data = DataDict[group][:, :]/Norm[:, np.newaxis]*Phys
-        return Estimate(data, Steps)
+        Newdata = []
+        NewSteps = []
+        for (idx, g) in enumerate(data[:,0]):
+            # print(idx, data[idx, 0])
+            if True in np.isnan(data[idx, :]):
+                print("Here Nan!", data[idx,:])
+                # np.delete(data, idx, axis=0)
+            elif True in np.isinf(data[idx, :]):
+                print("Here Inf!", data[idx, :])
+            else:
+                Newdata.append(data[idx,:])
+                NewSteps.append(Steps[idx])
+        Newdata = np.array(Newdata)
+        NewSteps = np.array(NewSteps)
+        # if group == (1, 0, 0, 2):
+        #     print(group, Newdata)
+        # print(group, Newdata)
+        return Estimate(Newdata, NewSteps)
     else:
         return None
 
