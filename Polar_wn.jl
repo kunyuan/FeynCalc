@@ -29,9 +29,10 @@ const Qsize = 5
     χdlr = DLRGrid(EF * 100, beta / EF, 1e-8, false, :ph)
 end
 
-function readPara(fname)
-    line = readdlm(fname, '\n')
-    param = parse.(Float64, split.(line[1, :])[1])
+function readPara(line)
+    # paras = readdlm(fname, '\n')
+    # param = parse.(Float64, split.(line[1, :])[1])
+    param = parse.(Float64, split.(line)[:])
     order, beta, rs, λ = param[1], param[2], param[3], param[5]
     minQ, maxQ = param[6], param[7]
     kF = (9π / 4)^(1 / 3) / rs
@@ -66,9 +67,9 @@ function susceptibility(para, QBin)
     return -χ0, real(χ)
 end
 
-function run()
-    para = readPara("inlist")
-    @unpack beta, rs, λ, qGrid, nGrid, kF, β, EF, NF = para
+function run(line)
+    para = readPara(line)
+    @unpack beta, rs, λ, order, qGrid, nGrid, kF, β, EF, NF = para
 
     p = Gaston.Figure[]
     Fig = Gaston.Figure[]
@@ -106,8 +107,13 @@ function run()
         # save(term = "pdf", output = "./Plot/fxc_beta$(beta)_rs$(rs)_q$(qi)_qm.pdf", linewidth = 1)
     end
     # plot([Fig[1] Fig[2]; Fig[3] Fig[4]])
-    save(term = "pdf", output = "./Plot/fxc_beta$(beta)_rs$(rs)_lam$(λ)_qm.pdf", linewidth = 1)
+    save(term = "pdf", output = "./Plot/fxc_beta$(beta)_rs$(rs)_lam$(λ)_o$(order)_qm.pdf", linewidth = 1)
     # save(term = "pdf", output = "./Plot/fxcRe_beta$(beta)_rs$(rs)_lam$λ.pdf", linewidth = 1)
 end
 
-run()
+if abspath(PROGRAM_FILE) == @__FILE__
+    for line in eachline("inlist")
+        length(line) == 0 && break
+        run(line)
+    end
+end
