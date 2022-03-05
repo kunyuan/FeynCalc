@@ -9,7 +9,7 @@ Cluster = "local"
 # Cluster="condor"
 
 ############################################
-inlist = open("./inlist","r")
+inlist = open("./inlist", "r")
 rootdir = os.getcwd()
 # execute = "feyncalc_eqTime.exe"
 # assert len(sys.argv)==2, "Number of jobs is needed."
@@ -19,23 +19,23 @@ suffix = ["_eqTime", "_freq", "_freqTau", "_Ek"]
 
 for index, eachline in enumerate(inlist):
     para = eachline.split()
-    if len(para)==0:
-        print ("All submitted!")
+    if len(para) == 0:
+        print("All submitted!")
         break
-    
-    order= int(para[0])
+
+    order = int(para[0])
     beta = float(para[1])
-    rs   = float(para[2])
-    lam  = float(para[4])
-    kmin  = float(para[5])
+    rs = float(para[2])
+    lam = float(para[4])
+    kmin = float(para[5])
 
-    print ("Creating {0} jobs...".format(int(para[-2])))
+    print("Creating {0} jobs...".format(int(para[-2])))
 
-    PIDList=range(int(para[-2]))
+    PIDList = range(int(para[-2]))
     title = suffix[int(para[-1])]
     execute = "feyncalc"+title+".exe"
-    fname = "beta{0}_rs{1}_lam{2}".format(beta,rs,lam)
-    homedir = os.getcwd() +"/"+fname+"_o{0}".format(order)+title
+    fname = "beta{0}_rs{1}_lam{2}".format(beta, rs, lam)
+    homedir = os.getcwd() + "/"+fname+"_o{0}".format(order)+title
 #    if kmin == 0.02:
 #        homedir = os.getcwd() +"/"+fname+"_o{0}".format(order)+title+"_1"
 #    else:
@@ -44,7 +44,7 @@ for index, eachline in enumerate(inlist):
     if(os.path.exists(homedir) != True):
         os.system("mkdir "+homedir)
     else:
-        print (homedir+" alreadly exists!")
+        print(homedir+" alreadly exists!")
         # homedir = homedir + "_6kf"
         # os.system("mkdir "+homedir)
         break
@@ -52,13 +52,15 @@ for index, eachline in enumerate(inlist):
     with open("./parameter", "w") as file:
         parameters = ' '.join(para[:-2])
         file.write(parameters+"\n\n")
-        file.write("#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6)")
+        file.write(
+            "#Order, Beta, rs, Mass2, Lambda, MinExtMom(*kF), MaxExtMom, TotalStep(*1e6)")
 
     os.system("cp -r groups* "+homedir)
     os.system("cp {0} {1}".format(execute, homedir))
     os.system("cp reweight.data "+homedir)
     os.system("cp parameter "+homedir)
-    os.system("cp ph_10000_1e-8.dlr "+homedir)
+    # os.system("cp ph_10000_1e-8.dlr "+homedir)
+    os.system("cp ph_tau.dlr "+homedir)
     os.system("cp ./sigma/sigma3D_"+fname+".txt "+homedir+"/sigma3D.txt")
 
     outfilepath = homedir+"/outfile"
