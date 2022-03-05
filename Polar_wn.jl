@@ -4,7 +4,7 @@ using Lehmann, LinearAlgebra, Printf, Parameters, DelimitedFiles
 using Roots, Polylogarithms, FastGaussQuadrature
 using Gaston, LaTeXStrings, ElectronGas
 
-const Qsize = 5
+const Qsize = 6
 
 function chemical_potential(beta)
     f(β, μ) = real(polylog(3 / 2, -exp(β * μ))) + 4 / 3 / π^0.5 * (β)^(3 / 2)
@@ -74,7 +74,7 @@ function run(line)
     p = Gaston.Figure[]
     Fig = Gaston.Figure[]
     wnGrid = nGrid * 2π / β
-    for qi in 1:Qsize
+    for qi in 2:Qsize
         println("ω_0 = $(2π/β),  vF*q = $(qGrid[qi]*EF*2)")
         χ0, χ = susceptibility(para, qi)
         # y0 = χ0 .* (wnGrid .* wnGrid) / (qGrid[qi] * kF)^2
@@ -89,7 +89,7 @@ function run(line)
         y = f_xc * NF
         # y = f_xc * NF * (qGrid[qi] * kF)^2 ./ (wnGrid .* wnGrid)
         # Figmid =
-        if qi == 1
+        if qi == 2
             plot(x, y, curveconf = "tit 'q=$(qGrid[qi]) kF' w lp lw 1 lc '#08F7FE'",
                 Axes(# xrange = (0, 0.8),
                     # yrange = (-4, 1.2),

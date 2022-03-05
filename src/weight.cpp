@@ -9,12 +9,14 @@
 using namespace diag;
 using namespace std;
 
-void weight::ReadDiagrams() {
+void weight::ReadDiagrams()
+{
   Pool.GPoolSize = 0;
   Pool.Ver4PoolSize = 0;
 
   int ID = 0;
-  for (auto &name : Para.GroupName) {
+  for (auto &name : Para.GroupName)
+  {
     // construct filename based on format string and group id
     string FileName = fmt::format(Para.DiagFileFormat, name);
     ifstream DiagFile(FileName);
@@ -37,41 +39,52 @@ void weight::ReadDiagrams() {
   Initialization();
 }
 
-void weight::BuildDLR(){
+void weight::BuildDLR()
+{
   int ind, n, n1, i;
   double omega, tauGrid;
-  string FileName = "ph_10000_1e-8.dlr";
+  // string FileName = "ph_10000_1e-8.dlr";
+  string FileName = "ph_tau.dlr";
   ifstream DLRFile(FileName);
   ASSERT_ALLWAYS(DLRFile.is_open(),
-                  "Unable to find the file " << FileName << endl);
+                 "Unable to find the file " << FileName << endl);
   LOG_INFO("Find " << FileName << "\n");
-  LOG_INFO("Read " << FileName << "# i, omega, tau, n \n");
+  // LOG_INFO("Read " << FileName << "# i, omega, tau, n \n");
+  LOG_INFO("Read " << FileName << "# i, tau \n");
   i = 0;
-  while(DLRFile >> ind >> omega >> tauGrid >> n){
-    Var.ExtTauTable[i] = tauGrid* Para.Beta;
+  // while (DLRFile >> ind >> omega >> tauGrid >> n)
+  while (DLRFile >> ind >> tauGrid)
+  {
+    Var.ExtTauTable[i] = tauGrid * Para.Beta;
     i++;
   }
 }
 
-void weight::Initialization() {
+void weight::Initialization()
+{
 
   LOG_INFO("Initializating diagram states ...")
-  for (auto &group : Groups) {
+  for (auto &group : Groups)
+  {
     group.ReWeight = 1.0;
-    for (auto &diag : group.Diag) {
-      for (int i = 0; i < group.GNum; i++) {
+    for (auto &diag : group.Diag)
+    {
+      for (int i = 0; i < group.GNum; i++)
+      {
         diag.G[i]->Excited = false;
         diag.G[i]->Version = -1;
         diag.G[i]->Weight = 1.0e-10;
       }
-      for (int i = 0; i < group.Ver4Num; i++) {
+      for (int i = 0; i < group.Ver4Num; i++)
+      {
         diag.Ver4[i]->Excited = {false, false};
         diag.Ver4[i]->Version = -1;
         diag.Ver4[i]->Weight = {1.0e-10, -1.0e-10};
       }
     }
 
-    if (Para.ObsType == EQUALTIME) {
+    if (Para.ObsType == EQUALTIME)
+    {
       // for (int i = 0; i < group.Ver4Num; ++i)
       for (int i = 0; i < group.TauNum; ++i)
         if (group.IsExtTau[i])
@@ -84,7 +97,7 @@ void weight::Initialization() {
     //       // to measure external q=q0 observable, lock all external Mom
     //       group.IsLockedLoop[i] = true;
     // }
-    // fix Tau=0 for external Tau (Tauindex=0) 
+    // fix Tau=0 for external Tau (Tauindex=0)
     group.IsLockedTau[0] = true;
   }
 
@@ -95,7 +108,8 @@ void weight::Initialization() {
       mom[i] = Random.urn() * Para.Kf / sqrt(D);
 
   // initialize tau variables
-  for (int i = 0; i < MaxTauNum / 2; i++) {
+  for (int i = 0; i < MaxTauNum / 2; i++)
+  {
     Var.Tau[2 * i] = Random.urn() * Para.Beta;
     Var.Tau[2 * i + 1] = Var.Tau[2 * i]; // assume even and odd tau are the same
   }
@@ -105,9 +119,10 @@ void weight::Initialization() {
     sp = (spin)(Random.irn(0, 1));
 
   // initialize external momentum and its reweight factor for each group
-  for (int i = 0; i < ExtMomBinSize; i++) {
+  for (int i = 0; i < ExtMomBinSize; i++)
+  {
     // the external momentum only has x component
-    Var.ExtMomTable[i][0] = Para.MinExtMom + i*(Para.MaxExtMom-Para.MinExtMom)/ExtMomBinSize;
+    Var.ExtMomTable[i][0] = Para.MinExtMom + i * (Para.MaxExtMom - Para.MinExtMom) / ExtMomBinSize;
     for (int j = 1; j < D; j++)
       Var.ExtMomTable[i][j] = 0.0;
   }
@@ -143,25 +158,29 @@ void weight::Initialization() {
   LOG_INFO("Initializating variables done.")
 }
 
-void weight::ChangeGroup(group &Group, bool Forced) {
+void weight::ChangeGroup(group &Group, bool Forced)
+{
   // the objects (G, Ver or Ver4) in the new group will be recalculated if the
   // either of the following conditions is met: 1) Forced=true, then all objects
   // are forced recalculated 2) object.Version<CurrVersion, means the objects
   // are not in the current group, and are already outdated
-  for (auto &d : Group.Diag) {
+  for (auto &d : Group.Diag)
+  {
     // cout << "diag ID: " << d.ID << endl;
-    for (int i = 0; i < Group.GNum; i++) {
+    for (int i = 0; i < Group.GNum; i++)
+    {
       // cout << "G: " << i << endl;
       green *G = d.G[i];
-      if (Forced || G->Version < Var.CurrVersion) {
+      if (Forced || G->Version < Var.CurrVersion)
+      {
         double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
         if (Para.ObsType == KINETIC && i == 1 && Group.ID != 0)
           G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type) * _Mom.squaredNorm();
-          // if (Group.ID ==1){
-          //   cout << Group.Name << ", " << d.ID << ", "<<  _Mom.squaredNorm() << endl;
-          // }
+        // if (Group.ID ==1){
+        //   cout << Group.Name << ", " << d.ID << ", "<<  _Mom.squaredNorm() << endl;
+        // }
         else
           G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
         // if (Group.ID == 2) {
@@ -170,11 +189,14 @@ void weight::ChangeGroup(group &Group, bool Forced) {
         // }
       }
     }
-    for (int i = 0; i < Group.Ver4Num; i++) {
+    for (int i = 0; i < Group.Ver4Num; i++)
+    {
       // cout << "Ver: " << i << endl;
       vertex4 *Ver4 = d.Ver4[i];
-      if (Para.UseVer4) {
-        if (Forced || Ver4->Version < Var.CurrVersion) {
+      if (Para.UseVer4)
+      {
+        if (Forced || Ver4->Version < Var.CurrVersion)
+        {
           Ver4->Excited = {true, true};
           GetMom(Ver4->LoopBasis[INL], Group.LoopNum, _InL);
           GetMom(Ver4->LoopBasis[OUTL], Group.LoopNum, _OutL);
@@ -183,8 +205,11 @@ void weight::ChangeGroup(group &Group, bool Forced) {
           VerFunc.Vertex4(_InL, _InR, _OutL, _OutR, 0, 0,
                           Ver4->NewWeight[DIRECT], Ver4->NewWeight[EXCHANGE]);
         }
-      } else {
-        if (Forced || Ver4->Version < Var.CurrVersion) {
+      }
+      else
+      {
+        if (Forced || Ver4->Version < Var.CurrVersion)
+        {
           Ver4->Excited = {true, true};
           GetMom(Ver4->IntLoopBasis[IN], Group.LoopNum, _Mom);
           Ver4->NewWeight[IN] = Bose.Interaction(0.0, _Mom, Ver4->Type[IN]);
@@ -196,30 +221,37 @@ void weight::ChangeGroup(group &Group, bool Forced) {
   }
 }
 
-void weight::ChangeMom(group &Group, int MomIndex) {
-  for (auto &d : Group.Diag) {
-    for (int i = 0; i < Group.GNum; i++) {
+void weight::ChangeMom(group &Group, int MomIndex)
+{
+  for (auto &d : Group.Diag)
+  {
+    for (int i = 0; i < Group.GNum; i++)
+    {
       green *G = d.G[i];
-      if (G->LoopBasis[MomIndex] != 0) {
+      if (G->LoopBasis[MomIndex] != 0)
+      {
         double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
         // if(Group.ID==1)
-          // cout << _Mom.norm() << endl;
+        // cout << _Mom.norm() << endl;
         if (Para.ObsType == KINETIC && i == 1 && Group.ID != 0)
           G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type) * _Mom.squaredNorm();
         else
           G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
       }
     }
-    for (int i = 0; i < Group.Ver4Num; i++) {
+    for (int i = 0; i < Group.Ver4Num; i++)
+    {
       vertex4 *Ver4 = d.Ver4[i];
 
-      if (Para.UseVer4) {
+      if (Para.UseVer4)
+      {
         if (Ver4->LoopBasis[INL][MomIndex] != 0 ||
             Ver4->LoopBasis[INR][MomIndex] != 0 ||
             Ver4->LoopBasis[OUTL][MomIndex] != 0 ||
-            Ver4->LoopBasis[OUTR][MomIndex] != 0) {
+            Ver4->LoopBasis[OUTR][MomIndex] != 0)
+        {
           Ver4->Excited = {true, true};
           GetMom(Ver4->LoopBasis[INL], Group.LoopNum, _InL);
           GetMom(Ver4->LoopBasis[OUTL], Group.LoopNum, _OutL);
@@ -228,14 +260,18 @@ void weight::ChangeMom(group &Group, int MomIndex) {
           VerFunc.Vertex4(_InL, _InR, _OutL, _OutR, 0, 0,
                           Ver4->NewWeight[DIRECT], Ver4->NewWeight[EXCHANGE]);
         }
-      } else {
-        if (Ver4->IntLoopBasis[DIRECT][MomIndex] != 0) {
+      }
+      else
+      {
+        if (Ver4->IntLoopBasis[DIRECT][MomIndex] != 0)
+        {
           Ver4->Excited[DIRECT] = true;
           GetMom(Ver4->IntLoopBasis[IN], Group.LoopNum, _Mom);
           Ver4->NewWeight[DIRECT] =
               Bose.Interaction(0.0, _Mom, Ver4->Type[DIRECT]);
         }
-        if (Ver4->IntLoopBasis[EXCHANGE][MomIndex] != 0) {
+        if (Ver4->IntLoopBasis[EXCHANGE][MomIndex] != 0)
+        {
           Ver4->Excited[EXCHANGE] = true;
           GetMom(Ver4->IntLoopBasis[EXCHANGE], Group.LoopNum, _Mom);
           Ver4->NewWeight[EXCHANGE] =
@@ -246,16 +282,20 @@ void weight::ChangeMom(group &Group, int MomIndex) {
   }
 }
 
-void weight::ChangeTau(group &Group, int TauIndex) {
+void weight::ChangeTau(group &Group, int TauIndex)
+{
   // TODO: we assume TauLeft==TauRight for now
-  for (auto &d : Group.Diag) {
-    for (int i = 0; i < Group.GNum; i++) {
+  for (auto &d : Group.Diag)
+  {
+    for (int i = 0; i < Group.GNum; i++)
+    {
       green *G = d.G[i];
       int TauIn = G->TauBasis[IN];
       int TauOut = G->TauBasis[OUT];
       bool ReCalcFlag = false;
 
-      if (TauIndex == TauIn || TauIndex == TauOut) {
+      if (TauIndex == TauIn || TauIndex == TauOut)
+      {
         // trigger recalculation
         double Tau = Var.Tau[TauOut] - Var.Tau[TauIn];
         G->Excited = true;
@@ -269,9 +309,11 @@ void weight::ChangeTau(group &Group, int TauIndex) {
   }
 }
 
-double weight::G0G0Weight(group &Group){
+double weight::G0G0Weight(group &Group)
+{
   double NewWeight;
-  if (Group.ID != 1){
+  if (Group.ID != 1)
+  {
     cout << Group.Name << ", " << Group.HugenNum << endl;
     return -1;
   }
@@ -291,13 +333,16 @@ double weight::G0G0Weight(group &Group){
   return NewWeight;
 }
 
-double weight::GetNewWeight(group &Group) {
+double weight::GetNewWeight(group &Group)
+{
   static double VIn, VOut, TotWeight;
   Group.NewWeight = 0.0;
 
-  for (auto &d : Group.Diag) {
+  for (auto &d : Group.Diag)
+  {
     double GWeight = d.SymFactor;
-    for (int i = 0; i < Group.GNum; i++) {
+    for (int i = 0; i < Group.GNum; i++)
+    {
       if (d.G[i]->Excited)
         GWeight *= d.G[i]->NewWeight;
       else
@@ -306,10 +351,13 @@ double weight::GetNewWeight(group &Group) {
 
     double VerWeight;
 
-    if (Group.Ver4Num == 0) {
+    if (Group.Ver4Num == 0)
+    {
       VerWeight = d.SpinFactor[0];
       // cout << "spin factor: " << d.SpinFactor[0] << endl;
-    } else {
+    }
+    else
+    {
       vertex4 *Ver4 = d.Ver4[0];
 
       _Tree[0][0] = Ver4->Excited[DIRECT] ? Ver4->NewWeight[DIRECT]
@@ -324,7 +372,8 @@ double weight::GetNewWeight(group &Group) {
       // }
 
       int BlockNum = 2;
-      for (int level = 1; level < Group.Ver4Num; level++) {
+      for (int level = 1; level < Group.Ver4Num; level++)
+      {
 
         vertex4 *Ver4 = d.Ver4[level];
         VIn = Ver4->Excited[DIRECT] ? Ver4->NewWeight[DIRECT]
@@ -336,7 +385,8 @@ double weight::GetNewWeight(group &Group) {
         //   // exit(0);
         // }
 
-        for (int j = 0; j < BlockNum; j++) {
+        for (int j = 0; j < BlockNum; j++)
+        {
           _Tree[level][2 * j] = _Tree[level - 1][j] * VIn;
           _Tree[level][2 * j + 1] = _Tree[level - 1][j] * VOut;
         }
@@ -344,7 +394,8 @@ double weight::GetNewWeight(group &Group) {
       }
 
       VerWeight = 0.0;
-      for (int j = 0; j < BlockNum; j++){
+      for (int j = 0; j < BlockNum; j++)
+      {
         VerWeight += _Tree[Group.Ver4Num - 1][j] * d.SpinFactor[j];
       }
       //============= for spin case ===========================//
@@ -388,29 +439,36 @@ double weight::GetNewWeight(group &Group) {
   return Group.NewWeight;
 }
 
-void weight::AcceptChange(group &Group) {
+void weight::AcceptChange(group &Group)
+{
   Var.CurrVersion++;
   Var.CurrGroup = &Group;
   Group.Weight = Group.NewWeight; // accept group  newweight
 
-  for (auto &d : Group.Diag) {
+  for (auto &d : Group.Diag)
+  {
     d.Weight = d.NewWeight; // accept diagram newweight
-    for (int i = 0; i < Group.GNum; i++) {
+    for (int i = 0; i < Group.GNum; i++)
+    {
       green *G = d.G[i];
       G->Version = Var.CurrVersion;
-      if (G->Excited) {
+      if (G->Excited)
+      {
         G->Excited = false;
         G->Weight = G->NewWeight;
       }
     }
-    for (int i = 0; i < Group.Ver4Num; i++) {
+    for (int i = 0; i < Group.Ver4Num; i++)
+    {
       vertex4 *Ver4 = d.Ver4[i];
       Ver4->Version = Var.CurrVersion;
-      if (Ver4->Excited[DIRECT]) {
+      if (Ver4->Excited[DIRECT])
+      {
         Ver4->Excited[DIRECT] = false;
         Ver4->Weight[DIRECT] = Ver4->NewWeight[DIRECT];
       }
-      if (Ver4->Excited[EXCHANGE]) {
+      if (Ver4->Excited[EXCHANGE])
+      {
         Ver4->Excited[EXCHANGE] = false;
         Ver4->Weight[EXCHANGE] = Ver4->NewWeight[EXCHANGE];
       }
@@ -418,12 +476,16 @@ void weight::AcceptChange(group &Group) {
   }
 }
 
-void weight::RejectChange(group &Group) {
-  for (auto &d : Group.Diag) {
-    for (int i = 0; i < Group.GNum; i++) {
+void weight::RejectChange(group &Group)
+{
+  for (auto &d : Group.Diag)
+  {
+    for (int i = 0; i < Group.GNum; i++)
+    {
       if (d.G[i]->Excited)
         d.G[i]->Excited = false;
-      for (int i = 0; i < Group.Ver4Num; i++) {
+      for (int i = 0; i < Group.Ver4Num; i++)
+      {
         if (d.Ver4[i]->Excited[0])
           d.Ver4[i]->Excited[0] = false;
         if (d.Ver4[i]->Excited[1])
@@ -433,7 +495,8 @@ void weight::RejectChange(group &Group) {
   }
 }
 
-void weight::GetMom(const loop &LoopBasis, const int &LoopNum, momentum &Mom) {
+void weight::GetMom(const loop &LoopBasis, const int &LoopNum, momentum &Mom)
+{
   // In C++11, because of the move semantics, there is no additional cost by
   // returning an array
 
@@ -446,14 +509,17 @@ void weight::GetMom(const loop &LoopBasis, const int &LoopNum, momentum &Mom) {
       Mom[d] += loopmom[i][d] * LoopBasis[i];
 }
 
-bool weight::IsInteractionReducible(loop &LoopBasisVer, int LoopNum) {
+bool weight::IsInteractionReducible(loop &LoopBasisVer, int LoopNum)
+{
   // check if an interaction is reducible
   if ((!Equal(LoopBasisVer[0], 1.0)) && (!Equal(LoopBasisVer[0], -1.0)))
     return false;
 
   bool Flag = true;
-  for (int i = 1; i < LoopNum; i++) {
-    if (!Equal(LoopBasisVer[i], 0.0)) {
+  for (int i = 1; i < LoopNum; i++)
+  {
+    if (!Equal(LoopBasisVer[i], 0.0))
+    {
       Flag = false;
       break;
     }
@@ -462,15 +528,18 @@ bool weight::IsInteractionReducible(loop &LoopBasisVer, int LoopNum) {
 };
 
 bool weight::IsInteractionReducible(loop &LoopBasisG1, loop &LoopBasisG2,
-                                    int LoopNum) {
+                                    int LoopNum)
+{
   // check if an interaction is reducible
   if ((!Equal(LoopBasisG1[0] - LoopBasisG2[0], 1.0)) &&
       (!Equal(LoopBasisG1[0] - LoopBasisG2[0], -1.0)))
     return false;
 
   bool Flag = true;
-  for (int i = 1; i < LoopNum; i++) {
-    if (!Equal(LoopBasisG1[i] - LoopBasisG2[i], 0.0)) {
+  for (int i = 1; i < LoopNum; i++)
+  {
+    if (!Equal(LoopBasisG1[i] - LoopBasisG2[i], 0.0))
+    {
       Flag = false;
       break;
     }
