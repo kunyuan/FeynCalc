@@ -60,8 +60,8 @@ void InitPara()
   string LogFile = "_" + to_string(Para.PID) + ".log";
   LOGGER_CONF(LogFile, "MC", Logger::file_on | Logger::screen_on, INFO, INFO);
 
-  // Para.ObsType = FREQ_q;
-  Para.ObsType = FREQ_tau;
+  Para.ObsType = FREQ_q;
+  // Para.ObsType = FREQ_tau;
   // Para.ObsType = EQUALTIME;
   // Para.ObsType = KINETIC;
 
@@ -73,8 +73,9 @@ void InitPara()
 
   if (Para.ObsType != EQUALTIME)
   {
-    Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
+    // Para.DiagFileFormat = "groups_charge/DiagPolar{}.txt";
     // Para.DiagFileFormat = "groups_spin/DiagPolar{}.txt";
+    Para.DiagFileFormat = "groups_spin_tail/DiagPolar{}.txt";
     // Para.DiagFileFormat = "groups_spinless/DiagPolar{}.txt";
     Para.GroupName = {"0"}; // initialized with a normalization diagram
     Para.ReWeight = {1.0};
@@ -92,17 +93,17 @@ void InitPara()
           if (o + v + 2 * g > Para.Order)
             continue;
           //  Reweight for large external momentum
-          // for (int qo = 1; qo<=2; qo++){
-          //   // if ((o==1&&(g==0||g==1)&&qo==2) ||(o==2&&v==0&&g==0&&qo==1))
-          //   if ((o==1&&g==1&&qo==1) ||((o==1||o==2)&&v==0&&g==0&&qo==1))
-          //     continue;
-          // auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g)+
-          // "_" + to_string(qo);
-          auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
-          cout << name << ", ";
-          Para.GroupName.push_back(name);
-          Para.ReWeight.push_back(pow(2.0, o));
-          // }
+          for (int qo = 1; qo <= 2; qo++)
+          {
+            //   // if ((o==1&&(g==0||g==1)&&qo==2) ||(o==2&&v==0&&g==0&&qo==1))
+            if ((o == 1 && g == 1 && qo == 1) || ((o == 1 || o == 2) && v == 0 && g == 0 && qo == 1))
+              continue;
+            auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g) + "_" + to_string(qo);
+            // auto name = to_string(o) + "_" + to_string(v) + "_" + to_string(g);
+            cout << name << ", ";
+            Para.GroupName.push_back(name);
+            Para.ReWeight.push_back(pow(2.0, o));
+          }
         }
       }
     // Para.GroupName.push_back("1_0_2");
