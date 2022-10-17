@@ -183,10 +183,6 @@ void weight::ChangeGroup(group &Group, bool Forced)
         // }
         else
           G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type);
-        // if (Group.ID == 2) {
-        //   cout << Group.Name << ", " << G->NewWeight << endl;
-        //   ;
-        // }
       }
     }
     for (int i = 0; i < Group.Ver4Num; i++)
@@ -233,8 +229,8 @@ void weight::ChangeMom(group &Group, int MomIndex)
         double Tau = Var.Tau[G->TauBasis[OUT]] - Var.Tau[G->TauBasis[IN]];
         G->Excited = true;
         GetMom(G->LoopBasis, Group.LoopNum, _Mom);
-        // if(Group.ID==1)
-        // cout << _Mom.norm() << endl;
+        // if (Group.ID == 0)
+        // cout << _Mom.norm() << "  " << Tau << endl;
         if (Para.ObsType == KINETIC && i == 1 && Group.ID != 0)
           G->NewWeight = Fermi.Green(Tau, _Mom, UP, G->Type) * _Mom.squaredNorm();
         else

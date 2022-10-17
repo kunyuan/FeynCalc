@@ -11,7 +11,8 @@ import reduce
 
 D = 3
 Spin = 2
-QGridSize = 5
+#QGridSize = 5
+QGridSize = 6
 
 polarall = []
 polar0 = []
@@ -131,37 +132,27 @@ for index, eachline in enumerate(inlist):
                 Accu[o][1, :] += Each[i][1, :]**2.0
             Accu[o][1, :] = Accu[o][1, :]**0.5
 
-        list_polar = []
+#        o = Para.Order
         # for o in range(1, Para.Order+1):
-        o = Para.Order
-        print("Order {0}: {1:12.8f} +-{2:12.8f}, Accu: {3:12.8f} +-{4:12.8f}".format(
-            o, Each[o][0, 0], Each[o][1, 0]*1.0, Accu[o][0, 0], Accu[o][1, 0]*1.0))
-        for ti, tau in enumerate(TauGrid):
-            dat = np.array([tau, Accu[o][0, ti], Accu[o][1, ti]])
-            list_polar.append(dat)
-            polarall.append(dat)
+            list_polar = []
+            print("Order {0}: {1:12.8f} +-{2:12.8f}, Accu: {3:12.8f} +-{4:12.8f}".format(
+                o, Each[o][0, 0], Each[o][1, 0]*1.0, Accu[o][0, 0], Accu[o][1, 0]*1.0))
+            for ti, tau in enumerate(TauGrid):
+                dat = np.array([tau, Accu[o][0, ti], Accu[o][1, ti]])
+                list_polar.append(dat)
+                polarall.append(dat)
 
-        # BubbleQ = np.zeros((len(KGrid),2))
-        # for qi, q in enumerate(KGrid):
-        #     BubbleQ[qi] = bubble.Bubble(D, Para.Beta, Spin, Para.kF, q)
-        #     if qi==0:
-        #         BubbleQ[0][0] = -BubbleQ[0][0]
-        #     dat = np.array([q, BubbleQ[qi,0], BubbleQ[qi,1]])
-        #     polar0.append(dat)
-        #     # print ("{0:10.6f}  {1:10.6f}".format(q/Para.kF, BubbleQ[qi]))
-
-        list_polar = np.array(list_polar)
-        filename = './Data_Polar/polar_beta{0}_rs{1:3.1f}_lam{2}_o{3}_q{4}.dat1'.format(
-            beta, rs, lam, Para.Order, QBin)
-        # with open(filename, 'a') as file:
-        with open(filename, 'w') as file:
-            print('Save to '+filename)
-            file.write("# ExtMom: {0}\n".format(extQ))
-            file.write("# Beta: {0}\n".format(Para.Beta))
-            file.write("# Rs: {0}\n".format(Para.Rs))
-            file.write("# Lambda: {0}\n".format(Para.Lambda))
-            file.write("# tau Polar Error\n")
-            np.savetxt(file, list_polar, delimiter=" ")
+            list_polar = np.array(list_polar)
+            filename = './Data_Polar/polar_beta{0}_rs{1:3.1f}_lam{2}_o{3}_q{4}_Uni.dat2'.format(
+                beta, rs, lam, o, QBin)
+            with open(filename, 'w') as file:
+                print('Save to '+filename)
+                file.write("# ExtMom: {0}\n".format(extQ))
+                file.write("# Beta: {0}\n".format(Para.Beta))
+                file.write("# Rs: {0}\n".format(Para.Rs))
+                file.write("# Lambda: {0}\n".format(Para.Lambda))
+                file.write("# tau Polar Error\n")
+                np.savetxt(file, list_polar, delimiter=" ")
 
 # polarall = np.array(polarall)
 # # filename = './Data_Polar/polar_beta{0}_rs{1:3.1f}_o{2}.dat'.format(beta, rs, Para.Order)

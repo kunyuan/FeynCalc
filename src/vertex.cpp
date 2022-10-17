@@ -20,11 +20,14 @@ extern parameter Para;
 
 // double norm2(const momentum &Mom) { return sqrt(sum2(Mom)); }
 
-double bose::Interaction(double Tau, const momentum &Mom, int VerType) {
-  if (VerType >= 0) {
+double bose::Interaction(double Tau, const momentum &Mom, int VerType)
+{
+  if (VerType >= 0)
+  {
     double interaction =
         8.0 * PI / (Mom.squaredNorm() + Para.Mass2 + Para.Lambda);
-    if (VerType > 0) {
+    if (VerType > 0)
+    {
       // the interaction contains counter-terms
       interaction *=
           pow(Para.Lambda / (Mom.squaredNorm() + Para.Mass2 + Para.Lambda),
@@ -34,19 +37,26 @@ double bose::Interaction(double Tau, const momentum &Mom, int VerType) {
     // cout << "Interaction: " << interaction << ", Mom: " << Mom.squaredNorm()
     //      << ", VerType: " << VerType << ", Lambda: " << Para.Lambda << endl;
     return interaction;
-  } else if (VerType == -1) {
+  }
+  else if (VerType == -1)
+  {
     return 1.0;
-  } else if (VerType == -2) {
+  }
+  else if (VerType == -2)
+  {
     return 0.0;
-  } else {
+  }
+  else
+  {
     ABORT("VerType can not be " << VerType);
   }
 }
 
-fermi::fermi() {
-  UpperBound = 24.0 * Para.Kf;  //6.0
+fermi::fermi()
+{
+  UpperBound = 24.0 * Para.Kf; // 6.0
   LowerBound = 0.0;
-  DeltaK = UpperBound / (MAXSIGMABIN-1);
+  DeltaK = UpperBound / (MAXSIGMABIN - 1);
   // LowerBound = DeltaK;
   // Mu_shift = Para.Ef;
 
@@ -54,15 +64,17 @@ fermi::fermi() {
   LowerBound2 = 0.8 * Para.Ef;
   DeltaK2 = UpperBound2 / MAXSIGMABIN;
   if (Para.SelfEnergyType == FOCK)
-     BuildFockSigma();
+    BuildFockSigma();
 }
 
-double fermi::Fock(double k) {
+double fermi::Fock(double k)
+{
   // warning: this function only works for T=0!!!!
   double kF = Para.Kf;
 
   // if(k>UpperBound)  cout << 'k=' << k<< '>'<< UpperBound<< endl;
-  if (D == 3) {
+  if (D == 3)
+  {
     double l = sqrt(Para.Mass2 + Para.Lambda);
     double fock = 1.0 + l / kF * atan((k - kF) / l);
     fock -= l / kF * atan((k + kF) / l);
@@ -75,10 +87,12 @@ double fermi::Fock(double k) {
     // shift *= (-2.0 * kF) / PI;
     // return fock - shift;
     return fock;
-  } else if (D == 2) {
+  }
+  else if (D == 2)
+  {
     double l2 = Para.Mass2 + Para.Lambda;
     double x = Para.Kf * Para.Kf + l2 - k * k;
-    double c = 4.0 * k * k  * l2;
+    double c = 4.0 * k * k * l2;
     double fock = -2.0 * log((sqrt(x * x + c) + x) / 2.0 / l2);
 
     // double shift = -2.0 * log((Para.Kf * Para.Kf + l2) / l2);
@@ -87,34 +101,37 @@ double fermi::Fock(double k) {
   }
 }
 
-void fermi::BuildFockSigma() {
+void fermi::BuildFockSigma()
+{
   ASSERT_ALLWAYS(D == 3, "The Fock self energy is for 3D!");
   double fockE, k, beta, rs, lambda, kmax;
   int num_k;
   double dk;
-  
+
   string FileName = "sigma3D.txt";
   ifstream FockFile(FileName);
   ASSERT_ALLWAYS(FockFile.is_open(),
-                  "Unable to find the file " << FileName << endl);
+                 "Unable to find the file " << FileName << endl);
   LOG_INFO("Find " << FileName << "\n");
-  
+
   FockFile >> beta >> rs >> lambda;
   FockFile >> kmax >> num_k;
   FockFile >> Mu_shift >> Mu_ideal;
-  dk = kmax/num_k;
-  Mu_ideal = Mu_ideal* Para.Ef;
-  if(!(Equal(beta/Para.Ef, Para.Beta, 1.0e-6)&&Equal(rs, Para.Rs, 1.0e-6)&&
-     Equal(lambda, Para.Lambda, 1.0e-6)&&Equal(dk, DeltaK, 1.0e-6)&&
-     (num_k>=MAXSIGMABIN))){
-      ASSERT_ALLWAYS(false,
-                  "The parameters in the file"<< FileName<<" unmatch." << endl);
-      FockFile.close();
+  dk = kmax / num_k;
+  Mu_ideal = Mu_ideal * Para.Ef;
+  if (!(Equal(beta / Para.Ef, Para.Beta, 1.0e-6) && Equal(rs, Para.Rs, 1.0e-6) &&
+        Equal(lambda, Para.Lambda, 1.0e-6) && Equal(dk, DeltaK, 1.0e-6) &&
+        (num_k >= MAXSIGMABIN)))
+  {
+    ASSERT_ALLWAYS(false,
+                   "The parameters in the file" << FileName << " unmatch." << endl);
+    FockFile.close();
   }
   LOG_INFO("Read " << FileName << "with right parameters\n");
-  for (int i=0; i < MAXSIGMABIN; i++){
+  for (int i = 0; i < MAXSIGMABIN; i++)
+  {
     FockFile >> fockE;
-    Sigma[i]=fockE-Mu_shift;
+    Sigma[i] = fockE - Mu_shift;
     k = i * DeltaK + LowerBound;
     // cout << k << " : " << Sigma[i] << " vs " << Fock(k)-Mu_shift << endl;
   }
@@ -150,16 +167,19 @@ void fermi::BuildFockSigma() {
   // }
 };
 
-double fermi::FockSigma(const momentum &Mom) {
+double fermi::FockSigma(const momentum &Mom)
+{
   double k = Mom.norm(); // bare propagator
   double fock;
-  if (k >= LowerBound && k < UpperBound) {
+  if (k >= LowerBound && k < UpperBound)
+  {
     int i = (k - LowerBound) / DeltaK;
-    fock = Sigma[i]+(k-DeltaK*i-LowerBound)*(Sigma[i+1]-Sigma[i])/DeltaK;
-  } 
+    fock = Sigma[i] + (k - DeltaK * i - LowerBound) * (Sigma[i + 1] - Sigma[i]) / DeltaK;
+  }
   // else if(k<LowerBound){
-    // fock = Sigma[0]+(k-LowerBound)*(Sigma[1]-Sigma[0])/DeltaK;}
-  else {
+  // fock = Sigma[0]+(k-LowerBound)*(Sigma[1]-Sigma[0])/DeltaK;}
+  else
+  {
     fock = Fock(k) - Mu_shift;
   }
   // cout << k <<" : "<< fock <<" vs "<< Fock(k)-Mu_shift << endl;
@@ -183,18 +203,23 @@ double fermi::FockSigma(const momentum &Mom) {
   return fock;
 }
 
-double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
+double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock)
+{
   // if tau is exactly zero, set tau=0^-
   double green, Ek;
-  if (Tau == 0.0) {
+  if (Tau == 0.0)
+  {
     Tau = -1.0e-10;
   }
 
   double s = 1.0;
-  if (Tau < 0.0) {
+  if (Tau < 0.0)
+  {
     Tau += Para.Beta;
     s = -s;
-  } else if (Tau >= Para.Beta) {
+  }
+  else if (Tau >= Para.Beta)
+  {
     Tau -= Para.Beta;
     s = -s;
   }
@@ -202,7 +227,7 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   Ek = Mom.squaredNorm(); // bare propagator
   if (IsFock)
     Ek += FockSigma(Mom); // Fock diagram dressed propagator
-  else 
+  else
     Ek -= Mu_ideal;
 
   //// enforce an UV cutoff for the Green's function ////////
@@ -232,20 +257,25 @@ double fermi::PhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   return green;
 }
 
-double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
+double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock)
+{
   // if tau is exactly zero, set tau=0^-
   // cout << Tau << endl;
 
   double green, Ek;
-  if (Tau == 0.0) {
+  if (Tau == 0.0)
+  {
     Tau = -1.0e-10;
   }
 
   double s = 1.0;
-  if (Tau < 0.0) {
+  if (Tau < 0.0)
+  {
     Tau += Para.Beta;
     s = -s;
-  } else if (Tau >= Para.Beta) {
+  }
+  else if (Tau >= Para.Beta)
+  {
     Tau -= Para.Beta;
     s = -s;
   }
@@ -253,7 +283,7 @@ double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   Ek = Mom.squaredNorm(); // bare propagator
   if (IsFock)
     Ek += FockSigma(Mom); // Fock diagram dressed propagator
-  else 
+  else
     Ek -= Mu_ideal;
 
   // double x = Para.Beta * (Ek - Para.Mu) / 2.0;
@@ -283,20 +313,25 @@ double fermi::TwoPhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   return green;
 }
 
-double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
+double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock)
+{
   // if tau is exactly zero, set tau=0^-
   // cout << Tau << endl;
 
   double green, Ek;
-  if (Tau == 0.0) {
+  if (Tau == 0.0)
+  {
     Tau = -1.0e-10;
   }
 
   double s = 1.0;
-  if (Tau < 0.0) {
+  if (Tau < 0.0)
+  {
     Tau += Para.Beta;
     s = -s;
-  } else if (Tau >= Para.Beta) {
+  }
+  else if (Tau >= Para.Beta)
+  {
     Tau -= Para.Beta;
     s = -s;
   }
@@ -315,14 +350,17 @@ double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   //   green = exp(x * (1.0 - y));
   // else
   //   green = exp(-x * y) / (2.0 * cosh(x));
-  if (Ek > 0.0) {
+  if (Ek > 0.0)
+  {
     double Factor = exp(-Para.Beta * Ek);
     green =
         exp(-Ek * Tau) / pow(1.0 + Factor, 3.0) *
         (Tau * Tau / 2.0 -
          (Para.Beta * Para.Beta / 2.0 + Para.Beta * Tau - Tau * Tau) * Factor +
          pow(Para.Beta - Tau, 2.0) * Factor * Factor / 2.0);
-  } else {
+  }
+  else
+  {
     double Factor = exp(Para.Beta * Ek);
     green =
         exp(Ek * (Para.Beta - Tau)) / pow(1.0 + Factor, 3.0) *
@@ -349,35 +387,50 @@ double fermi::ThreePhyGreen(double Tau, const momentum &Mom, bool IsFock) {
   return green;
 }
 
-double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType) {
+double fermi::Green(double Tau, const momentum &Mom, spin Spin, int GType)
+{
   double green;
   bool IsFock = false;
   if (Para.SelfEnergyType == FOCK)
     IsFock = true;
-  if (GType == 0) {
+  if (GType == 0)
+  {
     green = PhyGreen(Tau, Mom, IsFock);
-  } else if (GType == 1) {
+  }
+  else if (GType == 1)
+  {
     green = TwoPhyGreen(Tau, Mom, IsFock);
     // equal time green's function
     // green = PhyGreen(-1.0e-10, Mom);
-  } else if (GType == 2) {
+  }
+  else if (GType == 2)
+  {
     green = ThreePhyGreen(Tau, Mom, IsFock);
-  } else if (GType == -1) {
+  }
+  else if (GType == -1)
+  {
     green = PhyGreen(Tau, Mom, false);
     // green = 1.0;
-  } else if (GType == -2) {
+  }
+  else if (GType == -2)
+  {
     // green = PhyGreen(Tau, Mom, IsFock);
     green = 1.0;
-  } else if (GType == -3) {
+  }
+  else if (GType == -3)
+  {
     green = TwoPhyGreen(Tau, Mom, false);
-  } else {
+  }
+  else
+  {
     ABORT("GType " << GType << " has not yet been implemented!");
     // return FakeGreen(Tau, Mom);
   }
   return green;
 }
 
-verfunc::verfunc() {
+verfunc::verfunc()
+{
   // test angle utility
 
   // TODO: implement D=3
@@ -390,7 +443,8 @@ verfunc::verfunc() {
   // initialize UV ver4 table
   momentum KInL = {1.0, 0.0};
   for (int inin = 0; inin < InInAngBinSize; ++inin)
-    for (int inout = 0; inout < InOutAngBinSize; ++inout) {
+    for (int inout = 0; inout < InOutAngBinSize; ++inout)
+    {
       double AngleInIn = Index2Angle(inin, InInAngBinSize);
       double AngleInOut = Index2Angle(inout, InOutAngBinSize);
       momentum KInR = {cos(AngleInIn), sin(AngleInIn)};
@@ -403,7 +457,8 @@ verfunc::verfunc() {
 void verfunc::Vertex4(const momentum &InL, const momentum &InR,
                       const momentum &OutL, const momentum &OutR,
                       int Ver4TypeDirect, int Ver4TypeExchange, double &Direct,
-                      double &Exchange) {
+                      double &Exchange)
+{
   if (Ver4TypeDirect != 0 || Ver4TypeExchange != 0)
     ABORT("Ver4Type is only implemented for 0!");
 
@@ -414,7 +469,8 @@ void verfunc::Vertex4(const momentum &InL, const momentum &InR,
   /**************   Generic Interaction ************************/
 }
 
-double verfunc::Angle2D(const momentum &K1, const momentum &K2) {
+double verfunc::Angle2D(const momentum &K1, const momentum &K2)
+{
   // Returns the angle in radians between vectors 'K1' and 'K2'
   double dotp = K1.dot(K2);
   double det = K1[0] * K2[1] - K1[1] * K2[0];
@@ -424,12 +480,14 @@ double verfunc::Angle2D(const momentum &K1, const momentum &K2) {
   return Angle2D;
 }
 
-double verfunc::Index2Angle(const int &Index, const int &AngleNum) {
+double verfunc::Index2Angle(const int &Index, const int &AngleNum)
+{
   // Map index [0...AngleNum-1] to the theta range [0.0, 2*pi)
   return Index * 2.0 * PI / AngleNum;
 }
 
-int verfunc::Angle2Index(const double &Angle, const int &AngleNum) {
+int verfunc::Angle2Index(const double &Angle, const int &AngleNum)
+{
   // Map theta range  [0.0, 2*pi) to index [0...AngleNum-1]
   double dAngle = 2.0 * PI / AngleNum;
   if (Angle >= 2.0 * PI - dAngle / 2.0 || Angle < dAngle / 2.0)
@@ -438,7 +496,8 @@ int verfunc::Angle2Index(const double &Angle, const int &AngleNum) {
     return int(Angle / dAngle + 0.5);
 }
 
-void verfunc::_TestAngle2D() {
+void verfunc::_TestAngle2D()
+{
   // Test Angle functions
   momentum K1 = {1.0, 0.0};
   momentum K2 = {1.0, 0.0};
@@ -463,7 +522,8 @@ void verfunc::_TestAngle2D() {
                   Angle2D(K1, K2)));
 }
 
-void verfunc::_TestAngleIndex() {
+void verfunc::_TestAngleIndex()
+{
   // Test Angle functions
   int AngleNum = 64;
   ASSERT_ALLWAYS(abs(Index2Angle(0, AngleNum) - 0.0) < 1.0e-10,

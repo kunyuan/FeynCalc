@@ -1,9 +1,10 @@
 using Lehmann, LinearAlgebra, Printf, Parameters, DelimitedFiles
 using ElectronGas
 
-const N = 8
+const N = 1000
 const Euv, beta, rs = 100, 100, 1.0
 const rtol = 1e-8
+const EPS = 1e-10
 
 if abspath(PROGRAM_FILE) == @__FILE__
     para = Parameter.rydbergUnit(1 / beta, rs)
@@ -14,6 +15,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     # τgrid = grid[:, 3]
 
     τgrid = dlr.τ / para.β
+    # τgrid = [0.0, 0.5]
     len = length(τgrid)
     grid = zeros(Float64, (len - 1) * N + 1)
     x = range(1, (len - 1) * N + 1)
@@ -29,8 +31,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
             end
         end
     end
+    # grid[1] = EPS
     # grid[end, :] = [ti τgrid[end]]
-    println(x[50])
     open("ph_tau.dlr", "w") do io
         writedlm(io, zip(x, grid))
     end

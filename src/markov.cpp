@@ -477,6 +477,8 @@ void markov::ChangeMomentum()
 
   if (Var.CurrGroup->IsExtLoop[LoopIndex])
   {
+    if (Var.CurrGroup->ID == 0)
+      cout << Var.LoopMom[LoopIndex].norm() << endl;
     Prop = ShiftExtK(Var.CurrExtMomBin, NewExtMomBin);
     Var.LoopMom[LoopIndex] = Var.ExtMomTable[NewExtMomBin];
     if (Var.LoopMom[LoopIndex].norm() > Para.MaxExtMom)
